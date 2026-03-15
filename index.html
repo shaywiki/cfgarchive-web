@@ -30,60 +30,56 @@ body[data-game="CSGO"]{--game-accent:#f0c040;--game-glow:rgba(240,192,64,.1);--g
 body[data-game="FS"]{--game-accent:#7ecf4a;--game-glow:rgba(126,207,74,.1);--game-border:rgba(126,207,74,.22)}
 body[data-game="CF"]{--game-accent:#e05b6a;--game-glow:rgba(224,91,106,.1);--game-border:rgba(224,91,106,.22)}
 
-html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px}
-#app{display:grid;grid-template-columns:210px 1fr;grid-template-rows:58px 1fr;height:100vh}
-
-/* ── TOPBAR ──
-   Three-zone flex layout: logo | search (centred, grows/shrinks) | right pills
-   The search zone uses flex:1 on both sides to push it to true centre.
-   min-width:0 on the search lets it shrink at small sizes without overflow.
+/* ── SCALE
+   zoom:1.2 on html makes the whole page render at 120% on a 100% zoom browser,
+   matching the appearance you see at 125% zoom. Users who manually zoom in/out
+   still get relative zoom on top of this baseline.
 */
+html{zoom:1.2}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px}
+#app{display:grid;grid-template-columns:192px 1fr;grid-template-rows:52px 1fr;height:100vh}
+
+/* ── TOPBAR ── */
 .topbar{
   grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--border);
   display:flex;align-items:center;padding:0 16px;gap:0;
 }
 .logo{
-  font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:var(--text);
+  font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--text);
   display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;
   flex-shrink:0;padding-right:16px;
 }
-.logo-mark{width:24px;height:24px;border-radius:6px;background:var(--game-accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .3s}
-.logo-mark svg{width:13px;height:13px;fill:var(--bg)}
-
-/* Centre zone — grows to fill available space, centres the search pill */
+.logo-mark{width:22px;height:22px;border-radius:6px;background:var(--game-accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .3s}
+.logo-mark svg{width:12px;height:12px;fill:var(--bg)}
 .topbar-centre{
   flex:1;display:flex;justify-content:center;align-items:center;
   min-width:0;padding:0 12px;
 }
 .topbar-search{
   position:relative;
-  width:100%;max-width:420px;min-width:120px;
+  width:100%;max-width:400px;min-width:120px;
 }
 .topbar-search input{
   width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);
-  font-family:'DM Sans',sans-serif;font-size:13px;
-  padding:7px 14px 7px 32px;border-radius:20px;outline:none;transition:border-color .15s;
+  font-family:'DM Sans',sans-serif;font-size:12px;
+  padding:7px 14px 7px 30px;border-radius:20px;outline:none;transition:border-color .15s;
 }
 .topbar-search input:focus{border-color:var(--game-accent)}
 .topbar-search input::placeholder{color:var(--muted)}
-/* At small sizes placeholder shows just "Search" — controlled by the input placeholder attr */
 .search-icon{
   position:absolute;left:11px;top:50%;transform:translateY(-50%);
-  color:var(--muted);font-size:14px;pointer-events:none;
+  color:var(--muted);font-size:13px;pointer-events:none;
 }
-
-/* Right zone */
 .topbar-right{
   flex-shrink:0;display:flex;align-items:center;gap:8px;padding-left:8px;
 }
 .tpill{font-size:11px;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.04);color:var(--text2);border:1px solid var(--border);font-family:'DM Mono',monospace;white-space:nowrap}
 .tpill strong{color:var(--text);font-weight:500}
-/* Hide less important pills at narrow widths */
-@media(max-width:900px){.tpill:not(:first-child){display:none}}
+@media(max-width:960px){.tpill:not(:first-child){display:none}}
 @media(max-width:700px){.tpill{display:none}}
 .view-toggle{display:flex;gap:2px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:2px;flex-shrink:0}
-.vt-btn{padding:4px 9px;border-radius:4px;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all .12s;font-size:13px}
+.vt-btn{padding:4px 8px;border-radius:4px;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all .12s;font-size:12px}
 .vt-btn.on{background:var(--bg2);color:var(--game-accent)}
 
 /* ── SIDEBAR ── */
@@ -92,7 +88,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .sidebar::-webkit-scrollbar-thumb{background:var(--muted);border-radius:2px}
 .sl{padding:10px 13px 4px;font-size:9px;color:var(--muted);letter-spacing:2.5px;text-transform:uppercase;font-family:'DM Mono',monospace}
 .si{
-  padding:6px 13px 6px 11px;font-size:12.5px;cursor:pointer;
+  padding:6px 13px 6px 11px;font-size:12px;cursor:pointer;
   display:flex;justify-content:space-between;align-items:center;
   transition:all .12s;color:var(--text);opacity:.52;border-left:2px solid transparent;
 }
@@ -115,7 +111,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .cat-bar{padding:0 14px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;align-items:center;flex-shrink:0;overflow-x:auto}
 .cat-bar::-webkit-scrollbar{height:2px}
 .cat-bar::-webkit-scrollbar-thumb{background:var(--muted)}
-.cat-tab{padding:13px 12px;font-size:12px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;white-space:nowrap;transition:all .12s;flex-shrink:0}
+.cat-tab{padding:12px 12px;font-size:12px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;white-space:nowrap;transition:all .12s;flex-shrink:0}
 .cat-tab:hover{color:var(--text)}
 .cat-tab.on{color:var(--game-accent);border-bottom-color:var(--game-accent)}
 .cat-count{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);margin-left:4px}
@@ -153,7 +149,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .grid-scroll{overflow-y:auto;flex:1;padding:14px}
 .grid-scroll::-webkit-scrollbar{width:4px}
 .grid-scroll::-webkit-scrollbar-thumb{background:var(--muted);border-radius:2px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(154px,1fr));gap:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px}
 
 /* list mode */
 .list-mode .grid{grid-template-columns:1fr;gap:3px}
@@ -185,18 +181,16 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .ctag{font-size:9px;color:var(--muted);border:1px solid rgba(255,255,255,.07);padding:1px 5px;border-radius:3px;cursor:pointer;transition:all .1s}
 .ctag:hover{color:var(--game-accent);border-color:var(--game-border)}
 .ctag.active{color:var(--game-accent);border-color:var(--game-accent);background:var(--game-glow)}
-.list-mode .card-tags{display:none}
 
 /* ── ENTRY PAGE ── */
 #view-entry{display:none;flex-direction:column;height:100%;overflow-y:auto}
 #view-entry::-webkit-scrollbar{width:4px}
 #view-entry::-webkit-scrollbar-thumb{background:var(--muted);border-radius:2px}
-.entry-page{max-width:880px;margin:0 auto;padding:20px 20px 48px;width:100%}
+.entry-page{max-width:860px;margin:0 auto;padding:20px 20px 48px;width:100%}
 .entry-back{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;margin-bottom:18px;padding:5px 0;transition:color .12s;border:none;background:none}
 .entry-back:hover{color:var(--game-accent)}
 .entry-back svg{width:14px;height:14px;stroke:currentColor;fill:none}
 
-/* Carousel */
 .carousel{position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--bg3);margin-bottom:22px;border:1px solid var(--border);aspect-ratio:16/7}
 .c-track{display:flex;height:100%;transition:transform .32s cubic-bezier(.4,0,.2,1)}
 .c-slide{flex-shrink:0;height:100%}
@@ -223,13 +217,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .btn-src{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:transparent;color:var(--text2);padding:8px 14px;border-radius:var(--r);font-size:12px;text-decoration:none;border:1px solid var(--border);transition:all .15s;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif}
 .btn-src:hover{color:var(--text);border-color:rgba(255,255,255,.15)}
 .no-file-note{font-size:11px;color:var(--muted);text-align:center;padding:9px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:var(--r)}
-.btn-report{
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  background:transparent;color:var(--muted);padding:7px 12px;
-  border-radius:var(--r);font-size:11px;text-decoration:none;
-  border:1px solid var(--border);transition:all .15s;cursor:pointer;
-  white-space:nowrap;font-family:'DM Sans',sans-serif;width:100%;
-}
+.btn-report{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:transparent;color:var(--muted);padding:7px 12px;border-radius:var(--r);font-size:11px;text-decoration:none;border:1px solid var(--border);transition:all .15s;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;width:100%}
 .btn-report:hover{color:var(--text2);border-color:rgba(255,255,255,.15)}
 .btn-report svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
 
@@ -239,7 +227,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .etag.active{color:var(--game-accent);border-color:var(--game-accent);background:var(--game-glow)}
 .avail-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--game-accent);background:var(--game-glow);border:1px solid var(--game-border);padding:3px 9px;border-radius:20px;font-family:'DM Mono',monospace}
 
-.entry-body{display:grid;grid-template-columns:1fr 252px;gap:18px}
+.entry-body{display:grid;grid-template-columns:1fr 248px;gap:18px}
 .stats-section{margin-bottom:16px}
 .stats-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .stats-hdr h3{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;font-family:'DM Mono',monospace;white-space:nowrap}
