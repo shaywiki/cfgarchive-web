@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CFGArchive — Project Todo</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0f0c;--bg2:#111511;--bg3:#161d16;
+  --text:#d4ddd4;--text2:#8fa08f;--muted:#4a5c4a;
+  --accent:#3dba6f;--accent-glow:rgba(61,186,111,.12);--accent-border:rgba(61,186,111,.22);
+  --danger:#e05b6a;--warn:#f0c040;
+  --border:rgba(255,255,255,.07);--r:8px;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px}
+body{padding:0;margin:0}
+
+/* ── TOPBAR ── */
+.topbar{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:14px 24px;display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:10;
+}
+.logo{font-family:'DM Mono',monospace;font-size:13px;color:var(--text);display:flex;align-items:center;gap:8px}
+.logo-mark{width:20px;height:20px;border-radius:5px;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-mark svg{width:11px;height:11px;fill:var(--bg)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.tpill{font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,.05);color:var(--text2);border:1px solid var(--border);font-family:'DM Mono',monospace}
+.tpill strong{color:var(--text)}
+.filter-row{display:flex;gap:6px}
+.fchip{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:all .12s;background:transparent}
+.fchip:hover,.fchip.on{border-color:var(--accent-border);color:var(--accent);background:var(--accent-glow)}
+
+/* ── LAYOUT ── */
+.page{max-width:860px;margin:0 auto;padding:24px 24px 60px}
+
+/* ── PROGRESS BAR ── */
+.progress-wrap{margin-bottom:24px}
+.progress-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.progress-label{font-size:12px;color:var(--text2)}
+.progress-pct{font-size:13px;font-family:'DM Mono',monospace;color:var(--accent)}
+.progress-track{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s}
+
+/* ── SECTION ── */
+.section{margin-bottom:28px}
+.section-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.section-title{font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:2px;font-family:'DM Mono',monospace}
+.section-count{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;background:rgba(255,255,255,.05);padding:1px 7px;border-radius:10px}
+.section-line{flex:1;height:1px;background:var(--border)}
+
+/* ── ITEM ── */
+.item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:11px 14px;background:var(--bg2);
+  border:1px solid var(--border);border-radius:var(--r);
+  margin-bottom:5px;transition:border-color .15s;
+}
+.item:hover{border-color:rgba(255,255,255,.12)}
+.item.done{opacity:.4}
+.item.done .item-text{text-decoration:line-through;color:var(--text2)}
+.item.next{border-color:var(--accent-border);background:var(--accent-glow)}
+.check{
+  width:17px;height:17px;border-radius:4px;
+  border:1.5px solid var(--muted);flex-shrink:0;margin-top:1px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;background:transparent;
+}
+.check.checked{background:var(--accent);border-color:var(--accent)}
+.check.checked::after{content:'';width:4px;height:8px;border:2px solid var(--bg);border-top:none;border-left:none;transform:rotate(45deg);margin-top:-2px}
+.item-body{flex:1;min-width:0}
+.item-text{font-size:13px;line-height:1.45;margin-bottom:5px}
+.item-meta{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-family:'DM Mono',monospace;white-space:nowrap}
+.b-area{background:rgba(91,157,238,.15);color:#7ab5ee}
+.b-high{background:rgba(224,91,106,.15);color:#e05b6a}
+.b-med{background:rgba(240,192,64,.12);color:#f0c040}
+.b-low{background:rgba(255,255,255,.06);color:var(--text2)}
+.b-next{background:var(--accent-glow);color:var(--accent);border:1px solid var(--accent-border)}
+.b-blocked{background:rgba(224,91,106,.08);color:#e05b6a;border:1px solid rgba(224,91,106,.2)}
+.item-note{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.6;font-family:'DM Mono',monospace;border-left:2px solid var(--border);padding-left:8px}
+.item-actions{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
+.icon-btn{width:22px;height:22px;border-radius:5px;border:none;background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .15s;opacity:0}
+.item:hover .icon-btn{opacity:1}
+.icon-btn:hover{background:rgba(255,255,255,.07);color:var(--text)}
+.del-btn:hover{background:rgba(224,91,106,.15);color:var(--danger)}
+
+/* ── ADD FORM ── */
+.add-section{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px;margin-bottom:24px;
+}
+.add-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;font-family:'DM Mono',monospace;margin-bottom:10px}
+.add-row{display:flex;gap:8px;flex-wrap:wrap}
+.add-row input,.add-row select{
+  font-family:'DM Sans',sans-serif;font-size:12px;
+  background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  padding:6px 10px;border-radius:var(--r);outline:none;transition:border-color .15s;
+}
+.add-row input{flex:1;min-width:200px}
+.add-row input:focus,.add-row select:focus{border-color:var(--accent-border)}
+.add-row input::placeholder{color:var(--muted)}
+.add-row-2{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.add-row-2 textarea{
+  flex:1;font-family:'DM Mono',monospace;font-size:11px;
+  background:var(--bg3);border:1px solid var(--border);color:var(--text2);
+  padding:7px 10px;border-radius:var(--r);outline:none;resize:vertical;
+  min-height:52px;transition:border-color .15s;
+}
+.add-row-2 textarea:focus{border-color:var(--accent-border)}
+.add-row-2 textarea::placeholder{color:var(--muted)}
+.add-btn{
+  background:var(--accent);color:var(--bg);border:none;
+  padding:7px 16px;border-radius:var(--r);font-size:12px;font-weight:600;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .15s;white-space:nowrap;
+}
+.add-btn:hover{opacity:.88}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:32px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <span class="logo-mark"><svg viewBox="0 0 12 12"><path d="M2 2h8v2H2zM2 5h5v2H2zM2 8h7v2H2z"/></svg></span>
+    cfg.archive — project todo
+  </div>
+  <div class="topbar-right">
+    <div class="filter-row">
+      <span class="fchip on" data-f="" onclick="setFilter(this,'')">All</span>
+      <span class="fchip" data-f="Data" onclick="setFilter(this,'Data')">Data</span>
+      <span class="fchip" data-f="Frontend" onclick="setFilter(this,'Frontend')">Frontend</span>
+      <span class="fchip" data-f="Infrastructure" onclick="setFilter(this,'Infrastructure')">Infra</span>
+    </div>
+    <span class="tpill" id="tpill-done">— done</span>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="progress-wrap">
+    <div class="progress-meta">
+      <span class="progress-label">Overall progress</span>
+      <span class="progress-pct" id="pct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="pfill" style="width:0%"></div></div>
+  </div>
+
+  <div class="add-section">
+    <div class="add-title">Add task</div>
+    <div class="add-row">
+      <input type="text" id="new-text" placeholder="Task description…">
+      <select id="new-area">
+        <option value="Data">Data</option>
+        <option value="Frontend">Frontend</option>
+        <option value="Infrastructure">Infrastructure</option>
+        <option value="Content">Content</option>
+      </select>
+      <select id="new-pri">
+        <option value="high">High</option>
+        <option value="med">Med</option>
+        <option value="low">Low</option>
+      </select>
+    </div>
+    <div class="add-row-2">
+      <textarea id="new-note" placeholder="Note (optional)…"></textarea>
+      <button class="add-btn" onclick="addItem()">Add task</button>
+    </div>
+  </div>
+
+  <div id="lists"></div>
+
+</div>
+
+<script>
+const SK = 'cfgarchive-todo-v3';
+
+const DEFAULTS = [
+  {id:1,text:'Complete category review — work through manual_review.csv, map all Trash/Other/Movie variants',area:'Data',pri:'high',done:false,note:'Use category review widget in Claude. Trash: sort by downloads, high-dl entries likely miscategorised. Filmtweaks → Movie configs. Fonts → Prefabs & textures. Movie Mods/Stuff/Configs → Movie configs.'},
+  {id:2,text:'Run tag frequency analysis on VM, design canonical tag groups per game',area:'Data',pri:'high',done:false,note:'python3 tag_analysis.py. Tags are freeform from img alt attrs. Expect ~50-200 useful tags. Tags in SPA ordered by frequency desc. New curated tags go in tags-v2.json — original archived tags never modified.'},
+  {id:3,text:'Set up GitHub repo (cfgarchive-web) + Cloudflare Pages CI pipeline',area:'Infrastructure',pri:'high',done:false,next:true,note:'Repo: cfgarchive-web. Branches: main→prod, dev→preview URL. No build step (static HTML). Claude produces HTML → you commit to dev → preview → merge to main → live. For larger changes use Claude Code with repo cloned locally — edit, preview, push.'},
+  {id:4,text:'Migrate Azure blobs → Cloudflare R2 (cfgdownloads, cfggallery, cfgdemos)',area:'Infrastructure',pri:'high',done:false,note:'rclone copy azure-src:cfgdownloads r2-dest:cfgdownloads --transfers 16. ~$9 Azure egress for ~100GB.'},
+  {id:5,text:'Wire index.json into SPA — replace sample data with R2 fetch',area:'Frontend',pri:'high',done:false,note:'const {entries} = await fetch(`${R2}/cfgdownloads/index.json`).then(r=>r.json()). Gallery from cfggallery/index.json.'},
+  {id:6,text:'Set R2 public URL in SPA config',area:'Frontend',pri:'high',done:false,note:'Replace R2="https://pub-XXXX.r2.dev" once bucket live. Thumbnail: ${R2}/cfgdownloads/${game}/${cat}/${folder}/${id}.jpg'},
+  {id:7,text:'Build admin page for manual tag editing (tags-v2.json in R2)',area:'Frontend',pri:'med',done:false,note:'Separate /admin route, Cloudflare Access for auth. Reads index.json + tags-v2.json, shows entry + original tags, allows editing curated tags. Writes tags-v2.json back to R2 via Worker. Original archived tags always shown read-only alongside.'},
+  {id:8,text:'Build tag-freq.json at index build time for frequency-ordered tag display',area:'Data',pri:'med',done:false,note:'Counter over all entry tags → {"promod":1840,"cod4":3200,...}. Upload alongside index.json. SPA sorts tags by freq desc on entry pages.'},
+  {id:9,text:'Cloudflare Worker for archive download counter (Workers KV)',area:'Infrastructure',pri:'med',done:false,note:'Worker: /download/:id → increment KV → 302 to R2 blob. Free tier 100k req/day. Shown separately from original CFGFactory snapshot stats.'},
+  {id:10,text:'Build gallery index.json for cfggallery container',area:'Data',pri:'med',done:false,note:'Gallery scraper output needs its own index built. Wire Gallery tab in SPA to cfggallery/index.json.'},
+  {id:11,text:'Choose and register domain',area:'Infrastructure',pri:'med',done:false,note:'Shortlist: cfgarchive.net, cfgvault.net, cfgfactory.net, cfgfactory.io'},
+  {id:12,text:'Apply category remap script across all 13,804 metadata JSONs on VM',area:'Data',pri:'med',done:false,note:'Depends on: category review complete. Script reads CATEGORY_REMAP dict, rewrites category field, rebuilds index.json.'},
+  {id:13,text:'Add Fuse.js fuzzy search + hash URL routing for shareable entry links',area:'Frontend',pri:'low',done:false},
+];
+
+let items = [];
+let nextId = 200;
+let curFilter = '';
+
+async function load() {
+  try {
+    const r = await window.storage.get(SK);
+    items = r ? JSON.parse(r.value) : JSON.parse(JSON.stringify(DEFAULTS));
+  } catch {
+    items = JSON.parse(JSON.stringify(DEFAULTS));
+  }
+  nextId = Math.max(...items.map(i => i.id), 199) + 1;
+}
+
+async function save() {
+  try { await window.storage.set(SK, JSON.stringify(items)); } catch {}
+}
+
+function setFilter(el, f) {
+  curFilter = f;
+  document.querySelectorAll('.fchip').forEach(c => c.classList.toggle('on', c.dataset.f === f));
+  render();
+}
+
+function render() {
+  const pending = items.filter(i => !i.done && (!curFilter || i.area === curFilter));
+  const done = items.filter(i => i.done && (!curFilter || i.area === curFilter));
+  const total = items.length;
+  const doneCount = items.filter(i => i.done).length;
+  const pct = total ? Math.round(doneCount / total * 100) : 0;
+
+  document.getElementById('pfill').style.width = pct + '%';
+  document.getElementById('pct').textContent = pct + '%';
+  document.getElementById('tpill-done').innerHTML = `<strong>${doneCount}</strong> / ${total} done`;
+
+  const areas = [...new Set(pending.map(i => i.area))];
+  let html = '';
+
+  areas.forEach(area => {
+    const ai = pending.filter(i => i.area === area);
+    if (!ai.length) return;
+    html += `<div class="section">
+      <div class="section-head">
+        <span class="section-title">${area}</span>
+        <span class="section-count">${ai.length}</span>
+        <span class="section-line"></span>
+      </div>`;
+    ai.forEach(item => { html += mkItem(item); });
+    html += '</div>';
+  });
+
+  if (done.length) {
+    html += `<div class="section">
+      <div class="section-head">
+        <span class="section-title" style="color:var(--muted);opacity:.6">Completed</span>
+        <span class="section-count">${done.length}</span>
+        <span class="section-line"></span>
+      </div>`;
+    done.forEach(item => { html += mkItem(item); });
+    html += '</div>';
+  }
+
+  if (!html) html = '<div class="empty">No tasks match this filter</div>';
+  document.getElementById('lists').innerHTML = html;
+}
+
+function mkItem(item) {
+  const pc = item.pri === 'high' ? 'b-high' : item.pri === 'med' ? 'b-med' : 'b-low';
+  const isNext = item.next && !item.done;
+  return `<div class="item${item.done ? ' done' : ''}${isNext ? ' next' : ''}" id="item-${item.id}">
+    <div class="check${item.done ? ' checked' : ''}" onclick="toggle(${item.id})"></div>
+    <div class="item-body">
+      <div class="item-text">${item.text}</div>
+      <div class="item-meta">
+        <span class="badge b-area">${item.area}</span>
+        <span class="badge ${pc}">${item.pri}</span>
+        ${isNext ? '<span class="badge b-next">next up</span>' : ''}
+        ${item.blocked ? '<span class="badge b-blocked">blocked</span>' : ''}
+      </div>
+      ${item.note ? `<div class="item-note">${item.note}</div>` : ''}
+    </div>
+    <div class="item-actions">
+      <button class="icon-btn del-btn" onclick="del(${item.id})" title="Remove">×</button>
+    </div>
+  </div>`;
+}
+
+async function toggle(id) {
+  items = items.map(i => i.id === id ? {...i, done: !i.done} : i);
+  await save(); render();
+}
+
+async function del(id) {
+  if (!confirm('Remove this task?')) return;
+  items = items.filter(i => i.id !== id);
+  await save(); render();
+}
+
+async function addItem() {
+  const text = document.getElementById('new-text').value.trim();
+  if (!text) return;
+  items.push({
+    id: nextId++,
+    text,
+    area: document.getElementById('new-area').value,
+    pri: document.getElementById('new-pri').value,
+    note: document.getElementById('new-note').value.trim(),
+    done: false,
+  });
+  await save();
+  document.getElementById('new-text').value = '';
+  document.getElementById('new-note').value = '';
+  render();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.activeElement.id === 'new-text') addItem();
+});
+
+load().then(render);
+</script>
+</body>
+</html>
