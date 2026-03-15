@@ -50,7 +50,6 @@ This repository contains the frontend for browsing and downloading the archive.
 ```
 cfgarchive-web/
 ├── index.html          ← main SPA (single-file, no build step)
-├── todo.html           ← internal project tracker
 ├── README.md
 └── .github/
     └── ISSUE_TEMPLATE/
