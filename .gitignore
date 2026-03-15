@@ -1,0 +1,6 @@
+# Internal files — not for public repo
+todo.html
+
+# OS files
+.DS_Store
+Thumbs.db
