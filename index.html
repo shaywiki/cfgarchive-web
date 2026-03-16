@@ -6,6 +6,7 @@
 <title>cfgarchive — CFGFactory Archive</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@7/dist/fuse.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 
@@ -431,6 +432,15 @@ DATA.forEach(e=>{ LIVE[e.id] = Math.floor(Math.random()*60) });
 let curGame='COD4', curCat='Configs', sortBy='dl', viewMode='grid';
 let activeTags = new Set();
 let _imgs=[], _slide=0;
+let fuse = null;
+
+function initFuse(){
+  fuse = new Fuse(DATA, {
+    keys:[{name:'title',weight:2},{name:'author',weight:1},{name:'uploader',weight:0.8},{name:'tags',weight:0.8}],
+    threshold:0.35,
+    ignoreLocation:true
+  });
+}
 
 const safe = s=>(s||'').toLowerCase().replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'_').slice(0,60).replace(/_$/,'')||'unknown';
 const fmtN  = n=>n>=1000?(n/1000).toFixed(1)+'K':String(n);
@@ -503,10 +513,13 @@ function render(){
   const isGallery=curCat==='Gallery';
   const baseItems=DATA.filter(e=>e.game_code===curGame&&(isGallery||e.category===curCat));
   buildTagBar(baseItems);
-  let items=baseItems.filter(e=>
-    (!q||(e.title+' '+byline(e)+' '+(e.tags||[]).join(' ')).toLowerCase().includes(q))&&
-    (!activeTags.size||[...activeTags].every(t=>(e.tags||[]).includes(t)))
-  );
+  let items;
+  if(q && fuse){
+    const ids=new Set(fuse.search(q).map(r=>r.item.id));
+    items=baseItems.filter(e=>ids.has(e.id)&&(!activeTags.size||[...activeTags].every(t=>(e.tags||[]).includes(t))));
+  } else {
+    items=baseItems.filter(e=>(!activeTags.size||[...activeTags].every(t=>(e.tags||[]).includes(t))));
+  }
   if(sortBy==='dl')          items.sort((a,b)=>b.downloads-a.downloads);
   else if(sortBy==='rating') items.sort((a,b)=>b.rating-a.rating);
   else                       items.sort((a,b)=>new Date(b.upload_date)-new Date(a.upload_date));
@@ -568,8 +581,9 @@ function reportUrl(e){
   return `${GITHUB}/issues/new?title=${t}&body=${b}&labels=report`;
 }
 
-function openEntry(id){
+function openEntry(id, push=true){
   const e=DATA.find(x=>x.id===id); if(!e) return;
+  if(push) location.hash='entry/'+id;
   _slide=0; _imgs=imgUrls(e);
   const ext=fileExt(e), bl=byline(e), liveDl=LIVE[e.id]||0;
   const showUploader=e.uploader&&e.uploader.trim()&&e.uploader!==e.author;
@@ -644,7 +658,8 @@ function openEntry(id){
 
 function tagAndBack(t){ activeTags.clear(); activeTags.add(t); goHome(); }
 
-function goHome(){
+function goHome(push=true){
+  if(push) history.pushState(null,'',location.pathname+location.search);
   document.getElementById('view-entry').style.display='none';
   document.getElementById('view-grid').style.display='flex';
   document.getElementById('cat-bar').style.display='flex';
@@ -653,8 +668,40 @@ function goHome(){
   render();
 }
 
+function handleHash(){
+  const h=location.hash.slice(1);
+  if(h.startsWith('entry/')){
+    const id=h.slice(6);
+    const e=DATA.find(x=>x.id===id);
+    if(e){
+      // ensure game/cat match entry so "Back" lands in the right place
+      if(e.game_code!==curGame){
+        curGame=e.game_code;
+        document.body.setAttribute('data-game',curGame);
+        document.querySelectorAll('.si[data-game]').forEach(n=>n.classList.toggle('on',n.dataset.game===curGame));
+        const cats=GAME_CATS[curGame]||['Configs'];
+        curCat=cats.find(c=>c!=='Gallery')||cats[0];
+        buildCatBar(curGame);
+      }
+      if(e.category!==curCat){
+        curCat=e.category;
+        document.querySelectorAll('.cat-tab').forEach(t=>t.classList.toggle('on',t.textContent.trim().startsWith(curCat)));
+      }
+      openEntry(id, false);
+    } else {
+      goHome(false);
+    }
+  } else {
+    goHome(false);
+  }
+}
+
+window.addEventListener('hashchange', handleHash);
+window.addEventListener('popstate', handleHash);
+
 buildCatBar('COD4');
-render();
+initFuse();
+handleHash();
 </script>
 </body>
 </html>
