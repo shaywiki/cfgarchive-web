@@ -1,6 +1,8 @@
-# Internal files — not for public repo
+# Internal files — lives in cfgarchive-private
 todo.html
 category-review.html
+admin.html
+.github/TODO.md
 
 # OS files
 .DS_Store
