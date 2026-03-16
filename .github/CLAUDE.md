@@ -9,12 +9,20 @@ Domain: cfgarchive.net (purchased, not yet wired)
 
 ## Repo structure
 - `index.html` — single-file SPA, all CSS and JS inline, no build step
-- `todo.html` — project task tracker with persistent storage
 - `README.md` — full project documentation
 - `.github/ISSUE_TEMPLATE/report.md` — issue template for user reports
+- `admin.html` and `.github/TODO.md` are gitignored — they live in cfgarchive-private
+
+## Related repos
+- **cfgarchive-private** (private) — `https://github.com/shaywiki/cfgarchive-private`
+  - `admin.html` — admin SPA (category review, tag editor, reports, image replace, stats)
+  - `.github/TODO.md` — project task tracker
+  - Deploys to `admin.cfgarchive.net` via separate Cloudflare Pages project
+  - Protected by Cloudflare Access (Zero Trust) — Google/GitHub SSO
 
 ## Branch strategy (Option 3 — feature branches)
 - `main` — production, never push directly, merge via PR only
+- `dev` — active development branch
 - `feat/real-data` — wire index.json from R2
 - `feat/tag-system` — tag v2 + admin page
 - `feat/category-remap` — after manual CSV review is done
@@ -56,10 +64,11 @@ e.g. `cod4.configs.envize_phaz_2k12.phaz/`
 - Storage: cfgfactoryarchive (Azure Blob)
 - Scraper disk: cfgfactory-data (512GB, mount /opt/cfgfactory)
 
-## Outstanding tasks (see todo.html for full list)
+## Outstanding tasks (see cfgarchive-private/.github/TODO.md for full list)
 1. Complete category CSV manual review
 2. Run tag frequency analysis on VM
 3. Migrate Azure blobs to Cloudflare R2
 4. Wire index.json into SPA
 5. Set up Cloudflare Worker for download counter
 6. Add cfgarchive.net custom domain
+7. Deploy cfgarchive-private to admin.cfgarchive.net + Cloudflare Access rule
