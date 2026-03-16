@@ -38,7 +38,7 @@ body[data-game="CF"]{--game-accent:#f97316;--game-glow:rgba(249,115,22,.11);--ga
 html{zoom:1.2}
 html,body{height:100%;overflow:hidden}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px}
-#app{display:grid;grid-template-columns:192px 1fr;grid-template-rows:52px 1fr;height:100vh}
+#app{display:grid;grid-template-columns:192px 1fr;grid-template-rows:52px 1fr;height:100%}
 
 /* ── TOPBAR ── */
 .topbar{
@@ -184,7 +184,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .ctag.active{color:var(--game-accent);border-color:var(--game-accent);background:var(--game-glow)}
 
 /* ── ENTRY PAGE ── */
-#view-entry{display:none;flex-direction:column;height:100%;overflow-y:auto}
+#view-entry{display:none;flex-direction:column;flex:1;min-height:0;overflow-y:auto}
 #view-entry::-webkit-scrollbar{width:4px}
 #view-entry::-webkit-scrollbar-thumb{background:var(--muted);border-radius:2px}
 .entry-page{max-width:860px;margin:0 auto;padding:20px 20px 48px;width:100%}
