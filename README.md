@@ -4,16 +4,11 @@ A permanent public archive of [cfgfactory.com](https://cfgfactory.com), preserve
 
 CFGFactory hosted community-created content for Call of Duty 4, GTA IV, and other games — configs, weapon skins, custom models, maps, mods, cinema clips, and gallery images. At shutdown the site contained **13,804 entries** across 13 games, with approximately **94,791 files** across three content containers.
 
-This repository contains the frontend for browsing and downloading the archive.
-
 ---
 
 ## Live site
 
-| Environment | URL | Branch |
-|---|---|---|
-| Production | `https://cfgarchive.net` | `main` |
-| Preview | `https://dev.cfgarchive-web.pages.dev` | `dev` |
+**[cfgarchive.net](https://cfgarchive.net)**
 
 ---
 
@@ -50,7 +45,6 @@ This repository contains the frontend for browsing and downloading the archive.
 ```
 cfgarchive-web/
 ├── index.html          ← main SPA (single-file, no build step)
-├── todo.html           ← internal project tracker
 ├── README.md
 └── .github/
     └── ISSUE_TEMPLATE/
@@ -89,7 +83,6 @@ https://<r2-public-domain>/cfgdownloads/<game>/<category>/<folder>/<id>.cfg   �
 
 Deployed via Cloudflare Pages connected to this repository.
 
-- Every push to `dev` → auto-deploys to preview URL (~20 seconds)
 - Every merge to `main` → auto-deploys to production
 - No build step — Cloudflare serves `index.html` directly
 
@@ -133,18 +126,17 @@ Built from the scraped metadata and uploaded to R2. Contains all 13,804 entries.
 
 ### `tags-v2.json`
 
-Curated tag overrides, stored in R2. Written by the admin page. The original `tags` field in `index.json` is never modified — `tags-v2.json` sits on top and takes precedence where an entry ID is present.
+Curated tag overrides, stored in R2. Written by the admin panel. The original `tags` field in `index.json` is never modified — `tags-v2.json` sits on top and takes precedence where an entry ID is present.
 
 ```json
 {
-  "a1b2c3": ["promod", "competitive", "assault-rifle"],
-  "d4e5f6": ["promod", "smg"]
+  "a1b2c3": { "curated_tags": ["promod", "competitive", "assault-rifle"] }
 }
 ```
 
 ### `tag-freq.json`
 
-Tag frequency table built at index generation time. Used by the SPA to sort tags by popularity (most common first).
+Tag frequency table built at index generation time. Used by the SPA to sort tags by popularity.
 
 ```json
 {
@@ -156,60 +148,27 @@ Tag frequency table built at index generation time. Used by the SPA to sort tags
 
 ---
 
-## Scraping
+## Running locally
 
-The archive was scraped in March 2026 using two Python scripts, now in the separate [`cfgfactory-scraper`](https://github.com/YOUR_USERNAME/cfgfactory-scraper) repository.
+No build step needed — open `index.html` directly in a browser, or serve it:
 
-| Script | Purpose |
-|---|---|
-| `cfgfactory_scraper.py` | Downloads scraper — all 13 games, 6 phases |
-| `gallery_scraper.py` | Gallery scraper — images and metadata |
+```bash
+python3 -m http.server 8080
+```
 
-Scraper infrastructure ran on an Azure spot VM (`Standard_B2ats_v2`, ~$0.009/hr) with a 512GB persistent data disk. Data was migrated to Cloudflare R2 via `rclone`.
+The SPA fetches `index.json` from R2. For local development with real data, point the `R2` constant at the live bucket or serve a local copy of `index.json`.
 
 ---
 
-## Development
+## Reporting issues
 
-### Running locally
-
-No build step needed — open `index.html` directly in a browser, or use a local server:
-
-```bash
-# Python
-python3 -m http.server 8080
-
-# Node
-npx serve .
-```
-
-Note: the SPA fetches `index.json` from R2. For local development with real data, either point `R2` at the live bucket or serve a local copy of `index.json`.
-
-### Contributing changes
-
-```bash
-git clone https://github.com/YOUR_USERNAME/cfgarchive-web
-cd cfgarchive-web
-git checkout -b dev
-
-# Make changes
-git add .
-git commit -m "feat: description of change"
-git push origin dev
-# Preview deploys automatically to dev.cfgarchive-web.pages.dev
-```
-
-Open a pull request from `dev` → `main` to deploy to production. Direct pushes to `main` are blocked.
-
-### Reporting issues
-
-Use the **Report an issue** button on the site, or [open an issue](https://github.com/YOUR_USERNAME/cfgarchive-web/issues/new?template=report.md) directly. Issues are triaged, fixed on `dev`, and merged to `main`.
+Use the **Report an issue** button on any entry page, or [open an issue](https://github.com/shaywiki/cfgarchive-web/issues/new?template=report.md) directly.
 
 ---
 
 ## Stats preserved from CFGFactory
 
-All download counts, ratings, and vote totals in `index.json` are the exact values recorded on shutdown day (13 March 2026) and are never modified. The site displays these clearly labelled as "CFGFactory stats — snapshot 13 Mar 2026" alongside separate archive download counts tracked since the site launched.
+All download counts, ratings, and vote totals in `index.json` are the exact values recorded on shutdown day (13 March 2026) and are never modified. The site displays these labelled as "CFGFactory stats — snapshot 13 Mar 2026" alongside separate archive download counts tracked since launch.
 
 ---
 
