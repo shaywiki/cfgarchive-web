@@ -235,7 +235,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div class="topbar-centre">
       <div class="topbar-search">
         <span class="search-icon">⌕</span>
-        <input type="text" id="search" placeholder="Search…" oninput="render()">
+        <input type="text" id="search" placeholder="Search…" oninput="debouncedRender()">
       </div>
     </div>
     <div class="topbar-right">
@@ -351,7 +351,7 @@ function thumbUrl(e) {
   const f = folder(e);
   const g = safe(e.game_code);
   const c = safe(e._raw_category);
-  return `${R2}/cfgdownloads/${g}/${c}/${f}/${f}_image_0.jpg`;
+  return `${R2}/${g}/${c}/${f}/${f}_image_0.jpg`;
 }
 
 // Carousel: try image_0 through image_3, browser handles 404s gracefully
@@ -360,7 +360,7 @@ function imgUrls(e) {
   const f = folder(e);
   const g = safe(e.game_code);
   const c = safe(e._raw_category);
-  const base = `${R2}/cfgdownloads/${g}/${c}/${f}/${f}_image_`;
+  const base = `${R2}/${g}/${c}/${f}/${f}_image_`;
   // Use local_images count if available, otherwise try up to 4
   const count = (e.local_images && e.local_images.length) ? e.local_images.length : 4;
   return Array.from({length: count}, (_, i) => `${base}${i}.jpg`);
@@ -379,7 +379,7 @@ function dlUrl(e) {
   const f = folder(e);
   const g = safe(e.game_code);
   const c = safe(e._raw_category);
-  return `${R2}/cfgdownloads/${g}/${c}/${f}/${e.id}.${fileExt(e)}`;
+  return `${R2}/${g}/${c}/${f}/${e.local_file}`;
 }
 
 // ── DATA LOADING ──────────────────────────────────────────────────────────────
@@ -530,6 +530,14 @@ function clearTags() {
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
+let _searchTimer = null;
+function debouncedRender() {
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(render, 200);
+}
+
+const RENDER_CAP = 200;
+
 function render() {
   const q = (document.getElementById('search').value||'').trim();
 
@@ -538,16 +546,14 @@ function render() {
 
   buildTagBar(baseItems);
 
-  // Search
+  // Search — reuse global fuse index, no re-construction on every keystroke
   let items;
   if (q && fuse) {
-    // Search across all entries in this game, then filter to current cat
-    const allGame = DATA.filter(e => e.game_code === curGame);
-    const tmpFuse = new Fuse(allGame, {
-      keys: [{name:'title',weight:2},{name:'author',weight:1},{name:'tags',weight:0.8}],
-      threshold: 0.35, ignoreLocation: true,
-    });
-    const ids = new Set(tmpFuse.search(q).map(r => r.item.id));
+    const ids = new Set(
+      fuse.search(q)
+        .filter(r => r.item.game_code === curGame)
+        .map(r => r.item.id)
+    );
     items = baseItems.filter(e => ids.has(e.id));
   } else {
     items = [...baseItems];
@@ -572,7 +578,10 @@ function render() {
     return;
   }
 
-  document.getElementById('grid').innerHTML = items.map(e => {
+  const total = items.length;
+  const visible = items.slice(0, RENDER_CAP);
+
+  document.getElementById('grid').innerHTML = visible.map(e => {
     const thumb = thumbUrl(e);
     const imgEl = thumb
       ? `<img src="${thumb}" alt="${e.title.replace(/"/g,'')}" loading="lazy" onerror="this.style.display='none';this.parentNode.querySelector('.card-img-ph')||this.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>')">`
@@ -599,7 +608,9 @@ function render() {
     <div class="card-tags">${tagPills}</div>
   </div>
 </div>`;
-  }).join('');
+  }).join('') + (total > RENDER_CAP
+    ? `<div class="empty" style="grid-column:1/-1"><p>Showing ${RENDER_CAP} of ${total.toLocaleString()} — use search or filters to narrow down.</p></div>`
+    : '');
 }
 
 // ── CAROUSEL ──────────────────────────────────────────────────────────────────
