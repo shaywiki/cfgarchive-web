@@ -357,24 +357,34 @@ function folder(e) {
   return `${safe(e.game_code)}.${safe(e._raw_category)}.${safe(e.title)}.${safe(e.author||'')}`;
 }
 
+// Derive image extension from local_images filenames (some entries use .png, most .jpg)
+function imgExt(e) {
+  if (e.local_images && e.local_images.length && typeof e.local_images[0] === 'string') {
+    const ext = e.local_images[0].split('.').pop().toLowerCase();
+    if (ext === 'png' || ext === 'jpg' || ext === 'jpeg') return ext;
+  }
+  return 'jpg';
+}
+
 // Thumbnail: image_0 from R2
 function thumbUrl(e) {
   if (!e.has_image) return null;
   const f = folder(e);
   const g = safe(e.game_code);
   const c = safe(e._raw_category);
-  return `${R2}/${g}/${c}/${f}/${f}_image_0.jpg`;
+  return `${R2}/${g}/${c}/${f}/${f}_image_0.${imgExt(e)}`;
 }
 
-// Carousel: only as many images as local_images records
+// Carousel: use local_images count; fallback to 4 so slideErr can prune missing ones
 function imgUrls(e) {
   if (!e.has_image) return [];
   const f = folder(e);
   const g = safe(e.game_code);
   const c = safe(e._raw_category);
   const base = `${R2}/${g}/${c}/${f}/${f}_image_`;
-  const count = (e.local_images && e.local_images.length) ? e.local_images.length : 1;
-  return Array.from({length: count}, (_, i) => `${base}${i}.jpg`);
+  const ext = imgExt(e);
+  const count = (e.local_images && e.local_images.length) ? e.local_images.length : 4;
+  return Array.from({length: count}, (_, i) => `${base}${i}.${ext}`);
 }
 
 function fileExt(e) {
@@ -680,6 +690,13 @@ function _carouselSync() {
   document.querySelectorAll('.c-dot').forEach((d, j) => d.classList.toggle('on', j === _slide));
   const cc = document.getElementById('c-count');
   if (cc) cc.textContent = `${_slide + 1} / ${n}`;
+  // Hide nav when only 1 slide remains after errors
+  if (n <= 1) {
+    document.querySelectorAll('.c-btn').forEach(b => b.style.display = 'none');
+    const dotsEl = document.querySelector('.c-dots');
+    if (dotsEl) dotsEl.style.display = 'none';
+    if (cc) cc.style.display = 'none';
+  }
 }
 
 function slideTo(i) {
