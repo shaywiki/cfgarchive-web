@@ -165,10 +165,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .entry-back{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;margin-bottom:18px;padding:5px 0;transition:color .12s;border:none;background:none}
 .entry-back:hover{color:var(--game-accent)}
 .entry-back svg{width:14px;height:14px;stroke:currentColor;fill:none}
-.carousel{position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--bg3);margin-bottom:22px;border:1px solid var(--border);aspect-ratio:16/7}
-.c-track{display:flex;height:100%;transition:transform .32s cubic-bezier(.4,0,.2,1)}
-.c-slide{flex-shrink:0;height:100%}
-.c-slide img{width:100%;height:100%;object-fit:cover;display:block}
+.carousel{position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--bg3);margin-bottom:22px;border:1px solid var(--border);aspect-ratio:16/9}
+.c-track{position:relative;height:100%}
+.c-slide{position:absolute;inset:0;display:none;opacity:0;transition:opacity .25s}
+.c-slide.active{display:block;opacity:1}
+.c-slide img{width:100%;height:100%;object-fit:contain;display:block;background:var(--bg3)}
 .c-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px}
 .c-btn{position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.13);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;z-index:2}
 .c-btn:hover{background:rgba(0,0,0,.92)}
@@ -351,12 +352,12 @@ function byline(e) {
   return 'unknown';
 }
 
-// folder() always uses _raw_category (original scraped) for correct blob path
+// folder() uses raw author (safe(e.author)) to match how folders were named on upload
 function folder(e) {
-  return `${safe(e.game_code)}.${safe(e._raw_category)}.${safe(e.title)}.${safe(byline(e))}`;
+  return `${safe(e.game_code)}.${safe(e._raw_category)}.${safe(e.title)}.${safe(e.author||'')}`;
 }
 
-// Thumbnail: full-res image_0 from R2 (higher quality than old thumbnail)
+// Thumbnail: image_0 from R2
 function thumbUrl(e) {
   if (!e.has_image) return null;
   const f = folder(e);
@@ -365,15 +366,14 @@ function thumbUrl(e) {
   return `${R2}/${g}/${c}/${f}/${f}_image_0.jpg`;
 }
 
-// Carousel: try image_0 through image_3, browser handles 404s gracefully
+// Carousel: only as many images as local_images records
 function imgUrls(e) {
   if (!e.has_image) return [];
   const f = folder(e);
   const g = safe(e.game_code);
   const c = safe(e._raw_category);
   const base = `${R2}/${g}/${c}/${f}/${f}_image_`;
-  // Use local_images count if available, otherwise try up to 4
-  const count = (e.local_images && e.local_images.length) ? e.local_images.length : 4;
+  const count = (e.local_images && e.local_images.length) ? e.local_images.length : 1;
   return Array.from({length: count}, (_, i) => `${base}${i}.jpg`);
 }
 
@@ -385,13 +385,12 @@ function fileExt(e) {
   return 'cfg';
 }
 
-// Download URL: uses _raw_category for correct blob path
+// Download URL: filename is safe(title).ext (matches 3rd section of folder name)
 function dlUrl(e) {
   const f = folder(e);
   const g = safe(e.game_code);
   const c = safe(e._raw_category);
-  const filename = e.local_file || `${e.id}.${fileExt(e)}`;
-  return `${R2}/${g}/${c}/${f}/${filename}`;
+  return `${R2}/${g}/${c}/${f}/${safe(e.title)}.${fileExt(e)}`;
 }
 
 // ── DATA LOADING ──────────────────────────────────────────────────────────────
@@ -650,13 +649,9 @@ function setPage(p) {
 function buildCarousel(imgs) {
   if (!imgs.length) return `<div class="carousel"><div class="c-ph">no image archived</div></div>`;
 
-  // We try all URLs but only show slides where image loads
-  // Use a single-slide initially, expand as images confirm loading
-  const pct = 100 / imgs.length;
-  const slides = imgs.map(src =>
-    `<div class="c-slide" style="width:${pct}%">
-      <img src="${src}" alt="" loading="lazy"
-        onerror="this.closest('.c-slide').style.display='none'">
+  const slides = imgs.map((src, i) =>
+    `<div class="c-slide${i===0?' active':''}">
+      <img src="${src}" alt="" loading="lazy" onerror="slideErr(this)">
     </div>`
   ).join('');
 
@@ -669,20 +664,34 @@ function buildCarousel(imgs) {
   const counter = multi ? `<span class="c-count" id="c-count">1 / ${imgs.length}</span>` : '';
 
   return `<div class="carousel">${btns}
-    <div class="c-track" id="c-track" style="width:${imgs.length*100}%">${slides}</div>
+    <div class="c-track" id="c-track">${slides}</div>
     ${dots}${counter}
   </div>`;
 }
 
-function slideTo(i) {
-  _slide = Math.max(0, Math.min(i, _imgs.length-1));
-  const t = document.getElementById('c-track');
-  if (t) t.style.transform = `translateX(-${_slide*(100/_imgs.length)}%)`;
-  document.querySelectorAll('.c-dot').forEach((d,j) => d.classList.toggle('on', j===_slide));
+function _carouselSync() {
+  const track = document.getElementById('c-track');
+  if (!track) return;
+  const slides = track.querySelectorAll('.c-slide');
+  const n = slides.length;
+  _imgs = Array(n).fill(null);
+  _slide = Math.max(0, Math.min(_slide, n - 1));
+  slides.forEach((s, j) => s.classList.toggle('active', j === _slide));
+  document.querySelectorAll('.c-dot').forEach((d, j) => d.classList.toggle('on', j === _slide));
   const cc = document.getElementById('c-count');
-  if (cc) cc.textContent = `${_slide+1} / ${_imgs.length}`;
+  if (cc) cc.textContent = `${_slide + 1} / ${n}`;
 }
-function slideBy(d) { slideTo(_slide+d); }
+
+function slideTo(i) {
+  _slide = i;
+  _carouselSync();
+}
+function slideBy(d) { slideTo(_slide + d); }
+
+function slideErr(img) {
+  img.closest('.c-slide').remove();
+  _carouselSync();
+}
 
 // ── ENTRY PAGE ────────────────────────────────────────────────────────────────
 function reportUrl(e) {
