@@ -128,6 +128,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .list-mode .card-footer{padding:0 12px;min-width:100px;justify-content:flex-end;gap:10px}
 .list-mode .card-overlay,.list-mode .card-tags{display:none}
 
+/* ── PAGINATION ── */
+.pagination{display:flex;align-items:center;justify-content:center;gap:4px;padding:14px 14px 6px;flex-wrap:wrap}
+.pg-btn{background:var(--bg2);border:1px solid var(--border);color:var(--muted);border-radius:var(--r);padding:5px 10px;font-size:11px;cursor:pointer;transition:all .12s;font-family:'DM Mono',monospace;min-width:32px;text-align:center}
+.pg-btn:hover:not([disabled]){border-color:var(--game-border);color:var(--text)}
+.pg-btn.on{border-color:var(--game-accent);color:var(--game-accent);font-weight:600}
+.pg-btn[disabled]{opacity:.3;cursor:default}
+.pg-gap{color:var(--muted);font-size:11px;padding:0 2px;font-family:'DM Mono',monospace}
+
 /* ── CARD ── */
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:transform .18s,border-color .18s}
 .card:hover{transform:translateY(-2px);border-color:var(--game-border)}
@@ -285,6 +293,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div id="view-grid" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
       <div class="grid-scroll" id="grid-scroll">
         <div class="grid" id="grid"></div>
+        <div class="pagination" id="pagination"></div>
       </div>
     </div>
   </div><!-- /.main -->
@@ -326,6 +335,9 @@ let curCat    = 'Configs';
 let sortBy    = 'dl';
 let viewMode  = 'grid';
 let activeTags = new Set();
+let curPage = 1;
+let _keepPage = false;
+const PAGE_SIZE = 100;
 let _imgs = [], _slide = 0;
 let fuse = null;
 
@@ -531,6 +543,8 @@ function clearTags() {
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
+  if (!_keepPage) curPage = 1;
+  _keepPage = false;
   const q = (document.getElementById('search').value||'').trim();
 
   // Base: current game + current v2 category
@@ -569,10 +583,15 @@ function render() {
   if (!items.length) {
     document.getElementById('grid').innerHTML =
       `<div class="empty" style="grid-column:1/-1"><p>No results${activeTags.size?' — try clearing tags':''}</p></div>`;
+    document.getElementById('pagination').innerHTML = '';
     return;
   }
 
-  document.getElementById('grid').innerHTML = items.map(e => {
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  if (curPage > totalPages) curPage = totalPages;
+  const pageItems = items.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE);
+
+  document.getElementById('grid').innerHTML = pageItems.map(e => {
     const thumb = thumbUrl(e);
     const imgEl = thumb
       ? `<img src="${thumb}" alt="${e.title.replace(/"/g,'')}" loading="lazy" onerror="this.style.display='none';this.parentNode.querySelector('.card-img-ph')||this.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>')">`
@@ -600,6 +619,36 @@ function render() {
   </div>
 </div>`;
   }).join('');
+
+  renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+  const el = document.getElementById('pagination');
+  if (!el || totalPages <= 1) { if (el) el.innerHTML = ''; return; }
+  const spread = 2;
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= curPage - spread && i <= curPage + spread)) {
+      pages.push(i);
+    }
+  }
+  let html = `<button class="pg-btn" onclick="setPage(${curPage-1})" ${curPage===1?'disabled':''}>&#8592;</button>`;
+  let prev = null;
+  for (const p of pages) {
+    if (prev !== null && p > prev + 1) html += `<span class="pg-gap">…</span>`;
+    html += `<button class="pg-btn${p===curPage?' on':''}" onclick="setPage(${p})">${p}</button>`;
+    prev = p;
+  }
+  html += `<button class="pg-btn" onclick="setPage(${curPage+1})" ${curPage===totalPages?'disabled':''}>&#8594;</button>`;
+  el.innerHTML = html;
+}
+
+function setPage(p) {
+  curPage = p;
+  _keepPage = true;
+  render();
+  document.getElementById('grid-scroll').scrollTo({top: 0, behavior: 'smooth'});
 }
 
 // ── CAROUSEL ──────────────────────────────────────────────────────────────────
