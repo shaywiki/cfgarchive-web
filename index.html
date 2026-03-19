@@ -628,9 +628,9 @@ function renderPagination(totalPages) {
 
   const pages = [];
   // Always show first, last, and a window around curPage
-  const window = 2;
+  const spread = 2;
   for (let i = 1; i <= totalPages; i++) {
-    if (i === 1 || i === totalPages || (i >= curPage - window && i <= curPage + window)) {
+    if (i === 1 || i === totalPages || (i >= curPage - spread && i <= curPage + spread)) {
       pages.push(i);
     }
   }
