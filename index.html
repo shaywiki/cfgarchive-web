@@ -243,7 +243,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div class="topbar-centre">
       <div class="topbar-search">
         <span class="search-icon">⌕</span>
-        <input type="text" id="search" placeholder="Search…" oninput="render()">
+        <input type="text" id="search" placeholder="Search…" oninput="curPage=1;render()">
       </div>
     </div>
     <div class="topbar-right">
@@ -336,7 +336,6 @@ let sortBy    = 'dl';
 let viewMode  = 'grid';
 let activeTags = new Set();
 let curPage = 1;
-let _keepPage = false;
 const PAGE_SIZE = 100;
 let _imgs = [], _slide = 0;
 let fuse = null;
@@ -363,7 +362,7 @@ function thumbUrl(e) {
   const f = folder(e);
   const g = safe(e.game_code);
   const c = safe(e._raw_category);
-  return `${R2}/cfgdownloads/${g}/${c}/${f}/${f}_image_0.jpg`;
+  return `${R2}/${g}/${c}/${f}/${f}_image_0.jpg`;
 }
 
 // Carousel: try image_0 through image_3, browser handles 404s gracefully
@@ -372,7 +371,7 @@ function imgUrls(e) {
   const f = folder(e);
   const g = safe(e.game_code);
   const c = safe(e._raw_category);
-  const base = `${R2}/cfgdownloads/${g}/${c}/${f}/${f}_image_`;
+  const base = `${R2}/${g}/${c}/${f}/${f}_image_`;
   // Use local_images count if available, otherwise try up to 4
   const count = (e.local_images && e.local_images.length) ? e.local_images.length : 4;
   return Array.from({length: count}, (_, i) => `${base}${i}.jpg`);
@@ -391,7 +390,8 @@ function dlUrl(e) {
   const f = folder(e);
   const g = safe(e.game_code);
   const c = safe(e._raw_category);
-  return `${R2}/cfgdownloads/${g}/${c}/${f}/${e.id}.${fileExt(e)}`;
+  const filename = e.local_file || `${e.id}.${fileExt(e)}`;
+  return `${R2}/${g}/${c}/${f}/${filename}`;
 }
 
 // ── DATA LOADING ──────────────────────────────────────────────────────────────
@@ -497,6 +497,7 @@ function setCat(el, c) {
 // ── SORT / VIEW ───────────────────────────────────────────────────────────────
 function setSort(el, s) {
   sortBy = s;
+  curPage = 1;
   document.querySelectorAll('.sc').forEach(x => x.classList.remove('on'));
   el.classList.add('on');
   render();
@@ -532,19 +533,19 @@ function buildTagBar(baseItems) {
 }
 
 function toggleTag(t) {
+  curPage = 1;
   activeTags.has(t) ? activeTags.delete(t) : activeTags.add(t);
   render();
 }
 
 function clearTags() {
+  curPage = 1;
   activeTags.clear();
   render();
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
-  if (!_keepPage) curPage = 1;
-  _keepPage = false;
   const q = (document.getElementById('search').value||'').trim();
 
   // Base: current game + current v2 category
@@ -597,16 +598,11 @@ function render() {
       ? `<img src="${thumb}" alt="${e.title.replace(/"/g,'')}" loading="lazy" onerror="this.style.display='none';this.parentNode.querySelector('.card-img-ph')||this.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>')">`
       : '';
     const ph = !thumb ? `<div class="card-img-ph">no image</div>` : '';
-    const ext = fileExt(e);
     const tagPills = (e.tags||[]).slice(0, 4).map(t =>
       `<span class="ctag${activeTags.has(t)?' active':''}" onclick="event.stopPropagation();toggleTag('${t}')">${t}</span>`
     ).join('');
     return `<div class="card" onclick="openEntry('${e.id}')">
   <div class="card-img">${ph}${imgEl}
-    <div class="card-overlay">
-      <span class="card-cat-tag">${e._raw_category}</span>
-      <span class="card-ext-tag">.${ext}</span>
-    </div>
   </div>
   <div class="card-body">
     <div class="card-title">${e.title}</div>
@@ -646,7 +642,6 @@ function renderPagination(totalPages) {
 
 function setPage(p) {
   curPage = p;
-  _keepPage = true;
   render();
   document.getElementById('grid-scroll').scrollTo({top: 0, behavior: 'smooth'});
 }
@@ -791,6 +786,7 @@ function tagAndBack(t) {
 }
 
 function goHome(push=true) {
+  curPage = 1;
   if (push) history.pushState(null, '', location.pathname + location.search);
   document.getElementById('view-entry').style.display = 'none';
   render();
