@@ -342,7 +342,7 @@ let _imgs = [], _slide = 0;
 let fuse = null;
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
-const safe = s => (s||'').toLowerCase().replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'_').slice(0,60).replace(/_$/,'')||'unknown';
+const safe = s => (s||'').toLowerCase().replace(/-/g,'_').replace(/[^\w\s]/g,'').trim().replace(/\s+/g,'_').slice(0,60).replace(/_$/,'')||'unknown';
 const fmtN = n => n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
 
 function byline(e) {
@@ -395,12 +395,13 @@ function fileExt(e) {
   return 'cfg';
 }
 
-// Download URL: filename is safe(title).ext (matches 3rd section of folder name)
+// Download URL: use local_file filename when available (exact match), fallback to safe(title).ext
 function dlUrl(e) {
   const f = folder(e);
   const g = safe(e.game_code);
   const c = safe(e._raw_category);
-  return `${R2}/${g}/${c}/${f}/${safe(e.title)}.${fileExt(e)}`;
+  const filename = e.local_file || `${safe(e.title)}.${fileExt(e)}`;
+  return `${R2}/${g}/${c}/${f}/${filename}`;
 }
 
 // ── DATA LOADING ──────────────────────────────────────────────────────────────
