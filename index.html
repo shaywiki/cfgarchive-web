@@ -661,7 +661,7 @@ function buildCarousel(imgs) {
 
   const slides = imgs.map((src, i) =>
     `<div class="c-slide${i===0?' active':''}">
-      <img src="${src}" alt="" loading="lazy" onerror="slideErr(this)">
+      <img src="${src}" alt="" onerror="slideErrFallback(this)">
     </div>`
   ).join('');
 
@@ -708,6 +708,19 @@ function slideBy(d) { slideTo(_slide + d); }
 function slideErr(img) {
   img.closest('.c-slide').remove();
   _carouselSync();
+}
+
+function slideErrFallback(img) {
+  const src = img.src;
+  if (src.endsWith('.jpg') || src.endsWith('.jpeg')) {
+    img.onerror = () => slideErr(img);
+    img.src = src.replace(/\.(jpg|jpeg)$/, '.png');
+  } else if (src.endsWith('.png')) {
+    img.onerror = () => slideErr(img);
+    img.src = src.replace(/\.png$/, '.jpg');
+  } else {
+    slideErr(img);
+  }
 }
 
 // ── ENTRY PAGE ────────────────────────────────────────────────────────────────
