@@ -604,7 +604,7 @@ function render() {
   document.getElementById('grid').innerHTML = pageItems.map(e => {
     const thumb = thumbUrl(e);
     const imgEl = thumb
-      ? `<img src="${thumb}" alt="${e.title.replace(/"/g,'')}" loading="lazy" onerror="this.style.display='none';this.parentNode.querySelector('.card-img-ph')||this.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>')">`
+      ? `<img src="${thumb}" alt="${e.title.replace(/"/g,'')}" loading="lazy" onerror="const s=this.src;if(s.endsWith('.jpg')||s.endsWith('.jpeg')){this.onerror=function(){this.style.display='none';this.parentNode.querySelector('.card-img-ph')||this.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>')};this.src=s.replace(/\\.(jpg|jpeg)$/,'.png')}else if(s.endsWith('.png')){this.onerror=function(){this.style.display='none';this.parentNode.querySelector('.card-img-ph')||this.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>')};this.src=s.replace(/\\.png$/,'.jpg')}else{this.style.display='none';this.parentNode.querySelector('.card-img-ph')||this.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>')}">`
       : '';
     const ph = !thumb ? `<div class="card-img-ph">no image</div>` : '';
     const tagPills = (e.tags||[]).slice(0, 4).map(t =>
@@ -665,13 +665,11 @@ function buildCarousel(imgs) {
     </div>`
   ).join('');
 
-  const multi = imgs.length > 1;
-  const btns = multi
-    ? `<button class="c-btn prev" onclick="slideBy(-1)"><svg viewBox="0 0 24 24" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-       <button class="c-btn next" onclick="slideBy(1)"><svg viewBox="0 0 24 24" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>` : '';
-  const dots = multi
-    ? `<div class="c-dots">${imgs.map((_,i) => `<span class="c-dot${i===0?' on':''}" onclick="slideTo(${i})"></span>`).join('')}</div>` : '';
-  const counter = multi ? `<span class="c-count" id="c-count">1 / ${imgs.length}</span>` : '';
+  // Always render nav hidden — _carouselSync reveals once real slide count is known
+  const btns = `<button class="c-btn prev" style="display:none" onclick="slideBy(-1)"><svg viewBox="0 0 24 24" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+       <button class="c-btn next" style="display:none" onclick="slideBy(1)"><svg viewBox="0 0 24 24" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>`;
+  const dots = `<div class="c-dots" style="display:none">${imgs.map((_,i) => `<span class="c-dot${i===0?' on':''}" onclick="slideTo(${i})"></span>`).join('')}</div>`;
+  const counter = `<span class="c-count" id="c-count" style="display:none">1 / ${imgs.length}</span>`;
 
   return `<div class="carousel">${btns}
     <div class="c-track" id="c-track">${slides}</div>
@@ -685,17 +683,17 @@ function _carouselSync() {
   const slides = track.querySelectorAll('.c-slide');
   const n = slides.length;
   _imgs = Array(n).fill(null);
-  _slide = Math.max(0, Math.min(_slide, n - 1));
+  _slide = n > 0 ? (((_slide % n) + n) % n) : 0;
   slides.forEach((s, j) => s.classList.toggle('active', j === _slide));
   document.querySelectorAll('.c-dot').forEach((d, j) => d.classList.toggle('on', j === _slide));
   const cc = document.getElementById('c-count');
-  if (cc) cc.textContent = `${_slide + 1} / ${n}`;
-  // Hide nav when only 1 slide remains after errors
-  if (n <= 1) {
-    document.querySelectorAll('.c-btn').forEach(b => b.style.display = 'none');
-    const dotsEl = document.querySelector('.c-dots');
-    if (dotsEl) dotsEl.style.display = 'none';
-    if (cc) cc.style.display = 'none';
+  const multi = n > 1;
+  document.querySelectorAll('.c-btn').forEach(b => b.style.display = multi ? '' : 'none');
+  const dotsEl = document.querySelector('.c-dots');
+  if (dotsEl) dotsEl.style.display = multi ? '' : 'none';
+  if (cc) {
+    cc.textContent = `${_slide + 1} / ${n}`;
+    cc.style.display = multi ? '' : 'none';
   }
 }
 
