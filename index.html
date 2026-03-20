@@ -180,7 +180,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .c-dot.on{background:var(--game-accent);transform:scale(1.2)}
 .c-count{position:absolute;top:10px;right:12px;font-size:10px;font-family:'DM Mono',monospace;background:rgba(0,0,0,.7);color:rgba(255,255,255,.6);padding:2px 8px;border-radius:10px;z-index:2}
 .entry-top{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start;margin-bottom:16px}
-.entry-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-family:'DM Mono',monospace;color:var(--game-accent);background:var(--game-glow);border:1px solid var(--game-border);padding:3px 10px;border-radius:20px;margin-bottom:8px}
 .entry-title{font-size:22px;font-weight:600;line-height:1.2;margin-bottom:6px}
 .entry-byline{font-size:13px;color:var(--text2)}
 .entry-byline strong{color:var(--text);font-weight:500}
@@ -330,7 +329,6 @@ const GAME_CATS = {
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let DATA      = [];
-let TAG_FREQ  = {};
 let curGame   = 'COD4';
 let curCat    = 'All';
 let sortBy    = 'dl';
@@ -409,11 +407,10 @@ async function loadData() {
 
     // All 5 fetched in parallel from Worker proxy → private cfgmeta bucket
     // Any that fail return null — UI still loads, just empty
-    const [index, catsV2, tagsV2, tagFreq, gamesV2, titlesV2, authorsV2, uploadersV2] = await Promise.all([
+    const [index, catsV2, tagsV2, gamesV2, titlesV2, authorsV2, uploadersV2] = await Promise.all([
       safeFetch(`${META}/index.json`),
       safeFetch(`${META}/categories-v2.json`),
       safeFetch(`${META}/tags-v2.json`),
-      safeFetch(`${META}/tag-freq.json`),
       safeFetch(`${META}/games-v2.json`),
       safeFetch(`${META}/titles-v2.json`),
       safeFetch(`${META}/authors-v2.json`),
@@ -432,7 +429,6 @@ async function loadData() {
         author:    (authorsV2  && authorsV2[e.id])  ?? e.author,
         uploader:  (uploadersV2 && uploadersV2[e.id]) ?? e.uploader,
       }));
-      TAG_FREQ = tagFreq || {};
       document.getElementById('pill-total').textContent = DATA.length.toLocaleString();
 
       setMsg('Building search index…');
@@ -513,15 +509,13 @@ function setViewMode(m) {
 
 // ── TAG BAR ───────────────────────────────────────────────────────────────────
 function buildTagBar(baseItems) {
-  // Build tag frequency for current view, ordered by global tag-freq.json
   const localFreq = {};
   baseItems.forEach(e => (e.tags||[]).forEach(t => {
     localFreq[t] = (localFreq[t]||0) + 1;
   }));
 
-  // Sort by global frequency (tag-freq.json) so important tags appear first
   const sorted = Object.entries(localFreq)
-    .sort((a, b) => (TAG_FREQ[b[0]]||0) - (TAG_FREQ[a[0]]||0))
+    .sort((a, b) => b[1] - a[1])
     .slice(0, 28);
 
   const hasTags = activeTags.size > 0;
@@ -754,10 +748,6 @@ function openEntry(id, push=true) {
     ${buildCarousel(_imgs)}
     <div class="entry-top">
       <div>
-        <div class="entry-badge">
-          <svg viewBox="0 0 10 10" width="7" height="7" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>
-          ${e.game_code} · ${e._raw_category}
-        </div>
         <div class="entry-title">${e.title}</div>
         <div class="entry-byline">by <strong>${bl}</strong>&ensp;·&ensp;${e.upload_date}</div>
       </div>
