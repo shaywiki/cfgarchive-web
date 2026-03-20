@@ -147,7 +147,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .card-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace}
 .card-overlay{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;padding:5px 6px}
 .card-cat-tag{font-size:9px;font-family:'DM Mono',monospace;padding:2px 6px;border-radius:3px;background:rgba(0,0,0,.82);color:var(--game-accent);letter-spacing:.4px}
-.card-ext-tag{font-size:9px;font-family:'DM Mono',monospace;padding:2px 5px;border-radius:3px;background:rgba(0,0,0,.75);color:var(--text2)}
 .card-body{padding:8px 10px}
 .card-title{font-size:12px;font-weight:500;line-height:1.35;margin-bottom:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .card-author{font-size:10px;color:var(--text2);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -618,17 +617,14 @@ function render() {
       ? `<img src="${thumb}" data-id="${e.id}" alt="${e.title.replace(/"/g,'')}" loading="lazy" onerror="cardThumbErr(this)">`
       : '';
     const ph = !thumb ? `<div class="card-img-ph">no image</div>` : '';
-    const ext = e.r2_file ? e.r2_file.split('.').pop() : '';
-    const overlayLabel = curGame === 'ALL' ? e.game_code : e.category;
     const tagPills = (e.tags||[]).slice(0, 4).map(t =>
       `<span class="ctag${activeTags.has(t)?' active':''}" onclick="event.stopPropagation();toggleTag('${t}')">${t}</span>`
     ).join('');
+    const overlay = curGame === 'ALL'
+      ? `<div class="card-overlay"><span class="card-cat-tag">${e.game_code}</span></div>`
+      : '';
     return `<div class="card" onclick="openEntry('${e.id}')">
-  <div class="card-img">${ph}${imgEl}
-    <div class="card-overlay">
-      <span class="card-cat-tag">${overlayLabel}</span>
-      ${ext ? `<span class="card-ext-tag">.${ext}</span>` : ''}
-    </div>
+  <div class="card-img">${ph}${imgEl}${overlay}
   </div>
   <div class="card-body">
     <div class="card-title">${e.title}</div>
