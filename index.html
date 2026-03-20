@@ -588,7 +588,7 @@ function render() {
   document.getElementById('grid').innerHTML = pageItems.map(e => {
     const thumb = thumbUrl(e);
     const imgEl = thumb
-      ? `<img src="${thumb}" alt="${e.title.replace(/"/g,'')}" loading="lazy" onerror="const s=this.src;if(s.endsWith('.jpg')||s.endsWith('.jpeg')){this.onerror=function(){this.style.display='none';this.parentNode.querySelector('.card-img-ph')||this.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>')};this.src=s.replace(/\\.(jpg|jpeg)$/,'.png')}else if(s.endsWith('.png')){this.onerror=function(){this.style.display='none';this.parentNode.querySelector('.card-img-ph')||this.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>')};this.src=s.replace(/\\.png$/,'.jpg')}else{this.style.display='none';this.parentNode.querySelector('.card-img-ph')||this.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>')}">`
+      ? `<img src="${thumb}" alt="${e.title.replace(/"/g,'')}" loading="lazy" onerror="cardThumbErr(this)">`
       : '';
     const ph = !thumb ? `<div class="card-img-ph">no image</div>` : '';
     const tagPills = (e.tags||[]).slice(0, 4).map(t =>
@@ -697,14 +697,22 @@ function slideErr(img) {
   _carouselSync();
 }
 
+function cardThumbErr(img) {
+  const src = img.src;
+  if (src.endsWith('.jpg')) {
+    img.onerror = () => { img.style.display='none'; img.parentNode.querySelector('.card-img-ph') || img.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>'); };
+    img.src = src.slice(0, -4) + '.JPG';
+  } else {
+    img.style.display='none';
+    img.parentNode.querySelector('.card-img-ph') || img.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>');
+  }
+}
+
 function slideErrFallback(img) {
   const src = img.src;
-  if (src.endsWith('.jpg') || src.endsWith('.jpeg')) {
+  if (src.endsWith('.jpg')) {
     img.onerror = () => slideErr(img);
-    img.src = src.replace(/\.(jpg|jpeg)$/, '.png');
-  } else if (src.endsWith('.png')) {
-    img.onerror = () => slideErr(img);
-    img.src = src.replace(/\.png$/, '.jpg');
+    img.src = src.slice(0, -4) + '.JPG';   // try uppercase before giving up
   } else {
     slideErr(img);
   }
@@ -803,6 +811,7 @@ function openEntry(id, push=true) {
   const ev = document.getElementById('view-entry');
   ev.style.display = 'flex';
   ev.scrollTop = 0;
+  _carouselSync();
 }
 
 function tagAndBack(t) {
