@@ -98,6 +98,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .grid-toolbar{padding:8px 14px;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-shrink:0;background:var(--bg2)}
 .result-count{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;white-space:nowrap;margin-right:2px}
 .sort-chips{display:flex;gap:4px}
+.page-size-chips{display:flex;gap:4px;margin-left:auto}
 .sc{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .12s;white-space:nowrap}
 .sc:hover,.sc.on{border-color:var(--game-accent);color:var(--game-accent);background:var(--game-glow)}
 
@@ -287,6 +288,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
         <span class="sc on" onclick="setSort(this,'dl')">Downloads</span>
         <span class="sc" onclick="setSort(this,'rating')">Rating</span>
         <span class="sc" onclick="setSort(this,'new')">Newest</span>
+        <span class="sc" onclick="setSort(this,'az')">A–Z</span>
+      </div>
+      <div class="page-size-chips">
+        <span class="sc" onclick="setPageSize(this,25)">25</span>
+        <span class="sc on" onclick="setPageSize(this,50)">50</span>
+        <span class="sc" onclick="setPageSize(this,100)">100</span>
       </div>
     </div>
     <div class="tag-bar" id="tag-bar"><span class="tb-label">Tags</span></div>
@@ -335,7 +342,7 @@ let sortBy    = 'dl';
 let viewMode  = 'grid';
 let activeTags = new Set();
 let curPage = 1;
-const PAGE_SIZE = 100;
+let pageSize = 50;
 let _imgs = [], _slide = 0;
 let fuse = null;
 
@@ -494,7 +501,15 @@ function setCat(el, c) {
 function setSort(el, s) {
   sortBy = s;
   curPage = 1;
-  document.querySelectorAll('.sc').forEach(x => x.classList.remove('on'));
+  document.querySelectorAll('.sort-chips .sc').forEach(x => x.classList.remove('on'));
+  el.classList.add('on');
+  render();
+}
+
+function setPageSize(el, n) {
+  pageSize = n;
+  curPage = 1;
+  document.querySelectorAll('.page-size-chips .sc').forEach(x => x.classList.remove('on'));
   el.classList.add('on');
   render();
 }
@@ -568,9 +583,10 @@ function render() {
   }
 
   // Sort
-  if (sortBy === 'dl')     items.sort((a,b) => b.downloads - a.downloads);
+  if (sortBy === 'dl')          items.sort((a,b) => b.downloads - a.downloads);
   else if (sortBy === 'rating') items.sort((a,b) => b.rating - a.rating);
-  else items.sort((a,b) => new Date(b.upload_date) - new Date(a.upload_date));
+  else if (sortBy === 'az')     items.sort((a,b) => (a.title||'').localeCompare(b.title||''));
+  else                          items.sort((a,b) => new Date(b.upload_date) - new Date(a.upload_date));
 
   document.getElementById('result-count').textContent =
     `${items.length.toLocaleString()} result${items.length!==1?'s':''}`;
@@ -582,9 +598,9 @@ function render() {
     return;
   }
 
-  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
   if (curPage > totalPages) curPage = totalPages;
-  const pageItems = items.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE);
+  const pageItems = items.slice((curPage - 1) * pageSize, curPage * pageSize);
 
   document.getElementById('grid').innerHTML = pageItems.map(e => {
     const thumb = thumbUrl(e);
