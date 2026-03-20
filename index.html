@@ -332,7 +332,7 @@ const GAME_CATS = {
 let DATA      = [];
 let TAG_FREQ  = {};
 let curGame   = 'COD4';
-let curCat    = 'Configs';
+let curCat    = 'All';
 let sortBy    = 'dl';
 let viewMode  = 'grid';
 let activeTags = new Set();
@@ -459,24 +459,23 @@ function setGame(el, g) {
   document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
   el.classList.add('on');
   activeTags.clear();
-  const cats = GAME_CATS[g] || ['Other'];
-  curCat = cats[0];
+  curCat = 'All';
   buildCatBar(g);
   goHome();
 }
 
 function buildCatBar(g) {
   const cats = GAME_CATS[g] || ['Other'];
-  // Count entries per v2 category for this game
+  const gameItems = DATA.filter(e => e.game_code === g);
   const counts = {};
-  DATA.filter(e => e.game_code === g).forEach(e => {
-    counts[e.category] = (counts[e.category] || 0) + 1;
-  });
+  gameItems.forEach(e => { counts[e.category] = (counts[e.category] || 0) + 1; });
 
-  document.getElementById('cat-bar').innerHTML = cats.map(c => {
+  const allTab = `<span class="cat-tab${curCat==='All'?' on':''}" onclick="setCat(this,'All')">All<span class="cat-count">${gameItems.length.toLocaleString()}</span></span>`;
+  const catTabs = cats.map(c => {
     const n = counts[c] ? `<span class="cat-count">${counts[c].toLocaleString()}</span>` : '';
     return `<span class="cat-tab${curCat===c?' on':''}" onclick="setCat(this,'${c}')">${c}${n}</span>`;
   }).join('');
+  document.getElementById('cat-bar').innerHTML = allTab + catTabs;
 }
 
 function setCat(el, c) {
@@ -541,8 +540,8 @@ function clearTags() {
 function render() {
   const q = (document.getElementById('search').value||'').trim();
 
-  // Base: current game + current v2 category
-  let baseItems = DATA.filter(e => e.game_code === curGame && e.category === curCat);
+  // Base: current game, optionally filtered by category
+  let baseItems = DATA.filter(e => e.game_code === curGame && (curCat === 'All' || e.category === curCat));
 
   buildTagBar(baseItems);
 
