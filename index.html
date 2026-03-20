@@ -701,20 +701,26 @@ function slideErr(img) {
 
 function cardThumbErr(img) {
   const src = img.src;
+  const fail = () => { img.style.display='none'; img.parentNode.querySelector('.card-img-ph') || img.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>'); };
   if (src.endsWith('.jpg')) {
-    img.onerror = () => { img.style.display='none'; img.parentNode.querySelector('.card-img-ph') || img.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>'); };
+    img.onerror = () => cardThumbErr(img);
     img.src = src.slice(0, -4) + '.JPG';
+  } else if (src.endsWith('.JPG')) {
+    img.onerror = () => cardThumbErr(img);
+    img.src = src.slice(0, -4) + '.png';
   } else {
-    img.style.display='none';
-    img.parentNode.querySelector('.card-img-ph') || img.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>');
+    fail();
   }
 }
 
 function slideErrFallback(img) {
   const src = img.src;
   if (src.endsWith('.jpg')) {
-    img.onerror = () => slideErr(img);
-    img.src = src.slice(0, -4) + '.JPG';   // try uppercase before giving up
+    img.onerror = () => slideErrFallback(img);
+    img.src = src.slice(0, -4) + '.JPG';
+  } else if (src.endsWith('.JPG')) {
+    img.onerror = () => slideErrFallback(img);
+    img.src = src.slice(0, -4) + '.png';
   } else {
     slideErr(img);
   }
