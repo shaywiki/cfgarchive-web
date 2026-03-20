@@ -437,7 +437,7 @@ async function loadData() {
         title:     (titlesV2   && titlesV2[e.id])   ?? e.title,
         author:    (authorsV2  && authorsV2[e.id])  ?? e.author,
         uploader:  (uploadersV2 && uploadersV2[e.id]) ?? e.uploader,
-      }));
+      })).filter(e => e.title && e.title.trim());
       document.getElementById('pill-total').textContent = DATA.length.toLocaleString();
 
       setMsg('Building search index…');
