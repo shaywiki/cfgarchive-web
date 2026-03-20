@@ -703,12 +703,11 @@ function slideErr(img) {
 function cardThumbErr(img) {
   const src = img.src;
   const fail = () => { img.style.display='none'; img.parentNode.querySelector('.card-img-ph') || img.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>'); };
-  if (src.endsWith('.jpg')) {
+  const next = { '.jpg': '.JPG', '.JPG': '.png', '.png': '.PNG', '.PNG': '.gif', '.gif': '.GIF' };
+  const ext = ['.jpg','.JPG','.png','.PNG','.gif','.GIF'].find(e => src.endsWith(e));
+  if (ext && next[ext]) {
     img.onerror = () => cardThumbErr(img);
-    img.src = src.slice(0, -4) + '.JPG';
-  } else if (src.endsWith('.JPG')) {
-    img.onerror = () => cardThumbErr(img);
-    img.src = src.slice(0, -4) + '.png';
+    img.src = src.slice(0, -ext.length) + next[ext];
   } else {
     fail();
   }
@@ -716,12 +715,11 @@ function cardThumbErr(img) {
 
 function slideErrFallback(img) {
   const src = img.src;
-  if (src.endsWith('.jpg')) {
+  const next = { '.jpg': '.JPG', '.JPG': '.png', '.png': '.PNG', '.PNG': '.gif', '.gif': '.GIF' };
+  const ext = ['.jpg','.JPG','.png','.PNG','.gif','.GIF'].find(e => src.endsWith(e));
+  if (ext && next[ext]) {
     img.onerror = () => slideErrFallback(img);
-    img.src = src.slice(0, -4) + '.JPG';
-  } else if (src.endsWith('.JPG')) {
-    img.onerror = () => slideErrFallback(img);
-    img.src = src.slice(0, -4) + '.png';
+    img.src = src.slice(0, -ext.length) + next[ext];
   } else {
     slideErr(img);
   }
