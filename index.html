@@ -342,8 +342,10 @@ let sortBy    = 'dl';
 let viewMode  = 'grid';
 let activeTags = new Set();
 let curPage = 1;
+let _savedPage = 1;
 let pageSize = 50;
 let _imgs = [], _slide = 0;
+const _thumbCache = new Map(); // id → successful url (or null if all failed)
 let fuse = null;
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -603,9 +605,9 @@ function render() {
   const pageItems = items.slice((curPage - 1) * pageSize, curPage * pageSize);
 
   document.getElementById('grid').innerHTML = pageItems.map(e => {
-    const thumb = thumbUrl(e);
+    const thumb = _thumbCache.has(e.id) ? _thumbCache.get(e.id) : thumbUrl(e);
     const imgEl = thumb
-      ? `<img src="${thumb}" alt="${e.title.replace(/"/g,'')}" loading="lazy" onerror="cardThumbErr(this)">`
+      ? `<img src="${thumb}" data-id="${e.id}" alt="${e.title.replace(/"/g,'')}" loading="lazy" onerror="cardThumbErr(this)">`
       : '';
     const ph = !thumb ? `<div class="card-img-ph">no image</div>` : '';
     const tagPills = (e.tags||[]).slice(0, 4).map(t =>
@@ -683,6 +685,11 @@ function _carouselSync() {
   if (!track) return;
   const slides = track.querySelectorAll('.c-slide');
   const n = slides.length;
+  if (n === 0) {
+    const car = track.closest('.carousel');
+    if (car && !car.querySelector('.c-ph')) car.insertAdjacentHTML('afterbegin','<div class="c-ph">no image archived</div>');
+    return;
+  }
   _imgs = Array(n).fill(null);
   _slide = n > 0 ? (((_slide % n) + n) % n) : 0;
   slides.forEach((s, j) => s.classList.toggle('active', j === _slide));
@@ -724,8 +731,15 @@ function nextImgSrc(src) {
 
 function cardThumbErr(img) {
   const next = nextImgSrc(img.src);
-  if (next) { img.onerror = () => cardThumbErr(img); img.src = next; }
-  else { img.style.display='none'; img.parentNode.querySelector('.card-img-ph') || img.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>'); }
+  if (next) {
+    img.onerror = () => cardThumbErr(img);
+    img.onload  = () => { if (img.dataset.id) _thumbCache.set(img.dataset.id, img.src); };
+    img.src = next;
+  } else {
+    if (img.dataset.id) _thumbCache.set(img.dataset.id, null);
+    img.style.display = 'none';
+    img.parentNode.querySelector('.card-img-ph') || img.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>');
+  }
 }
 
 function slideErrFallback(img) {
@@ -748,6 +762,7 @@ function reportUrl(e) {
 function openEntry(id, push=true) {
   const e = DATA.find(x => x.id === id);
   if (!e) return;
+  _savedPage = curPage;
   if (push) location.hash = 'entry/' + id;
   _slide = 0;
   _imgs  = imgUrls(e);
@@ -757,7 +772,7 @@ function openEntry(id, push=true) {
   const showUploader = e.uploader && e.uploader.trim() && e.uploader !== e.author;
 
   document.getElementById('entry-page').innerHTML = `
-    <button class="entry-back" onclick="goHome()">
+    <button class="entry-back" onclick="closeEntry()">
       <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
       Back to ${curCat}
     </button>
@@ -829,6 +844,13 @@ function tagAndBack(t) {
   activeTags.clear();
   activeTags.add(t);
   goHome();
+}
+
+function closeEntry() {
+  curPage = _savedPage;
+  history.pushState(null, '', location.pathname + location.search);
+  document.getElementById('view-entry').style.display = 'none';
+  render();
 }
 
 function goHome(push=true) {
