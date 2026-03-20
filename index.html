@@ -139,7 +139,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 /* ── CARD ── */
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:transform .18s,border-color .18s}
 .card:hover{transform:translateY(-2px);border-color:var(--game-border)}
-.card-img{height:92px;background:var(--bg3);position:relative;overflow:hidden}
+.card-img{aspect-ratio:16/9;background:var(--bg3);position:relative;overflow:hidden}
 .card-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
 .card:hover .card-img img{transform:scale(1.05)}
 .card-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace}
@@ -342,7 +342,7 @@ let _imgs = [], _slide = 0;
 let fuse = null;
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
-const safe = s => (s||'').toLowerCase().replace(/-/g,'_').replace(/[^\w\s]/g,'').trim().replace(/\s+/g,'_').slice(0,60).replace(/_$/,'')||'unknown';
+const safe = s => { const t = ((s||'').toLowerCase().replace(/[^\w\s-]/g,'').trim()); return t.replace(/[\s_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40)||'unknown'; };
 const fmtN = n => n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
 
 function byline(e) {
@@ -352,56 +352,39 @@ function byline(e) {
   return 'unknown';
 }
 
-// folder() uses raw author (safe(e.author)) to match how folders were named on upload
-function folder(e) {
-  return `${safe(e.game_code)}.${safe(e._raw_category)}.${safe(e.title)}.${safe(e.author||'')}`;
-}
+// R2 base URL for an entry — r2_folder is game/category/foldername (no leading slash)
+function r2base(e) { return `${R2}/${e.r2_folder}`; }
 
-// Derive image extension from local_images filenames (some entries use .png, most .jpg)
-function imgExt(e) {
-  if (e.local_images && e.local_images.length && typeof e.local_images[0] === 'string') {
-    const ext = e.local_images[0].split('.').pop().toLowerCase();
-    if (ext === 'png' || ext === 'jpg' || ext === 'jpeg') return ext;
-  }
-  return 'jpg';
-}
-
-// Thumbnail: image_0 from R2
+// Thumbnail: _image_0.jpg from r2_folder
 function thumbUrl(e) {
-  if (!e.has_image) return null;
-  const f = folder(e);
-  const g = safe(e.game_code);
-  const c = safe(e._raw_category);
-  return `${R2}/${g}/${c}/${f}/${f}_image_0.${imgExt(e)}`;
+  if (!e.has_image || !e.r2_folder) return null;
+  const fn = e.r2_folder.split('/').pop();
+  return `${r2base(e)}/${fn}_image_0.jpg`;
 }
 
-// Carousel: use local_images count; fallback to 4 so slideErr can prune missing ones
+// Carousel images: use image_count from index.json (exact count, no fallback guessing)
 function imgUrls(e) {
-  if (!e.has_image) return [];
-  const f = folder(e);
-  const g = safe(e.game_code);
-  const c = safe(e._raw_category);
-  const base = `${R2}/${g}/${c}/${f}/${f}_image_`;
-  const ext = imgExt(e);
-  const count = (e.local_images && e.local_images.length) ? e.local_images.length : 4;
-  return Array.from({length: count}, (_, i) => `${base}${i}.${ext}`);
+  if (!e.has_image || !e.r2_folder) return [];
+  const fn = e.r2_folder.split('/').pop();
+  const count = e.image_count > 0 ? e.image_count : 1;
+  return Array.from({length: count}, (_, i) => `${r2base(e)}/${fn}_image_${i}.jpg`);
 }
 
 function fileExt(e) {
-  if (e.local_file) {
-    const ext = e.local_file.split('.').pop().toLowerCase();
-    if (['cfg','zip','rar','7z'].includes(ext)) return ext;
-  }
+  if (e.r2_file) return e.r2_file.split('.').pop().toLowerCase() || 'cfg';
   return 'cfg';
 }
 
-// Download URL: use local_file filename when available (exact match), fallback to safe(title).ext
+// Download URL: use r2_file (exact filename from organisation.py)
 function dlUrl(e) {
-  const f = folder(e);
-  const g = safe(e.game_code);
-  const c = safe(e._raw_category);
-  const filename = e.local_file || `${safe(e.title)}.${fileExt(e)}`;
-  return `${R2}/${g}/${c}/${f}/${filename}`;
+  if (!e.r2_folder || !e.r2_file) return null;
+  return `${r2base(e)}/${e.r2_file}`;
+}
+
+// folder() — legacy, used only for report issue URLs
+function folder(e) {
+  return e.r2_folder ? e.r2_folder.split('/').pop()
+    : `${safe(e.game_code)}.${safe(e._raw_category||e.category)}.${safe(e.title)}.${safe(byline(e))}`;
 }
 
 // ── DATA LOADING ──────────────────────────────────────────────────────────────
@@ -686,11 +669,16 @@ function _carouselSync() {
   _imgs = Array(n).fill(null);
   _slide = n > 0 ? (((_slide % n) + n) % n) : 0;
   slides.forEach((s, j) => s.classList.toggle('active', j === _slide));
-  document.querySelectorAll('.c-dot').forEach((d, j) => d.classList.toggle('on', j === _slide));
+  // Rebuild dots to always match actual loaded slide count
+  const dotsEl = document.querySelector('.c-dots');
+  if (dotsEl) {
+    dotsEl.innerHTML = Array.from({length: n}, (_, j) =>
+      `<span class="c-dot${j===_slide?' on':''}" onclick="slideTo(${j})"></span>`
+    ).join('');
+  }
   const cc = document.getElementById('c-count');
   const multi = n > 1;
   document.querySelectorAll('.c-btn').forEach(b => b.style.display = multi ? '' : 'none');
-  const dotsEl = document.querySelector('.c-dots');
   if (dotsEl) dotsEl.style.display = multi ? '' : 'none';
   if (cc) {
     cc.textContent = `${_slide + 1} / ${n}`;
