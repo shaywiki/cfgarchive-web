@@ -15,6 +15,7 @@
   --border:rgba(255,255,255,.07);--r:8px;--r-lg:12px;
   --game-accent:#3dba6f;--game-glow:rgba(61,186,111,.11);--game-border:rgba(61,186,111,.22);
 }
+body[data-game="ALL"]{--game-accent:rgba(255,255,255,.65);--game-glow:rgba(255,255,255,.05);--game-border:rgba(255,255,255,.12)}
 body[data-game="COD4"]{--game-accent:#3dba6f;--game-glow:rgba(61,186,111,.11);--game-border:rgba(61,186,111,.22)}
 body[data-game="GTA4"]{--game-accent:#f97316;--game-glow:rgba(249,115,22,.11);--game-border:rgba(249,115,22,.24)}
 body[data-game="COD2"]{--game-accent:#e8c84a;--game-glow:rgba(232,200,74,.1);--game-border:rgba(232,200,74,.22)}
@@ -262,6 +263,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   <div class="sidebar">
     <div class="sidebar-scroll">
       <div class="sl">Games</div>
+      <div class="si" data-game="ALL" onclick="setGame(this,'ALL')"><span class="si-label"><span class="game-dot" style="background:rgba(255,255,255,.35)"></span><span class="si-name">All Games</span></span><span class="badge" id="badge-all">—</span></div>
       <div class="si on" data-game="COD4" onclick="setGame(this,'COD4')"><span class="si-label"><span class="game-dot" style="background:#3dba6f"></span><span class="si-name">COD4</span></span><span class="badge">7,740</span></div>
       <div class="si" data-game="GTA4" onclick="setGame(this,'GTA4')"><span class="si-label"><span class="game-dot" style="background:#f97316"></span><span class="si-name">GTA4</span></span><span class="badge">5,025</span></div>
       <div class="si" data-game="COD2" onclick="setGame(this,'COD2')"><span class="si-label"><span class="game-dot" style="background:#e8c84a"></span><span class="si-name">COD2</span></span><span class="badge">345</span></div>
@@ -439,6 +441,7 @@ async function loadData() {
         uploader:  (uploadersV2 && uploadersV2[e.id]) ?? e.uploader,
       })).filter(e => e.title && e.title.trim());
       document.getElementById('pill-total').textContent = DATA.length.toLocaleString();
+      document.getElementById('badge-all').textContent = DATA.length.toLocaleString();
 
       setMsg('Building search index…');
       fuse = new Fuse(DATA, {
@@ -473,7 +476,11 @@ function setGame(el, g) {
   el.classList.add('on');
   activeTags.clear();
   curCat = 'All';
-  buildCatBar(g);
+  if (g === 'ALL') {
+    document.getElementById('cat-bar').innerHTML = '';
+  } else {
+    buildCatBar(g);
+  }
   goHome();
 }
 
@@ -560,16 +567,17 @@ function render() {
   const q = (document.getElementById('search').value||'').trim();
 
   // Base: current game, optionally filtered by category
-  let baseItems = DATA.filter(e => e.game_code === curGame && (curCat === 'All' || e.category === curCat));
+  let baseItems = curGame === 'ALL'
+    ? DATA
+    : DATA.filter(e => e.game_code === curGame && (curCat === 'All' || e.category === curCat));
 
   buildTagBar(baseItems);
 
   // Search
   let items;
   if (q && fuse) {
-    // Search across all entries in this game, then filter to current cat
-    const allGame = DATA.filter(e => e.game_code === curGame);
-    const tmpFuse = new Fuse(allGame, {
+    const searchBase = curGame === 'ALL' ? DATA : DATA.filter(e => e.game_code === curGame);
+    const tmpFuse = new Fuse(searchBase, {
       keys: [{name:'title',weight:2},{name:'author',weight:1},{name:'tags',weight:0.8}],
       threshold: 0.35, ignoreLocation: true,
     });
@@ -586,7 +594,7 @@ function render() {
 
   // Sort
   if (sortBy === 'dl')          items.sort((a,b) => b.downloads - a.downloads);
-  else if (sortBy === 'rating') items.sort((a,b) => b.rating - a.rating);
+  else if (sortBy === 'rating') items.sort((a,b) => (b.rating - a.rating) || (b.downloads - a.downloads));
   else if (sortBy === 'az')     items.sort((a,b) => (a.title||'').localeCompare(b.title||''));
   else                          items.sort((a,b) => new Date(b.upload_date) - new Date(a.upload_date));
 
@@ -610,11 +618,17 @@ function render() {
       ? `<img src="${thumb}" data-id="${e.id}" alt="${e.title.replace(/"/g,'')}" loading="lazy" onerror="cardThumbErr(this)">`
       : '';
     const ph = !thumb ? `<div class="card-img-ph">no image</div>` : '';
+    const ext = e.r2_file ? e.r2_file.split('.').pop() : '';
+    const overlayLabel = curGame === 'ALL' ? e.game_code : e.category;
     const tagPills = (e.tags||[]).slice(0, 4).map(t =>
       `<span class="ctag${activeTags.has(t)?' active':''}" onclick="event.stopPropagation();toggleTag('${t}')">${t}</span>`
     ).join('');
     return `<div class="card" onclick="openEntry('${e.id}')">
   <div class="card-img">${ph}${imgEl}
+    <div class="card-overlay">
+      <span class="card-cat-tag">${overlayLabel}</span>
+      ${ext ? `<span class="card-ext-tag">.${ext}</span>` : ''}
+    </div>
   </div>
   <div class="card-body">
     <div class="card-title">${e.title}</div>
