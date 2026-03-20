@@ -181,7 +181,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .c-dot.on{background:var(--game-accent);transform:scale(1.2)}
 .c-count{position:absolute;top:10px;right:12px;font-size:10px;font-family:'DM Mono',monospace;background:rgba(0,0,0,.7);color:rgba(255,255,255,.6);padding:2px 8px;border-radius:10px;z-index:2}
 .entry-top{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start;margin-bottom:16px}
-.entry-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-family:'DM Mono',monospace;color:var(--game-accent);background:var(--game-glow);border:1px solid var(--game-border);padding:3px 10px;border-radius:20px;margin-top:6px}
+.entry-meta-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}
+.entry-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-family:'DM Mono',monospace;color:var(--game-accent);background:var(--game-glow);border:1px solid var(--game-border);padding:3px 10px;border-radius:20px;flex-shrink:0}
 .entry-title{font-size:22px;font-weight:600;line-height:1.2;margin-bottom:6px}
 .entry-byline{font-size:13px;color:var(--text2)}
 .entry-byline strong{color:var(--text);font-weight:500}
@@ -193,7 +194,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .btn-report{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:transparent;color:var(--muted);padding:7px 12px;border-radius:var(--r);font-size:11px;text-decoration:none;border:1px solid var(--border);transition:all .15s;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;width:100%}
 .btn-report:hover{color:var(--text2);border-color:rgba(255,255,255,.15)}
 .btn-report svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
-.entry-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
 .etag{font-size:11px;color:var(--text2);background:rgba(255,255,255,.05);border:1px solid var(--border);padding:3px 9px;border-radius:5px;cursor:pointer;transition:all .12s}
 .etag:hover{color:var(--game-accent);border-color:var(--game-border);background:var(--game-glow)}
 .etag.active{color:var(--game-accent);border-color:var(--game-accent);background:var(--game-glow)}
@@ -792,7 +792,12 @@ function openEntry(id, push=true) {
       <div>
         <div class="entry-title">${e.title}</div>
         <div class="entry-byline">by <strong>${bl}</strong>&ensp;·&ensp;${e.upload_date}</div>
-        <div class="entry-badge"><svg viewBox="0 0 10 10" width="7" height="7" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>${e.game_code}</div>
+        <div class="entry-meta-row">
+          <div class="entry-badge"><svg viewBox="0 0 10 10" width="7" height="7" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>${e.game_code}</div>
+          ${(e.tags||[]).map(t =>
+            `<span class="etag${activeTags.has(t)?' active':''}" onclick="tagAndBack('${t}')">${t}</span>`
+          ).join('')}
+        </div>
       </div>
       <div class="entry-actions">
         ${e.has_file && dlUrl(e)
@@ -807,11 +812,6 @@ function openEntry(id, push=true) {
           Report an issue
         </a>
       </div>
-    </div>
-    <div class="entry-tags">
-      ${(e.tags||[]).map(t =>
-        `<span class="etag${activeTags.has(t)?' active':''}" onclick="tagAndBack('${t}')">${t}</span>`
-      ).join('')}
     </div>
     <div class="entry-body">
       <div>
