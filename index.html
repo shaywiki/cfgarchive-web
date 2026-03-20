@@ -407,13 +407,14 @@ async function loadData() {
   try {
     setMsg('Fetching index…');
 
-    // All 4 fetched in parallel from Worker proxy → private cfgmeta bucket
+    // All 5 fetched in parallel from Worker proxy → private cfgmeta bucket
     // Any that fail return null — UI still loads, just empty
-    const [index, catsV2, tagsV2, tagFreq] = await Promise.all([
+    const [index, catsV2, tagsV2, tagFreq, gamesV2] = await Promise.all([
       safeFetch(`${META}/index.json`),
       safeFetch(`${META}/categories-v2.json`),
       safeFetch(`${META}/tags-v2.json`),
       safeFetch(`${META}/tag-freq.json`),
+      safeFetch(`${META}/games-v2.json`),
     ]);
 
     if (index && index.entries) {
@@ -421,8 +422,9 @@ async function loadData() {
       DATA = index.entries.map(e => ({
         ...e,
         _raw_category: e.category,
-        category:      (catsV2 && catsV2[e.id]) ?? e.category,
-        tags:          (tagsV2 && tagsV2[e.id]) ?? (e.tags || []),
+        category:      (catsV2  && catsV2[e.id])  ?? e.category,
+        tags:          (tagsV2  && tagsV2[e.id])  ?? (e.tags || []),
+        game_code:     (gamesV2 && gamesV2[e.id]) ?? e.game_code,
       }));
       TAG_FREQ = tagFreq || {};
       document.getElementById('pill-total').textContent = DATA.length.toLocaleString();
