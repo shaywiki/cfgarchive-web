@@ -128,10 +128,18 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .list-mode .card-footer{padding:0 12px;min-width:100px;justify-content:flex-end;gap:10px}
 .list-mode .card-overlay,.list-mode .card-tags{display:none}
 
+/* ── PAGINATION ── */
+.pagination{display:flex;align-items:center;justify-content:center;gap:4px;padding:14px 14px 6px;flex-wrap:wrap}
+.pg-btn{background:var(--bg2);border:1px solid var(--border);color:var(--muted);border-radius:var(--r);padding:5px 10px;font-size:11px;cursor:pointer;transition:all .12s;font-family:'DM Mono',monospace;min-width:32px;text-align:center}
+.pg-btn:hover:not([disabled]){border-color:var(--game-border);color:var(--text)}
+.pg-btn.on{border-color:var(--game-accent);color:var(--game-accent);font-weight:600}
+.pg-btn[disabled]{opacity:.3;cursor:default}
+.pg-gap{color:var(--muted);font-size:11px;padding:0 2px;font-family:'DM Mono',monospace}
+
 /* ── CARD ── */
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:transform .18s,border-color .18s}
 .card:hover{transform:translateY(-2px);border-color:var(--game-border)}
-.card-img{height:92px;background:var(--bg3);position:relative;overflow:hidden}
+.card-img{aspect-ratio:16/9;background:var(--bg3);position:relative;overflow:hidden}
 .card-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
 .card:hover .card-img img{transform:scale(1.05)}
 .card-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace}
@@ -157,10 +165,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .entry-back{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;margin-bottom:18px;padding:5px 0;transition:color .12s;border:none;background:none}
 .entry-back:hover{color:var(--game-accent)}
 .entry-back svg{width:14px;height:14px;stroke:currentColor;fill:none}
-.carousel{position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--bg3);margin-bottom:22px;border:1px solid var(--border);aspect-ratio:16/7}
-.c-track{display:flex;height:100%;transition:transform .32s cubic-bezier(.4,0,.2,1)}
-.c-slide{flex-shrink:0;height:100%}
-.c-slide img{width:100%;height:100%;object-fit:cover;display:block}
+.carousel{position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--bg3);margin-bottom:22px;border:1px solid var(--border);aspect-ratio:16/9}
+.c-track{position:relative;height:100%}
+.c-slide{position:absolute;inset:0;display:none;opacity:0;transition:opacity .25s}
+.c-slide.active{display:block;opacity:1}
+.c-slide img{width:100%;height:100%;object-fit:contain;display:block;background:var(--bg3)}
 .c-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px}
 .c-btn{position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.13);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;z-index:2}
 .c-btn:hover{background:rgba(0,0,0,.92)}
@@ -235,7 +244,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div class="topbar-centre">
       <div class="topbar-search">
         <span class="search-icon">⌕</span>
-        <input type="text" id="search" placeholder="Search…" oninput="render()">
+        <input type="text" id="search" placeholder="Search…" oninput="curPage=1;render()">
       </div>
     </div>
     <div class="topbar-right">
@@ -285,6 +294,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div id="view-grid" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
       <div class="grid-scroll" id="grid-scroll">
         <div class="grid" id="grid"></div>
+        <div class="pagination" id="pagination"></div>
       </div>
     </div>
   </div><!-- /.main -->
@@ -322,15 +332,17 @@ const GAME_CATS = {
 let DATA      = [];
 let TAG_FREQ  = {};
 let curGame   = 'COD4';
-let curCat    = 'Configs';
+let curCat    = 'All';
 let sortBy    = 'dl';
 let viewMode  = 'grid';
 let activeTags = new Set();
+let curPage = 1;
+const PAGE_SIZE = 100;
 let _imgs = [], _slide = 0;
 let fuse = null;
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
-const safe = s => (s||'').toLowerCase().replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'_').slice(0,60).replace(/_$/,'')||'unknown';
+const safe = s => { const t = ((s||'').toLowerCase().replace(/[^\w\s-]/g,'').trim()); return t.replace(/[\s_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40)||'unknown'; };
 const fmtN = n => n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
 
 function byline(e) {
@@ -340,46 +352,39 @@ function byline(e) {
   return 'unknown';
 }
 
-// folder() always uses _raw_category (original scraped) for correct blob path
-function folder(e) {
-  return `${safe(e.game_code)}.${safe(e._raw_category)}.${safe(e.title)}.${safe(byline(e))}`;
-}
+// R2 base URL for an entry — r2_folder is game/category/foldername (no leading slash)
+function r2base(e) { return `${R2}/${e.r2_folder}`; }
 
-// Thumbnail: full-res image_0 from R2 (higher quality than old thumbnail)
+// Thumbnail: _image_0.jpg from r2_folder
 function thumbUrl(e) {
-  if (!e.has_image) return null;
-  const f = folder(e);
-  const g = safe(e.game_code);
-  const c = safe(e._raw_category);
-  return `${R2}/cfgdownloads/${g}/${c}/${f}/${f}_image_0.jpg`;
+  if (!e.has_image || !e.r2_folder) return null;
+  const fn = e.r2_folder.split('/').pop();
+  return `${r2base(e)}/${fn}_image_0.jpg`;
 }
 
-// Carousel: try image_0 through image_3, browser handles 404s gracefully
+// Carousel images: use image_count from index.json (exact count, no fallback guessing)
 function imgUrls(e) {
-  if (!e.has_image) return [];
-  const f = folder(e);
-  const g = safe(e.game_code);
-  const c = safe(e._raw_category);
-  const base = `${R2}/cfgdownloads/${g}/${c}/${f}/${f}_image_`;
-  // Use local_images count if available, otherwise try up to 4
-  const count = (e.local_images && e.local_images.length) ? e.local_images.length : 4;
-  return Array.from({length: count}, (_, i) => `${base}${i}.jpg`);
+  if (!e.has_image || !e.r2_folder) return [];
+  const fn = e.r2_folder.split('/').pop();
+  const count = e.image_count > 0 ? e.image_count : 1;
+  return Array.from({length: count}, (_, i) => `${r2base(e)}/${fn}_image_${i}.jpg`);
 }
 
 function fileExt(e) {
-  if (e.local_file) {
-    const ext = e.local_file.split('.').pop().toLowerCase();
-    if (['cfg','zip','rar','7z'].includes(ext)) return ext;
-  }
+  if (e.r2_file) return e.r2_file.split('.').pop().toLowerCase() || 'cfg';
   return 'cfg';
 }
 
-// Download URL: uses _raw_category for correct blob path
+// Download URL: use r2_file (exact filename from organisation.py)
 function dlUrl(e) {
-  const f = folder(e);
-  const g = safe(e.game_code);
-  const c = safe(e._raw_category);
-  return `${R2}/cfgdownloads/${g}/${c}/${f}/${e.id}.${fileExt(e)}`;
+  if (!e.r2_folder || !e.r2_file) return null;
+  return `${r2base(e)}/${e.r2_file}`;
+}
+
+// folder() — legacy, used only for report issue URLs
+function folder(e) {
+  return e.r2_folder ? e.r2_folder.split('/').pop()
+    : `${safe(e.game_code)}.${safe(e._raw_category||e.category)}.${safe(e.title)}.${safe(byline(e))}`;
 }
 
 // ── DATA LOADING ──────────────────────────────────────────────────────────────
@@ -454,24 +459,23 @@ function setGame(el, g) {
   document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
   el.classList.add('on');
   activeTags.clear();
-  const cats = GAME_CATS[g] || ['Other'];
-  curCat = cats[0];
+  curCat = 'All';
   buildCatBar(g);
   goHome();
 }
 
 function buildCatBar(g) {
   const cats = GAME_CATS[g] || ['Other'];
-  // Count entries per v2 category for this game
+  const gameItems = DATA.filter(e => e.game_code === g);
   const counts = {};
-  DATA.filter(e => e.game_code === g).forEach(e => {
-    counts[e.category] = (counts[e.category] || 0) + 1;
-  });
+  gameItems.forEach(e => { counts[e.category] = (counts[e.category] || 0) + 1; });
 
-  document.getElementById('cat-bar').innerHTML = cats.map(c => {
+  const allTab = `<span class="cat-tab${curCat==='All'?' on':''}" onclick="setCat(this,'All')">All<span class="cat-count">${gameItems.length.toLocaleString()}</span></span>`;
+  const catTabs = cats.map(c => {
     const n = counts[c] ? `<span class="cat-count">${counts[c].toLocaleString()}</span>` : '';
     return `<span class="cat-tab${curCat===c?' on':''}" onclick="setCat(this,'${c}')">${c}${n}</span>`;
   }).join('');
+  document.getElementById('cat-bar').innerHTML = allTab + catTabs;
 }
 
 function setCat(el, c) {
@@ -485,6 +489,7 @@ function setCat(el, c) {
 // ── SORT / VIEW ───────────────────────────────────────────────────────────────
 function setSort(el, s) {
   sortBy = s;
+  curPage = 1;
   document.querySelectorAll('.sc').forEach(x => x.classList.remove('on'));
   el.classList.add('on');
   render();
@@ -520,11 +525,13 @@ function buildTagBar(baseItems) {
 }
 
 function toggleTag(t) {
+  curPage = 1;
   activeTags.has(t) ? activeTags.delete(t) : activeTags.add(t);
   render();
 }
 
 function clearTags() {
+  curPage = 1;
   activeTags.clear();
   render();
 }
@@ -533,8 +540,8 @@ function clearTags() {
 function render() {
   const q = (document.getElementById('search').value||'').trim();
 
-  // Base: current game + current v2 category
-  let baseItems = DATA.filter(e => e.game_code === curGame && e.category === curCat);
+  // Base: current game, optionally filtered by category
+  let baseItems = DATA.filter(e => e.game_code === curGame && (curCat === 'All' || e.category === curCat));
 
   buildTagBar(baseItems);
 
@@ -569,25 +576,25 @@ function render() {
   if (!items.length) {
     document.getElementById('grid').innerHTML =
       `<div class="empty" style="grid-column:1/-1"><p>No results${activeTags.size?' — try clearing tags':''}</p></div>`;
+    document.getElementById('pagination').innerHTML = '';
     return;
   }
 
-  document.getElementById('grid').innerHTML = items.map(e => {
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  if (curPage > totalPages) curPage = totalPages;
+  const pageItems = items.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE);
+
+  document.getElementById('grid').innerHTML = pageItems.map(e => {
     const thumb = thumbUrl(e);
     const imgEl = thumb
-      ? `<img src="${thumb}" alt="${e.title.replace(/"/g,'')}" loading="lazy" onerror="this.style.display='none';this.parentNode.querySelector('.card-img-ph')||this.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>')">`
+      ? `<img src="${thumb}" alt="${e.title.replace(/"/g,'')}" loading="lazy" onerror="cardThumbErr(this)">`
       : '';
     const ph = !thumb ? `<div class="card-img-ph">no image</div>` : '';
-    const ext = fileExt(e);
     const tagPills = (e.tags||[]).slice(0, 4).map(t =>
       `<span class="ctag${activeTags.has(t)?' active':''}" onclick="event.stopPropagation();toggleTag('${t}')">${t}</span>`
     ).join('');
     return `<div class="card" onclick="openEntry('${e.id}')">
   <div class="card-img">${ph}${imgEl}
-    <div class="card-overlay">
-      <span class="card-cat-tag">${e._raw_category}</span>
-      <span class="card-ext-tag">.${ext}</span>
-    </div>
   </div>
   <div class="card-body">
     <div class="card-title">${e.title}</div>
@@ -600,45 +607,123 @@ function render() {
   </div>
 </div>`;
   }).join('');
+
+  renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+  const el = document.getElementById('pagination');
+  if (!el || totalPages <= 1) { if (el) el.innerHTML = ''; return; }
+  const spread = 2;
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= curPage - spread && i <= curPage + spread)) {
+      pages.push(i);
+    }
+  }
+  let html = `<button class="pg-btn" onclick="setPage(${curPage-1})" ${curPage===1?'disabled':''}>&#8592;</button>`;
+  let prev = null;
+  for (const p of pages) {
+    if (prev !== null && p > prev + 1) html += `<span class="pg-gap">…</span>`;
+    html += `<button class="pg-btn${p===curPage?' on':''}" onclick="setPage(${p})">${p}</button>`;
+    prev = p;
+  }
+  html += `<button class="pg-btn" onclick="setPage(${curPage+1})" ${curPage===totalPages?'disabled':''}>&#8594;</button>`;
+  el.innerHTML = html;
+}
+
+function setPage(p) {
+  curPage = p;
+  render();
+  document.getElementById('grid-scroll').scrollTo({top: 0, behavior: 'smooth'});
 }
 
 // ── CAROUSEL ──────────────────────────────────────────────────────────────────
 function buildCarousel(imgs) {
   if (!imgs.length) return `<div class="carousel"><div class="c-ph">no image archived</div></div>`;
 
-  // We try all URLs but only show slides where image loads
-  // Use a single-slide initially, expand as images confirm loading
-  const pct = 100 / imgs.length;
-  const slides = imgs.map(src =>
-    `<div class="c-slide" style="width:${pct}%">
-      <img src="${src}" alt="" loading="lazy"
-        onerror="this.closest('.c-slide').style.display='none'">
+  const slides = imgs.map((src, i) =>
+    `<div class="c-slide${i===0?' active':''}">
+      <img src="${src}" alt="" onerror="slideErrFallback(this)">
     </div>`
   ).join('');
 
-  const multi = imgs.length > 1;
-  const btns = multi
-    ? `<button class="c-btn prev" onclick="slideBy(-1)"><svg viewBox="0 0 24 24" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-       <button class="c-btn next" onclick="slideBy(1)"><svg viewBox="0 0 24 24" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>` : '';
-  const dots = multi
-    ? `<div class="c-dots">${imgs.map((_,i) => `<span class="c-dot${i===0?' on':''}" onclick="slideTo(${i})"></span>`).join('')}</div>` : '';
-  const counter = multi ? `<span class="c-count" id="c-count">1 / ${imgs.length}</span>` : '';
+  // Always render nav hidden — _carouselSync reveals once real slide count is known
+  const btns = `<button class="c-btn prev" style="display:none" onclick="slideBy(-1)"><svg viewBox="0 0 24 24" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+       <button class="c-btn next" style="display:none" onclick="slideBy(1)"><svg viewBox="0 0 24 24" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>`;
+  const dots = `<div class="c-dots" style="display:none">${imgs.map((_,i) => `<span class="c-dot${i===0?' on':''}" onclick="slideTo(${i})"></span>`).join('')}</div>`;
+  const counter = `<span class="c-count" id="c-count" style="display:none">1 / ${imgs.length}</span>`;
 
   return `<div class="carousel">${btns}
-    <div class="c-track" id="c-track" style="width:${imgs.length*100}%">${slides}</div>
+    <div class="c-track" id="c-track">${slides}</div>
     ${dots}${counter}
   </div>`;
 }
 
-function slideTo(i) {
-  _slide = Math.max(0, Math.min(i, _imgs.length-1));
-  const t = document.getElementById('c-track');
-  if (t) t.style.transform = `translateX(-${_slide*(100/_imgs.length)}%)`;
-  document.querySelectorAll('.c-dot').forEach((d,j) => d.classList.toggle('on', j===_slide));
+function _carouselSync() {
+  const track = document.getElementById('c-track');
+  if (!track) return;
+  const slides = track.querySelectorAll('.c-slide');
+  const n = slides.length;
+  _imgs = Array(n).fill(null);
+  _slide = n > 0 ? (((_slide % n) + n) % n) : 0;
+  slides.forEach((s, j) => s.classList.toggle('active', j === _slide));
+  // Rebuild dots to always match actual loaded slide count
+  const dotsEl = document.querySelector('.c-dots');
+  if (dotsEl) {
+    dotsEl.innerHTML = Array.from({length: n}, (_, j) =>
+      `<span class="c-dot${j===_slide?' on':''}" onclick="slideTo(${j})"></span>`
+    ).join('');
+  }
   const cc = document.getElementById('c-count');
-  if (cc) cc.textContent = `${_slide+1} / ${_imgs.length}`;
+  const multi = n > 1;
+  document.querySelectorAll('.c-btn').forEach(b => b.style.display = multi ? '' : 'none');
+  if (dotsEl) dotsEl.style.display = multi ? '' : 'none';
+  if (cc) {
+    cc.textContent = `${_slide + 1} / ${n}`;
+    cc.style.display = multi ? '' : 'none';
+  }
+  const mi = document.getElementById('meta-images');
+  if (mi) mi.textContent = n;
 }
-function slideBy(d) { slideTo(_slide+d); }
+
+function slideTo(i) {
+  _slide = i;
+  _carouselSync();
+}
+function slideBy(d) { slideTo(_slide + d); }
+
+function slideErr(img) {
+  img.closest('.c-slide').remove();
+  _carouselSync();
+}
+
+function cardThumbErr(img) {
+  const src = img.src;
+  const fail = () => { img.style.display='none'; img.parentNode.querySelector('.card-img-ph') || img.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>'); };
+  if (src.endsWith('.jpg')) {
+    img.onerror = () => cardThumbErr(img);
+    img.src = src.slice(0, -4) + '.JPG';
+  } else if (src.endsWith('.JPG')) {
+    img.onerror = () => cardThumbErr(img);
+    img.src = src.slice(0, -4) + '.png';
+  } else {
+    fail();
+  }
+}
+
+function slideErrFallback(img) {
+  const src = img.src;
+  if (src.endsWith('.jpg')) {
+    img.onerror = () => slideErrFallback(img);
+    img.src = src.slice(0, -4) + '.JPG';
+  } else if (src.endsWith('.JPG')) {
+    img.onerror = () => slideErrFallback(img);
+    img.src = src.slice(0, -4) + '.png';
+  } else {
+    slideErr(img);
+  }
+}
 
 // ── ENTRY PAGE ────────────────────────────────────────────────────────────────
 function reportUrl(e) {
@@ -678,10 +763,10 @@ function openEntry(id, push=true) {
         <div class="entry-byline">by <strong>${bl}</strong>&ensp;·&ensp;${e.upload_date}</div>
       </div>
       <div class="entry-actions">
-        ${e.has_file
+        ${e.has_file && dlUrl(e)
           ? `<a class="btn-dl" href="${dlUrl(e)}" target="_blank">
                <svg viewBox="0 0 24 24" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-               Download .${ext}
+               Download
              </a>`
           : `<div class="no-file-note">File not in archive</div>`
         }
@@ -722,9 +807,8 @@ function openEntry(id, push=true) {
           ${showUploader ? `<div class="meta-row"><span class="meta-k">Uploader</span><span class="meta-v">${e.uploader}</span></div>` : ''}
           <div class="meta-row"><span class="meta-k">Uploaded</span><span class="meta-v">${e.upload_date||'—'}</span></div>
           <div class="meta-row"><span class="meta-k">File size</span><span class="meta-v">${e.file_size||'—'}</span></div>
-          <div class="meta-row"><span class="meta-k">Format</span><span class="meta-v">.${ext}</span></div>
           <div class="meta-row"><span class="meta-k">Original category</span><span class="meta-v">${e._raw_category}</span></div>
-          <div class="meta-row"><span class="meta-k">Images</span><span class="meta-v">${_imgs.length}</span></div>
+          <div class="meta-row"><span class="meta-k">Images</span><span class="meta-v" id="meta-images">${_imgs.length}</span></div>
           <div class="meta-row"><span class="meta-k">Archive ID</span><span class="meta-v" style="font-size:10px;word-break:break-all">${e.id}</span></div>
         </div>
       </div>
@@ -733,6 +817,7 @@ function openEntry(id, push=true) {
   const ev = document.getElementById('view-entry');
   ev.style.display = 'flex';
   ev.scrollTop = 0;
+  _carouselSync();
 }
 
 function tagAndBack(t) {
@@ -742,6 +827,7 @@ function tagAndBack(t) {
 }
 
 function goHome(push=true) {
+  curPage = 1;
   if (push) history.pushState(null, '', location.pathname + location.search);
   document.getElementById('view-entry').style.display = 'none';
   render();
