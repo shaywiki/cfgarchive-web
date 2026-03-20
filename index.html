@@ -700,29 +700,22 @@ function slideErr(img) {
   _carouselSync();
 }
 
+const IMG_EXTS = ['.jpg', '.JPG', '.jpeg', '.JPEG', '.png', '.PNG', '.gif', '.GIF'];
+function nextImgSrc(src) {
+  const i = IMG_EXTS.findIndex(e => src.endsWith(e));
+  return i !== -1 && i + 1 < IMG_EXTS.length ? src.slice(0, -IMG_EXTS[i].length) + IMG_EXTS[i + 1] : null;
+}
+
 function cardThumbErr(img) {
-  const src = img.src;
-  const fail = () => { img.style.display='none'; img.parentNode.querySelector('.card-img-ph') || img.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>'); };
-  const next = { '.jpg': '.JPG', '.JPG': '.jpeg', '.jpeg': '.JPEG', '.JPEG': '.png', '.png': '.PNG', '.PNG': '.gif', '.gif': '.GIF' };
-  const ext = ['.jpg','.JPG','.jpeg','.JPEG','.png','.PNG','.gif','.GIF'].find(e => src.endsWith(e));
-  if (ext && next[ext]) {
-    img.onerror = () => cardThumbErr(img);
-    img.src = src.slice(0, -ext.length) + next[ext];
-  } else {
-    fail();
-  }
+  const next = nextImgSrc(img.src);
+  if (next) { img.onerror = () => cardThumbErr(img); img.src = next; }
+  else { img.style.display='none'; img.parentNode.querySelector('.card-img-ph') || img.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>'); }
 }
 
 function slideErrFallback(img) {
-  const src = img.src;
-  const next = { '.jpg': '.JPG', '.JPG': '.jpeg', '.jpeg': '.JPEG', '.JPEG': '.png', '.png': '.PNG', '.PNG': '.gif', '.gif': '.GIF' };
-  const ext = ['.jpg','.JPG','.jpeg','.JPEG','.png','.PNG','.gif','.GIF'].find(e => src.endsWith(e));
-  if (ext && next[ext]) {
-    img.onerror = () => slideErrFallback(img);
-    img.src = src.slice(0, -ext.length) + next[ext];
-  } else {
-    slideErr(img);
-  }
+  const next = nextImgSrc(img.src);
+  if (next) { img.onerror = () => slideErrFallback(img); img.src = next; }
+  else { slideErr(img); }
 }
 
 // ── ENTRY PAGE ────────────────────────────────────────────────────────────────
