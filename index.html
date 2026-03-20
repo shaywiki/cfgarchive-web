@@ -181,6 +181,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .c-dot.on{background:var(--game-accent);transform:scale(1.2)}
 .c-count{position:absolute;top:10px;right:12px;font-size:10px;font-family:'DM Mono',monospace;background:rgba(0,0,0,.7);color:rgba(255,255,255,.6);padding:2px 8px;border-radius:10px;z-index:2}
 .entry-top{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start;margin-bottom:16px}
+.entry-badge{display:inline-block;font-size:10px;font-family:'DM Mono',monospace;padding:2px 8px;border-radius:3px;background:var(--game-accent);color:var(--bg);font-weight:600;margin-bottom:6px;letter-spacing:.4px}
 .entry-title{font-size:22px;font-weight:600;line-height:1.2;margin-bottom:6px}
 .entry-byline{font-size:13px;color:var(--text2)}
 .entry-byline strong{color:var(--text);font-weight:500}
@@ -789,6 +790,7 @@ function openEntry(id, push=true) {
     ${buildCarousel(_imgs)}
     <div class="entry-top">
       <div>
+        <div class="entry-badge">${e.game_code}</div>
         <div class="entry-title">${e.title}</div>
         <div class="entry-byline">by <strong>${bl}</strong>&ensp;·&ensp;${e.upload_date}</div>
       </div>
@@ -837,6 +839,7 @@ function openEntry(id, push=true) {
           ${showUploader ? `<div class="meta-row"><span class="meta-k">Uploader</span><span class="meta-v">${e.uploader}</span></div>` : ''}
           <div class="meta-row"><span class="meta-k">Uploaded</span><span class="meta-v">${e.upload_date||'—'}</span></div>
           <div class="meta-row"><span class="meta-k">File size</span><span class="meta-v">${e.file_size||'—'}</span></div>
+          <div class="meta-row"><span class="meta-k">Game</span><span class="meta-v">${e.game_code}</span></div>
           <div class="meta-row"><span class="meta-k">Original category</span><span class="meta-v">${e._raw_category}</span></div>
           <div class="meta-row"><span class="meta-k">Images</span><span class="meta-v" id="meta-images">${_imgs.length}</span></div>
           <div class="meta-row"><span class="meta-k">Archive ID</span><span class="meta-v" style="font-size:10px;word-break:break-all">${e.id}</span></div>
