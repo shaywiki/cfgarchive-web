@@ -47,6 +47,7 @@ cfgarchive-web/
 ├── index.html          ← main SPA (single-file, no build step)
 ├── README.md
 └── .github/
+    ├── CLAUDE.md       ← Claude Code project context
     └── ISSUE_TEMPLATE/
         └── report.md   ← issue template for site reports
 ```
@@ -67,17 +68,13 @@ All archive files are served from Cloudflare R2 with zero egress cost.
 | `cfggallery` | Gallery images |
 | `cfgdemos` | Demo files |
 
-**Blob URL pattern:**
+**Blob URL pattern** (uses `r2_folder` / `r2_file` / `image_count` from index.json):
 ```
-https://<r2-public-domain>/cfgdownloads/<game>/<category>/<folder>/<id>.jpg   ← thumbnail
-https://<r2-public-domain>/cfgdownloads/<game>/<category>/<folder>/<id>.cfg   ← file
+https://files.cfgarchive.net/cfgdownloads/{r2_folder}/{folderName}_image_0.jpg  ← thumbnail
+https://files.cfgarchive.net/cfgdownloads/{r2_folder}/{r2_file}                 ← download file
 ```
 
-**Folder naming convention** (mirrors scraper output):
-```
-<game_code>.<category>.<title>.<author>/
-  e.g. cod4.configs.envize_phaz_2k12.phaz/
-```
+Metadata JSON files are served via a private Worker proxy at `meta.cfgarchive.net`.
 
 ### Frontend — Cloudflare Pages
 
@@ -86,9 +83,9 @@ Deployed via Cloudflare Pages connected to this repository.
 - Every merge to `main` → auto-deploys to production
 - No build step — Cloudflare serves `index.html` directly
 
-### Download counter — Cloudflare Workers + KV
+### Download counter — Cloudflare Workers + KV *(planned)*
 
-File downloads are routed through a Cloudflare Worker which increments a per-entry counter in Workers KV and 302-redirects to the R2 blob. This allows tracking of archive downloads separately from the original CFGFactory stats, which are preserved as a snapshot in `index.json`.
+A future Cloudflare Worker will increment a per-entry counter in Workers KV and 302-redirect to the R2 blob. This will track archive downloads separately from the original CFGFactory stats (preserved as a snapshot in `index.json`). Currently downloads link directly to R2.
 
 ---
 
@@ -108,43 +105,35 @@ Built from the scraped metadata and uploaded to R2. Contains all 13,804 entries.
       "title": "envize phaz 2k12",
       "author": "phaz",
       "game_code": "COD4",
-      "category": "Game configs",
+      "category": "Configs",
       "tags": ["promod", "aim", "sensitivity"],
       "downloads": 12400,
       "unique_downloads": 9800,
       "rating": 9.1,
       "votes": 342,
       "upload_date": "2012-03-14",
-      "has_file": true,
-      "has_image": true,
-      "local_images": ["images/a1b2c3_0.jpg"],
+      "r2_folder": "cod4/configs/cod4.configs.envize_phaz_2k12.phaz",
+      "r2_file": "phaz_2k12.cfg",
+      "image_count": 2,
       "file_size": "18 KB"
     }
   ]
 }
 ```
 
-### `tags-v2.json`
+### Override JSONs
 
-Curated tag overrides, stored in R2. Written by the admin panel. The original `tags` field in `index.json` is never modified — `tags-v2.json` sits on top and takes precedence where an entry ID is present.
+Stored in the private `cfgmeta` R2 bucket, served via `meta.cfgarchive.net`. Written by the admin panel. Original `index.json` fields are never modified — overrides sit on top by entry ID.
 
-```json
-{
-  "a1b2c3": { "curated_tags": ["promod", "competitive", "assault-rifle"] }
-}
-```
-
-### `tag-freq.json`
-
-Tag frequency table built at index generation time. Used by the SPA to sort tags by popularity.
-
-```json
-{
-  "promod": 1840,
-  "cod4": 3200,
-  "ak-47": 420
-}
-```
+| File | Purpose |
+|---|---|
+| `categories-v2.json` | `{ "a1b2c3": "Movie Configs" }` |
+| `tags-v2.json` | `{ "a1b2c3": ["promod", "competitive"] }` |
+| `games-v2.json` | `{ "a1b2c3": "COD4" }` |
+| `titles-v2.json` | `{ "a1b2c3": "Envize Phaz 2k12" }` |
+| `authors-v2.json` | `{ "a1b2c3": "phaz" }` |
+| `uploaders-v2.json` | `{ "a1b2c3": "phaz" }` |
+| `image-count-overrides.json` | `{ "a1b2c3": 3 }` — when images added via admin |
 
 ---
 
