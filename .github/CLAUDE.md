@@ -1,82 +1,74 @@
-# cfgarchive-web — Claude Code project memory
+# cfgarchive-web — Claude Code project context
 
 ## What this project is
 A permanent public archive of cfgfactory.com, preserved before shutdown on 13 March 2026.
-Frontend SPA hosted on Cloudflare Pages, files served from Cloudflare R2.
-GitHub: https://github.com/shaywiki/cfgarchive-web
-Live: https://cfgarchive.net (main branch)
-Dev preview: https://dev.cfgarchive-web.pages.dev (dev branch)
+Single-file SPA hosted on Cloudflare Pages. Files and metadata served from Cloudflare R2 via Worker proxy.
 
-## Related repos (both cloned locally — always accessible)
-- **cfgarchive-web** (public) — this repo. Frontend SPA only.
-- **cfgarchive-private** (private) — `C:/Users/sam/Documents/Sam's Vault/02 - Active Projects/cfgarchive-private`
-  - `admin.html` — admin SPA
-  - `.github/TODO.md` — **live task tracker** (update this when tasks complete)
-  - `CFGArchive Project Summary.md` — **full project context** (update "Last updated" + Outstanding Tasks each session)
-  - Deploys to `admin.cfgarchive.net` via separate Cloudflare Pages project
-  - Protected by Cloudflare Access (Zero Trust) — Google/GitHub SSO
+- **Live:** https://cfgarchive.net (main branch)
+- **Dev preview:** https://dev.cfgarchive-web.pages.dev (dev branch)
+- **GitHub:** https://github.com/shaywiki/cfgarchive-web
 
-## ⚠ End-of-session rule
-At the end of every working session, update both:
-1. `cfgarchive-private/.github/TODO.md` — tick completed tasks, add new ones
-2. `cfgarchive-private/CFGArchive Project Summary.md` — update "Last updated" date + Outstanding Tasks table
-
-Do this proactively without being asked. If tasks were completed, update immediately.
-
-## Repo structure
-- `index.html` — single-file SPA, all CSS and JS inline, no build step
-- `README.md` — full project documentation
-- `.github/ISSUE_TEMPLATE/report.md` — issue template for user reports
-- `admin.html` and `.github/TODO.md` are gitignored — they live in cfgarchive-private
+## Related repo
+**cfgarchive-private** — `C:/Users/sam/Documents/Sam's Vault/02 - Active Projects/cfgarchive-private`
+- Admin SPA (`index.html`) → `admin.cfgarchive.net`
+- Live task tracker: `.github/TODO.md`
+- Full architecture: `docs/architecture.md`
 
 ## Branch strategy
-- `main` — production, never push directly, merge via PR only
-- `dev` — active development branch
-- Feature branches: `feat/real-data`, `feat/tag-system`, `feat/category-remap`, `feat/domain`
+- `main` — production (`cfgarchive.net`), never push directly
+- `dev` — active development, push freely, confirm with user before pushing
 
-## Key constants in index.html (current — R2 is live)
+## Repo structure
+```
+index.html   ← entire site — all CSS and JS inline, no build step, no framework
+README.md
+.github/
+  CLAUDE.md
+  ISSUE_TEMPLATE/report.md
+```
+
+## Key constants
 ```js
-const R2   = 'https://files.cfgarchive.net';  // public blobs
-const META = 'https://meta.cfgarchive.net';   // Worker proxy → private cfgmeta bucket
+const R2     = 'https://files.cfgarchive.net';  // public R2 — blobs
+const META   = 'https://meta.cfgarchive.net';   // Worker proxy → private cfgmeta bucket
 const GITHUB = 'https://github.com/shaywiki/cfgarchive-web';
 ```
 
-## R2 blob URL patterns (use r2_folder/r2_file/image_count from index.json — never guess)
-- Thumbnail:  `${R2}/cfgdownloads/${e.r2_folder}/${folderName}_image_0.jpg`
-- Images:     `${R2}/cfgdownloads/${e.r2_folder}/${folderName}_image_${i}.jpg` (0..image_count-1)
-- File:       `${R2}/cfgdownloads/${e.r2_folder}/${e.r2_file}`
-- Index:      `${META}/index.json` (via Worker, not R2 directly)
+## Data loading
+Fetches 7 files in parallel from `meta.cfgarchive.net` on load:
 
-## Folder naming convention (safe() function — JS must match Python exactly)
-`safe(game_code).safe(category).safe(title).safe(author)/`
-e.g. `cod4.configs.envize_phaz_2k12.phaz/`
+| File | Purpose |
+|---|---|
+| `index.json` | All 13,804 entries (~14MB) — base data |
+| `categories-v2.json` | Category overrides by entry ID |
+| `tags-v2.json` | Tag overrides by entry ID |
+| `games-v2.json` | Game code overrides by entry ID |
+| `titles-v2.json` | Title overrides by entry ID |
+| `authors-v2.json` | Author overrides by entry ID |
+| `uploaders-v2.json` | Uploader overrides by entry ID |
 
-safe() rule: lowercase, strip non-word chars, collapse whitespace/hyphens/underscores → single `_`, strip leading/trailing `_`, max 40 chars.
+`tag-freq.json` is **not** fetched — tag bar counts are computed live from the current view.
 
-## Data architecture
-- `index.json` — master scraped data in cfgmeta (private). Fields include r2_folder, r2_file, image_count.
-- `categories-v2.json` — category overrides by entry ID
-- `tags-v2.json` — curated tag overrides by entry ID
-- `tag-freq.json` — tag frequency table for tag bar ordering
-- Original `entry.tags` and `entry.category` always preserved (`_raw_category`)
+Merge pattern: `override[e.id] ?? e.field` — original fields always preserved as `_raw_category`.
+
+## R2 URL construction
+Always use `r2_folder` / `r2_file` / `image_count` from index.json — never construct paths from title/author.
+
+```js
+const base  = `${R2}/cfgdownloads/${e.r2_folder}`;
+const fn    = e.r2_folder.split('/').pop();
+const thumb = `${base}/${fn}_image_0.jpg`;            // thumbnail
+const imgs  = Array.from({length: e.image_count}, (_, i) => `${base}/${fn}_image_${i}.jpg`);
+const dl    = `${base}/${e.r2_file}`;                 // download file
+```
+
+Image fallback chain: `.jpg → .JPG → .jpeg → .JPEG → .png → .PNG → .gif → .GIF` (IMG_EXTS array).
 
 ## Design system
-- Dark green gaming aesthetic
-- Fonts: DM Sans + DM Mono (Google Fonts)
-- Per-game accent colours via `body[data-game="X"]` CSS vars
-- `html { zoom: 1.2 }` baseline — renders correctly at 100% browser zoom
-- No framework, no build step, pure HTML/CSS/JS
+- Dark gaming aesthetic, DM Sans + DM Mono fonts
+- Per-game accent colours via `body[data-game="X"]` CSS custom properties
+- `html { zoom: 1.2 }` baseline
+- No framework, no build step
 
-## Azure infrastructure (scraper — decommissioning)
-- VM: VM-SPOTINSTANCE-CFG-01, RG: RG-SPOTINSTANCE-CFG-01
-- Storage: cfgfactoryarchive (Azure Blob)
-- Scraper disk: cfgfactory-data (512GB, mount /opt/cfgfactory) — detached, preserved
-- VM-UPLOAD-TEMP: Standard_D2s_v3 — DELETE THIS, still billing
-
-## Outstanding tasks (see cfgarchive-private/.github/TODO.md for full list)
-1. Run organisation.py + rebuild_index.py on VM → new index.json
-2. Upload new index.json to cfgmeta
-3. Sync cfggallery + cfgdemos to R2
-4. Merge dev → main (go live)
-5. Delete VM-UPLOAD-TEMP (billing!)
-6. Download counter Worker (future)
+## Outstanding tasks
+See `cfgarchive-private/.github/TODO.md` for the live task tracker.

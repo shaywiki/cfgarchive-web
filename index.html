@@ -15,6 +15,7 @@
   --border:rgba(255,255,255,.07);--r:8px;--r-lg:12px;
   --game-accent:#3dba6f;--game-glow:rgba(61,186,111,.11);--game-border:rgba(61,186,111,.22);
 }
+body[data-game="ALL"]{--game-accent:rgba(255,255,255,.65);--game-glow:rgba(255,255,255,.05);--game-border:rgba(255,255,255,.12)}
 body[data-game="COD4"]{--game-accent:#3dba6f;--game-glow:rgba(61,186,111,.11);--game-border:rgba(61,186,111,.22)}
 body[data-game="GTA4"]{--game-accent:#f97316;--game-glow:rgba(249,115,22,.11);--game-border:rgba(249,115,22,.24)}
 body[data-game="COD2"]{--game-accent:#e8c84a;--game-glow:rgba(232,200,74,.1);--game-border:rgba(232,200,74,.22)}
@@ -98,6 +99,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .grid-toolbar{padding:8px 14px;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-shrink:0;background:var(--bg2)}
 .result-count{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;white-space:nowrap;margin-right:2px}
 .sort-chips{display:flex;gap:4px}
+.page-size-chips{display:flex;gap:4px;margin-left:auto}
 .sc{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .12s;white-space:nowrap}
 .sc:hover,.sc.on{border-color:var(--game-accent);color:var(--game-accent);background:var(--game-glow)}
 
@@ -145,7 +147,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .card-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace}
 .card-overlay{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;padding:5px 6px}
 .card-cat-tag{font-size:9px;font-family:'DM Mono',monospace;padding:2px 6px;border-radius:3px;background:rgba(0,0,0,.82);color:var(--game-accent);letter-spacing:.4px}
-.card-ext-tag{font-size:9px;font-family:'DM Mono',monospace;padding:2px 5px;border-radius:3px;background:rgba(0,0,0,.75);color:var(--text2)}
 .card-body{padding:8px 10px}
 .card-title{font-size:12px;font-weight:500;line-height:1.35;margin-bottom:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .card-author{font-size:10px;color:var(--text2);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -179,20 +180,20 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .c-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:all .15s}
 .c-dot.on{background:var(--game-accent);transform:scale(1.2)}
 .c-count{position:absolute;top:10px;right:12px;font-size:10px;font-family:'DM Mono',monospace;background:rgba(0,0,0,.7);color:rgba(255,255,255,.6);padding:2px 8px;border-radius:10px;z-index:2}
-.entry-top{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start;margin-bottom:16px}
-.entry-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-family:'DM Mono',monospace;color:var(--game-accent);background:var(--game-glow);border:1px solid var(--game-border);padding:3px 10px;border-radius:20px;margin-bottom:8px}
+.entry-top{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:stretch;margin-bottom:16px}
+.entry-meta-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}
+.entry-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-family:'DM Mono',monospace;color:var(--game-accent);background:var(--game-glow);border:1px solid var(--game-border);padding:3px 10px;border-radius:20px;flex-shrink:0}
 .entry-title{font-size:22px;font-weight:600;line-height:1.2;margin-bottom:6px}
 .entry-byline{font-size:13px;color:var(--text2)}
 .entry-byline strong{color:var(--text);font-weight:500}
-.entry-actions{display:flex;flex-direction:column;gap:7px;flex-shrink:0;min-width:148px}
-.btn-dl{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--game-accent);color:var(--bg);padding:10px 18px;border-radius:var(--r);font-size:13px;font-weight:600;text-decoration:none;transition:opacity .15s;border:none;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif}
+.entry-actions{display:flex;flex-direction:column;justify-content:space-between;flex-shrink:0;min-width:148px}
+.btn-dl{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--game-accent);color:var(--bg);padding:12px 18px;border-radius:var(--r);font-size:13px;font-weight:600;text-decoration:none;transition:opacity .15s;border:none;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif}
 .btn-dl:hover{opacity:.88}
 .btn-dl svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5}
 .no-file-note{font-size:11px;color:var(--muted);text-align:center;padding:9px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:var(--r)}
 .btn-report{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:transparent;color:var(--muted);padding:7px 12px;border-radius:var(--r);font-size:11px;text-decoration:none;border:1px solid var(--border);transition:all .15s;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;width:100%}
 .btn-report:hover{color:var(--text2);border-color:rgba(255,255,255,.15)}
 .btn-report svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
-.entry-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
 .etag{font-size:11px;color:var(--text2);background:rgba(255,255,255,.05);border:1px solid var(--border);padding:3px 9px;border-radius:5px;cursor:pointer;transition:all .12s}
 .etag:hover{color:var(--game-accent);border-color:var(--game-border);background:var(--game-glow)}
 .etag.active{color:var(--game-accent);border-color:var(--game-accent);background:var(--game-glow)}
@@ -262,6 +263,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   <div class="sidebar">
     <div class="sidebar-scroll">
       <div class="sl">Games</div>
+      <div class="si" data-game="ALL" onclick="setGame(this,'ALL')"><span class="si-label"><span class="game-dot" style="background:rgba(255,255,255,.35)"></span><span class="si-name">All Games</span></span><span class="badge" id="badge-all">—</span></div>
       <div class="si on" data-game="COD4" onclick="setGame(this,'COD4')"><span class="si-label"><span class="game-dot" style="background:#3dba6f"></span><span class="si-name">COD4</span></span><span class="badge">7,740</span></div>
       <div class="si" data-game="GTA4" onclick="setGame(this,'GTA4')"><span class="si-label"><span class="game-dot" style="background:#f97316"></span><span class="si-name">GTA4</span></span><span class="badge">5,025</span></div>
       <div class="si" data-game="COD2" onclick="setGame(this,'COD2')"><span class="si-label"><span class="game-dot" style="background:#e8c84a"></span><span class="si-name">COD2</span></span><span class="badge">345</span></div>
@@ -288,6 +290,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
         <span class="sc on" onclick="setSort(this,'dl')">Downloads</span>
         <span class="sc" onclick="setSort(this,'rating')">Rating</span>
         <span class="sc" onclick="setSort(this,'new')">Newest</span>
+        <span class="sc" onclick="setSort(this,'az')">A–Z</span>
+      </div>
+      <div class="page-size-chips">
+        <span class="sc" onclick="setPageSize(this,25)">25</span>
+        <span class="sc on" onclick="setPageSize(this,50)">50</span>
+        <span class="sc" onclick="setPageSize(this,100)">100</span>
       </div>
     </div>
     <div class="tag-bar" id="tag-bar"><span class="tb-label">Tags</span></div>
@@ -330,15 +338,16 @@ const GAME_CATS = {
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let DATA      = [];
-let TAG_FREQ  = {};
 let curGame   = 'COD4';
 let curCat    = 'All';
 let sortBy    = 'dl';
 let viewMode  = 'grid';
 let activeTags = new Set();
 let curPage = 1;
-const PAGE_SIZE = 100;
+let _savedPage = 1;
+let pageSize = 50;
 let _imgs = [], _slide = 0;
+const _thumbCache = new Map(); // id → successful url (or null if all failed)
 let fuse = null;
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -409,12 +418,14 @@ async function loadData() {
 
     // All 5 fetched in parallel from Worker proxy → private cfgmeta bucket
     // Any that fail return null — UI still loads, just empty
-    const [index, catsV2, tagsV2, tagFreq, gamesV2] = await Promise.all([
+    const [index, catsV2, tagsV2, gamesV2, titlesV2, authorsV2, uploadersV2] = await Promise.all([
       safeFetch(`${META}/index.json`),
       safeFetch(`${META}/categories-v2.json`),
       safeFetch(`${META}/tags-v2.json`),
-      safeFetch(`${META}/tag-freq.json`),
       safeFetch(`${META}/games-v2.json`),
+      safeFetch(`${META}/titles-v2.json`),
+      safeFetch(`${META}/authors-v2.json`),
+      safeFetch(`${META}/uploaders-v2.json`),
     ]);
 
     if (index && index.entries) {
@@ -422,12 +433,15 @@ async function loadData() {
       DATA = index.entries.map(e => ({
         ...e,
         _raw_category: e.category,
-        category:      (catsV2  && catsV2[e.id])  ?? e.category,
-        tags:          (tagsV2  && tagsV2[e.id])  ?? (e.tags || []),
-        game_code:     (gamesV2 && gamesV2[e.id]) ?? e.game_code,
-      }));
-      TAG_FREQ = tagFreq || {};
+        category:  (catsV2     && catsV2[e.id])     ?? e.category,
+        tags:      (tagsV2     && tagsV2[e.id])     ?? (e.tags || []),
+        game_code: (gamesV2    && gamesV2[e.id])    ?? e.game_code,
+        title:     (titlesV2   && titlesV2[e.id])   ?? e.title,
+        author:    (authorsV2  && authorsV2[e.id])  ?? e.author,
+        uploader:  (uploadersV2 && uploadersV2[e.id]) ?? e.uploader,
+      })).filter(e => e.title && e.title.trim());
       document.getElementById('pill-total').textContent = DATA.length.toLocaleString();
+      document.getElementById('badge-all').textContent = DATA.length.toLocaleString();
 
       setMsg('Building search index…');
       fuse = new Fuse(DATA, {
@@ -462,7 +476,11 @@ function setGame(el, g) {
   el.classList.add('on');
   activeTags.clear();
   curCat = 'All';
-  buildCatBar(g);
+  if (g === 'ALL') {
+    document.getElementById('cat-bar').innerHTML = '';
+  } else {
+    buildCatBar(g);
+  }
   goHome();
 }
 
@@ -492,7 +510,15 @@ function setCat(el, c) {
 function setSort(el, s) {
   sortBy = s;
   curPage = 1;
-  document.querySelectorAll('.sc').forEach(x => x.classList.remove('on'));
+  document.querySelectorAll('.sort-chips .sc').forEach(x => x.classList.remove('on'));
+  el.classList.add('on');
+  render();
+}
+
+function setPageSize(el, n) {
+  pageSize = n;
+  curPage = 1;
+  document.querySelectorAll('.page-size-chips .sc').forEach(x => x.classList.remove('on'));
   el.classList.add('on');
   render();
 }
@@ -507,15 +533,13 @@ function setViewMode(m) {
 
 // ── TAG BAR ───────────────────────────────────────────────────────────────────
 function buildTagBar(baseItems) {
-  // Build tag frequency for current view, ordered by global tag-freq.json
   const localFreq = {};
   baseItems.forEach(e => (e.tags||[]).forEach(t => {
     localFreq[t] = (localFreq[t]||0) + 1;
   }));
 
-  // Sort by global frequency (tag-freq.json) so important tags appear first
   const sorted = Object.entries(localFreq)
-    .sort((a, b) => (TAG_FREQ[b[0]]||0) - (TAG_FREQ[a[0]]||0))
+    .sort((a, b) => b[1] - a[1])
     .slice(0, 28);
 
   const hasTags = activeTags.size > 0;
@@ -543,16 +567,17 @@ function render() {
   const q = (document.getElementById('search').value||'').trim();
 
   // Base: current game, optionally filtered by category
-  let baseItems = DATA.filter(e => e.game_code === curGame && (curCat === 'All' || e.category === curCat));
+  let baseItems = curGame === 'ALL'
+    ? DATA
+    : DATA.filter(e => e.game_code === curGame && (curCat === 'All' || e.category === curCat));
 
   buildTagBar(baseItems);
 
   // Search
   let items;
   if (q && fuse) {
-    // Search across all entries in this game, then filter to current cat
-    const allGame = DATA.filter(e => e.game_code === curGame);
-    const tmpFuse = new Fuse(allGame, {
+    const searchBase = curGame === 'ALL' ? DATA : DATA.filter(e => e.game_code === curGame);
+    const tmpFuse = new Fuse(searchBase, {
       keys: [{name:'title',weight:2},{name:'author',weight:1},{name:'tags',weight:0.8}],
       threshold: 0.35, ignoreLocation: true,
     });
@@ -568,9 +593,10 @@ function render() {
   }
 
   // Sort
-  if (sortBy === 'dl')     items.sort((a,b) => b.downloads - a.downloads);
-  else if (sortBy === 'rating') items.sort((a,b) => b.rating - a.rating);
-  else items.sort((a,b) => new Date(b.upload_date) - new Date(a.upload_date));
+  if (sortBy === 'dl')          items.sort((a,b) => b.downloads - a.downloads);
+  else if (sortBy === 'rating') items.sort((a,b) => (b.rating - a.rating) || (b.downloads - a.downloads));
+  else if (sortBy === 'az')     items.sort((a,b) => (a.title||'').localeCompare(b.title||''));
+  else                          items.sort((a,b) => new Date(b.upload_date) - new Date(a.upload_date));
 
   document.getElementById('result-count').textContent =
     `${items.length.toLocaleString()} result${items.length!==1?'s':''}`;
@@ -582,21 +608,24 @@ function render() {
     return;
   }
 
-  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
   if (curPage > totalPages) curPage = totalPages;
-  const pageItems = items.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE);
+  const pageItems = items.slice((curPage - 1) * pageSize, curPage * pageSize);
 
   document.getElementById('grid').innerHTML = pageItems.map(e => {
-    const thumb = thumbUrl(e);
+    const thumb = _thumbCache.has(e.id) ? _thumbCache.get(e.id) : thumbUrl(e);
     const imgEl = thumb
-      ? `<img src="${thumb}" alt="${e.title.replace(/"/g,'')}" loading="lazy" onerror="cardThumbErr(this)">`
+      ? `<img src="${thumb}" data-id="${e.id}" alt="${e.title.replace(/"/g,'')}" loading="lazy" onerror="cardThumbErr(this)">`
       : '';
     const ph = !thumb ? `<div class="card-img-ph">no image</div>` : '';
     const tagPills = (e.tags||[]).slice(0, 4).map(t =>
       `<span class="ctag${activeTags.has(t)?' active':''}" onclick="event.stopPropagation();toggleTag('${t}')">${t}</span>`
     ).join('');
+    const overlay = curGame === 'ALL'
+      ? `<div class="card-overlay"><span class="card-cat-tag">${e.game_code}</span></div>`
+      : '';
     return `<div class="card" onclick="openEntry('${e.id}')">
-  <div class="card-img">${ph}${imgEl}
+  <div class="card-img">${ph}${imgEl}${overlay}
   </div>
   <div class="card-body">
     <div class="card-title">${e.title}</div>
@@ -667,6 +696,11 @@ function _carouselSync() {
   if (!track) return;
   const slides = track.querySelectorAll('.c-slide');
   const n = slides.length;
+  if (n === 0) {
+    const car = track.closest('.carousel');
+    if (car && !car.querySelector('.c-ph')) car.insertAdjacentHTML('afterbegin','<div class="c-ph">no image archived</div>');
+    return;
+  }
   _imgs = Array(n).fill(null);
   _slide = n > 0 ? (((_slide % n) + n) % n) : 0;
   slides.forEach((s, j) => s.classList.toggle('active', j === _slide));
@@ -700,31 +734,29 @@ function slideErr(img) {
   _carouselSync();
 }
 
+const IMG_EXTS = ['.jpg', '.JPG', '.jpeg', '.JPEG', '.png', '.PNG', '.gif', '.GIF'];
+function nextImgSrc(src) {
+  const i = IMG_EXTS.findIndex(e => src.endsWith(e));
+  return i !== -1 && i + 1 < IMG_EXTS.length ? src.slice(0, -IMG_EXTS[i].length) + IMG_EXTS[i + 1] : null;
+}
+
 function cardThumbErr(img) {
-  const src = img.src;
-  const fail = () => { img.style.display='none'; img.parentNode.querySelector('.card-img-ph') || img.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>'); };
-  if (src.endsWith('.jpg')) {
+  const next = nextImgSrc(img.src);
+  if (next) {
     img.onerror = () => cardThumbErr(img);
-    img.src = src.slice(0, -4) + '.JPG';
-  } else if (src.endsWith('.JPG')) {
-    img.onerror = () => cardThumbErr(img);
-    img.src = src.slice(0, -4) + '.png';
+    img.onload  = () => { if (img.dataset.id) _thumbCache.set(img.dataset.id, img.src); };
+    img.src = next;
   } else {
-    fail();
+    if (img.dataset.id) _thumbCache.set(img.dataset.id, null);
+    img.style.display = 'none';
+    img.parentNode.querySelector('.card-img-ph') || img.parentNode.insertAdjacentHTML('afterbegin','<div class=card-img-ph>no image</div>');
   }
 }
 
 function slideErrFallback(img) {
-  const src = img.src;
-  if (src.endsWith('.jpg')) {
-    img.onerror = () => slideErrFallback(img);
-    img.src = src.slice(0, -4) + '.JPG';
-  } else if (src.endsWith('.JPG')) {
-    img.onerror = () => slideErrFallback(img);
-    img.src = src.slice(0, -4) + '.png';
-  } else {
-    slideErr(img);
-  }
+  const next = nextImgSrc(img.src);
+  if (next) { img.onerror = () => slideErrFallback(img); img.src = next; }
+  else { slideErr(img); }
 }
 
 // ── ENTRY PAGE ────────────────────────────────────────────────────────────────
@@ -741,6 +773,7 @@ function reportUrl(e) {
 function openEntry(id, push=true) {
   const e = DATA.find(x => x.id === id);
   if (!e) return;
+  _savedPage = curPage;
   if (push) location.hash = 'entry/' + id;
   _slide = 0;
   _imgs  = imgUrls(e);
@@ -750,19 +783,21 @@ function openEntry(id, push=true) {
   const showUploader = e.uploader && e.uploader.trim() && e.uploader !== e.author;
 
   document.getElementById('entry-page').innerHTML = `
-    <button class="entry-back" onclick="goHome()">
+    <button class="entry-back" onclick="closeEntry()">
       <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
       Back to ${curCat}
     </button>
     ${buildCarousel(_imgs)}
     <div class="entry-top">
       <div>
-        <div class="entry-badge">
-          <svg viewBox="0 0 10 10" width="7" height="7" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>
-          ${e.game_code} · ${e._raw_category}
-        </div>
         <div class="entry-title">${e.title}</div>
         <div class="entry-byline">by <strong>${bl}</strong>&ensp;·&ensp;${e.upload_date}</div>
+        <div class="entry-meta-row">
+          <div class="entry-badge"><svg viewBox="0 0 10 10" width="7" height="7" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>${e.game_code}</div>
+          ${(e.tags||[]).map(t =>
+            `<span class="etag${activeTags.has(t)?' active':''}" onclick="tagAndBack('${t}')">${t}</span>`
+          ).join('')}
+        </div>
       </div>
       <div class="entry-actions">
         ${e.has_file && dlUrl(e)
@@ -777,11 +812,6 @@ function openEntry(id, push=true) {
           Report an issue
         </a>
       </div>
-    </div>
-    <div class="entry-tags">
-      ${(e.tags||[]).map(t =>
-        `<span class="etag${activeTags.has(t)?' active':''}" onclick="tagAndBack('${t}')">${t}</span>`
-      ).join('')}
     </div>
     <div class="entry-body">
       <div>
@@ -809,6 +839,7 @@ function openEntry(id, push=true) {
           ${showUploader ? `<div class="meta-row"><span class="meta-k">Uploader</span><span class="meta-v">${e.uploader}</span></div>` : ''}
           <div class="meta-row"><span class="meta-k">Uploaded</span><span class="meta-v">${e.upload_date||'—'}</span></div>
           <div class="meta-row"><span class="meta-k">File size</span><span class="meta-v">${e.file_size||'—'}</span></div>
+          <div class="meta-row"><span class="meta-k">Game</span><span class="meta-v">${e.game_code}</span></div>
           <div class="meta-row"><span class="meta-k">Original category</span><span class="meta-v">${e._raw_category}</span></div>
           <div class="meta-row"><span class="meta-k">Images</span><span class="meta-v" id="meta-images">${_imgs.length}</span></div>
           <div class="meta-row"><span class="meta-k">Archive ID</span><span class="meta-v" style="font-size:10px;word-break:break-all">${e.id}</span></div>
@@ -826,6 +857,13 @@ function tagAndBack(t) {
   activeTags.clear();
   activeTags.add(t);
   goHome();
+}
+
+function closeEntry() {
+  curPage = _savedPage;
+  history.pushState(null, '', location.pathname + location.search);
+  document.getElementById('view-entry').style.display = 'none';
+  render();
 }
 
 function goHome(push=true) {
