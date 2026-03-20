@@ -684,6 +684,8 @@ function _carouselSync() {
     cc.textContent = `${_slide + 1} / ${n}`;
     cc.style.display = multi ? '' : 'none';
   }
+  const mi = document.getElementById('meta-images');
+  if (mi) mi.textContent = n;
 }
 
 function slideTo(i) {
@@ -756,10 +758,10 @@ function openEntry(id, push=true) {
         <div class="entry-byline">by <strong>${bl}</strong>&ensp;·&ensp;${e.upload_date}</div>
       </div>
       <div class="entry-actions">
-        ${e.has_file
+        ${e.has_file && dlUrl(e)
           ? `<a class="btn-dl" href="${dlUrl(e)}" target="_blank">
                <svg viewBox="0 0 24 24" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-               Download .${ext}
+               Download
              </a>`
           : `<div class="no-file-note">File not in archive</div>`
         }
@@ -800,9 +802,8 @@ function openEntry(id, push=true) {
           ${showUploader ? `<div class="meta-row"><span class="meta-k">Uploader</span><span class="meta-v">${e.uploader}</span></div>` : ''}
           <div class="meta-row"><span class="meta-k">Uploaded</span><span class="meta-v">${e.upload_date||'—'}</span></div>
           <div class="meta-row"><span class="meta-k">File size</span><span class="meta-v">${e.file_size||'—'}</span></div>
-          <div class="meta-row"><span class="meta-k">Format</span><span class="meta-v">.${ext}</span></div>
           <div class="meta-row"><span class="meta-k">Original category</span><span class="meta-v">${e._raw_category}</span></div>
-          <div class="meta-row"><span class="meta-k">Images</span><span class="meta-v">${_imgs.length}</span></div>
+          <div class="meta-row"><span class="meta-k">Images</span><span class="meta-v" id="meta-images">${_imgs.length}</span></div>
           <div class="meta-row"><span class="meta-k">Archive ID</span><span class="meta-v" style="font-size:10px;word-break:break-all">${e.id}</span></div>
         </div>
       </div>
