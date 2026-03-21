@@ -353,6 +353,7 @@ let fuse = null;
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const safe = s => { const t = ((s||'').toLowerCase().replace(/[^\w\s-]/g,'').trim()); return t.replace(/[\s_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40)||'unknown'; };
 const fmtN = n => n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
+const esc  = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
 function byline(e) {
   const a = (e.author||'').trim(), u = (e.uploader||'').trim();
@@ -550,7 +551,7 @@ function buildTagBar(baseItems) {
   const hasTags = activeTags.size > 0;
   const clearBtn = `<span class="tag-clear${hasTags?' show':''}" onclick="clearTags()">✕ clear</span>`;
   const pills = sorted.map(([t, n]) =>
-    `<span class="tag-pill${activeTags.has(t)?' on':''}" onclick="toggleTag('${t}')">${t}<span class="tc">${n}</span></span>`
+    `<span class="tag-pill${activeTags.has(t)?' on':''}" onclick="toggleTag('${esc(t)}')">${esc(t)}<span class="tc">${n}</span></span>`
   ).join('');
   document.getElementById('tag-bar').innerHTML = `<span class="tb-label">Tags</span>${clearBtn}${pills}`;
 }
@@ -620,21 +621,21 @@ function render() {
   document.getElementById('grid').innerHTML = pageItems.map(e => {
     const thumb = _thumbCache.has(e.id) ? _thumbCache.get(e.id) : thumbUrl(e);
     const imgEl = thumb
-      ? `<img src="${thumb}" data-id="${e.id}" alt="${e.title.replace(/"/g,'')}" loading="lazy" onerror="cardThumbErr(this)">`
+      ? `<img src="${thumb}" data-id="${e.id}" alt="${esc(e.title)}" loading="lazy" onerror="cardThumbErr(this)">`
       : '';
     const ph = !thumb ? `<div class="card-img-ph">no image</div>` : '';
     const tagPills = (e.tags||[]).slice(0, 4).map(t =>
-      `<span class="ctag${activeTags.has(t)?' active':''}" onclick="event.stopPropagation();toggleTag('${t}')">${t}</span>`
+      `<span class="ctag${activeTags.has(t)?' active':''}" onclick="event.stopPropagation();toggleTag('${esc(t)}')">${esc(t)}</span>`
     ).join('');
     const overlay = curGame === 'ALL'
-      ? `<div class="card-overlay"><span class="card-cat-tag">${e.game_code}</span></div>`
+      ? `<div class="card-overlay"><span class="card-cat-tag">${esc(e.game_code)}</span></div>`
       : '';
     return `<div class="card" onclick="openEntry('${e.id}')">
   <div class="card-img">${ph}${imgEl}${overlay}
   </div>
   <div class="card-body">
-    <div class="card-title">${e.title}</div>
-    <div class="card-author">by ${byline(e)}</div>
+    <div class="card-title">${esc(e.title)}</div>
+    <div class="card-author">by ${esc(byline(e))}</div>
     <div class="card-footer">
       <span class="card-dl">${fmtN(e.downloads)} dl</span>
       <span class="card-r">★ ${e.rating}</span>
@@ -795,12 +796,12 @@ function openEntry(id, push=true) {
     ${buildCarousel(_imgs)}
     <div class="entry-top">
       <div>
-        <div class="entry-title">${e.title}</div>
-        <div class="entry-byline">by <strong>${bl}</strong>&ensp;·&ensp;${e.upload_date}</div>
+        <div class="entry-title">${esc(e.title)}</div>
+        <div class="entry-byline">by <strong>${esc(bl)}</strong>&ensp;·&ensp;${e.upload_date}</div>
         <div class="entry-meta-row">
-          <div class="entry-badge"><svg viewBox="0 0 10 10" width="7" height="7" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>${e.game_code}</div>
+          <div class="entry-badge"><svg viewBox="0 0 10 10" width="7" height="7" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>${esc(e.game_code)}</div>
           ${(e.tags||[]).map(t =>
-            `<span class="etag${activeTags.has(t)?' active':''}" onclick="tagAndBack('${t}')">${t}</span>`
+            `<span class="etag${activeTags.has(t)?' active':''}" onclick="tagAndBack('${esc(t)}')">${esc(t)}</span>`
           ).join('')}
         </div>
       </div>
@@ -834,18 +835,18 @@ function openEntry(id, push=true) {
         </div>
         <div class="desc-box">
           <h3>Archived description</h3>
-          <p>${e.description || 'No description archived.'}</p>
+          <p>${esc(e.description) || 'No description archived.'}</p>
         </div>
       </div>
       <div>
         <div class="meta-box">
           <h3>File info</h3>
-          <div class="meta-row"><span class="meta-k">Author</span><span class="meta-v">${e.author||'—'}</span></div>
-          ${showUploader ? `<div class="meta-row"><span class="meta-k">Uploader</span><span class="meta-v">${e.uploader}</span></div>` : ''}
+          <div class="meta-row"><span class="meta-k">Author</span><span class="meta-v">${esc(e.author)||'—'}</span></div>
+          ${showUploader ? `<div class="meta-row"><span class="meta-k">Uploader</span><span class="meta-v">${esc(e.uploader)}</span></div>` : ''}
           <div class="meta-row"><span class="meta-k">Uploaded</span><span class="meta-v">${e.upload_date||'—'}</span></div>
-          <div class="meta-row"><span class="meta-k">File size</span><span class="meta-v">${e.file_size||'—'}</span></div>
-          <div class="meta-row"><span class="meta-k">Game</span><span class="meta-v">${e.game_code}</span></div>
-          <div class="meta-row"><span class="meta-k">Original category</span><span class="meta-v">${e._raw_category}</span></div>
+          <div class="meta-row"><span class="meta-k">File size</span><span class="meta-v">${esc(e.file_size)||'—'}</span></div>
+          <div class="meta-row"><span class="meta-k">Game</span><span class="meta-v">${esc(e.game_code)}</span></div>
+          <div class="meta-row"><span class="meta-k">Original category</span><span class="meta-v">${esc(e._raw_category)}</span></div>
           <div class="meta-row"><span class="meta-k">Images</span><span class="meta-v" id="meta-images">${_imgs.length}</span></div>
           <div class="meta-row"><span class="meta-k">Archive ID</span><span class="meta-v" style="font-size:10px;word-break:break-all">${e.id}</span></div>
         </div>
