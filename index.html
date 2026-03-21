@@ -418,7 +418,7 @@ async function loadData() {
 
     // All 5 fetched in parallel from Worker proxy → private cfgmeta bucket
     // Any that fail return null — UI still loads, just empty
-    const [index, catsV2, tagsV2, gamesV2, titlesV2, authorsV2, uploadersV2] = await Promise.all([
+    const [index, catsV2, tagsV2, gamesV2, titlesV2, authorsV2, uploadersV2, statsV2] = await Promise.all([
       safeFetch(`${META}/index.json`),
       safeFetch(`${META}/categories-v2.json`),
       safeFetch(`${META}/tags-v2.json`),
@@ -426,6 +426,7 @@ async function loadData() {
       safeFetch(`${META}/titles-v2.json`),
       safeFetch(`${META}/authors-v2.json`),
       safeFetch(`${META}/uploaders-v2.json`),
+      safeFetch(`${META}/stats-v2.json`),
     ]);
 
     if (index && index.entries) {
@@ -436,9 +437,13 @@ async function loadData() {
         category:  (catsV2     && catsV2[e.id])     ?? e.category,
         tags:      (tagsV2     && tagsV2[e.id])     ?? (e.tags || []),
         game_code: (gamesV2    && gamesV2[e.id])    ?? e.game_code,
-        title:     (titlesV2   && titlesV2[e.id])   ?? e.title,
-        author:    (authorsV2  && authorsV2[e.id])  ?? e.author,
-        uploader:  (uploadersV2 && uploadersV2[e.id]) ?? e.uploader,
+        title:            (titlesV2   && titlesV2[e.id])   ?? e.title,
+        author:           (authorsV2  && authorsV2[e.id])  ?? e.author,
+        uploader:         (uploadersV2 && uploadersV2[e.id]) ?? e.uploader,
+        rating:           statsV2?.[e.id]?.rating          ?? e.rating,
+        votes:            statsV2?.[e.id]?.votes           ?? e.votes,
+        downloads:        statsV2?.[e.id]?.downloads       ?? e.downloads,
+        unique_downloads: statsV2?.[e.id]?.unique_downloads ?? e.unique_downloads,
       })).filter(e => e.title && e.title.trim());
       document.getElementById('pill-total').textContent = DATA.length.toLocaleString();
       document.getElementById('badge-all').textContent = DATA.length.toLocaleString();
