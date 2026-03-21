@@ -65,6 +65,15 @@ const dl    = `${base}/${e.r2_file}`;                 // download file
 
 Image fallback chain: `.jpg → .JPG → .jpeg → .JPEG → .png → .PNG → .gif → .GIF` (IMG_EXTS array).
 
+## HTML escaping
+All scraped data fields rendered via `innerHTML` must be escaped with `esc()` — defined in the helpers block alongside `safe` and `fmtN`:
+
+```js
+const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+```
+
+Apply to: `e.title`, `byline(e)`, `e.author`, `e.uploader`, `e.description`, `e.game_code`, `e._raw_category`, `e.file_size`, tag values (`t`) in both text and `onclick` attributes. Numeric/date/ID fields (`e.rating`, `e.votes`, `e.upload_date`, `e.id`) do not need escaping.
+
 ## Design system
 - Dark gaming aesthetic, DM Sans + DM Mono fonts
 - Per-game accent colours via `body[data-game="X"]` CSS custom properties
