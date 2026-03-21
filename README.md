@@ -85,7 +85,7 @@ Deployed via Cloudflare Pages connected to this repository.
 
 ### Download counter — Cloudflare Workers + KV *(planned)*
 
-A future Cloudflare Worker will increment a per-entry counter in Workers KV and 302-redirect to the R2 blob. This will track archive downloads separately from the original CFGFactory stats (preserved as a snapshot in `index.json`). Currently downloads link directly to R2.
+A future Cloudflare Worker (`dl.cfgarchive.net`) will increment a per-entry counter in Workers KV on each download button click. Downloads will continue to link directly to R2 — a fire-and-forget POST records the count without adding any redirect latency. Archive download counts will be displayed separately from the original CFGFactory stats.
 
 ---
 
@@ -134,6 +134,7 @@ Stored in the private `cfgmeta` R2 bucket, served via `meta.cfgarchive.net`. Wri
 | `authors-v2.json` | `{ "a1b2c3": "phaz" }` |
 | `uploaders-v2.json` | `{ "a1b2c3": "phaz" }` |
 | `image-count-overrides.json` | `{ "a1b2c3": 3 }` — when images added via admin |
+| `stats-v2.json` | `{ "a1b2c3": { "rating": 7.8, "votes": 24, "downloads": 12400, "unique_downloads": 9800 } }` — re-scraped stats for all games |
 
 ---
 
@@ -155,9 +156,9 @@ Use the **Report an issue** button on any entry page, or [open an issue](https:/
 
 ---
 
-## Stats preserved from CFGFactory
+## Stats from CFGFactory
 
-All download counts, ratings, and vote totals in `index.json` are the exact values recorded on shutdown day (13 March 2026) and are never modified. The site displays these labelled as "CFGFactory stats — snapshot 13 Mar 2026" alongside separate archive download counts tracked since launch.
+Download counts, ratings, and vote totals were re-scraped from cfgfactory.com after the archive launched and stored in `stats-v2.json`. These override the values in `index.json` and reflect the live site numbers as of 21 March 2026. The site displays these labelled as "CFGFactory stats — snapshot 13 Mar 2026" alongside separate archive download counts tracked since launch.
 
 ---
 
