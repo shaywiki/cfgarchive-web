@@ -35,7 +35,7 @@ const GITHUB = 'https://github.com/shaywiki/cfgarchive-web';
 ```
 
 ## Data loading
-Fetches 7 files in parallel from `meta.cfgarchive.net` on load:
+Fetches 8 files in parallel from `meta.cfgarchive.net` on load:
 
 | File | Purpose |
 |---|---|
@@ -46,6 +46,7 @@ Fetches 7 files in parallel from `meta.cfgarchive.net` on load:
 | `titles-v2.json` | Title overrides by entry ID |
 | `authors-v2.json` | Author overrides by entry ID |
 | `uploaders-v2.json` | Uploader overrides by entry ID |
+| `stats-v2.json` | Re-scraped rating, votes, downloads, unique_downloads for all entries |
 
 `tag-freq.json` is **not** fetched — tag bar counts are computed live from the current view.
 
