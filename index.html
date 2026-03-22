@@ -509,7 +509,7 @@ function buildCatBar(g) {
   const allTab = `<span class="cat-tab${curCat==='All'?' on':''}" onclick="setCat(this,'All')">All<span class="cat-count">${gameItems.length.toLocaleString()}</span></span>`;
   const catTabs = cats.map(c => {
     const n = counts[c] ? `<span class="cat-count">${counts[c].toLocaleString()}</span>` : '';
-    return `<span class="cat-tab${curCat===c?' on':''}" onclick="setCat(this,'${c}')">${c}${n}</span>`;
+    return `<span class="cat-tab${curCat===c?' on':''}" onclick="setCat(this,'${esc(c)}')">${esc(c)}${n}</span>`;
   }).join('');
   document.getElementById('cat-bar').innerHTML = allTab + catTabs;
 }
