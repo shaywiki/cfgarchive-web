@@ -6,6 +6,9 @@ admin.html
 
 # Claude Code local config
 .claude/
+.agents/
+skills-lock.json
+CLAUDE.md
 
 # OS files
 .DS_Store

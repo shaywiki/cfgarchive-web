@@ -62,11 +62,11 @@ The site is a single self-contained HTML file with no dependencies, no framework
 
 All archive files are served from Cloudflare R2 with zero egress cost.
 
-| Bucket | Purpose |
-|---|---|
-| `cfgdownloads` | Download files + thumbnails, organised folder structure |
-| `cfggallery` | Gallery images |
-| `cfgdemos` | Demo files |
+| Bucket | Domain | Purpose |
+|---|---|---|
+| `cfgdownloads` | `files.cfgarchive.net` | Download files + thumbnails, organised folder structure |
+| `cfggallery` | `gallery.cfgarchive.net` | Gallery screenshots (~3,300 images) |
+| `cfgdemos` | `demos.cfgarchive.net` | Demo files (409 demos) |
 
 **Blob URL pattern** (uses `r2_folder` / `r2_file` / `image_count` from index.json):
 ```

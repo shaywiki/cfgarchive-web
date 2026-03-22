@@ -355,6 +355,7 @@ let viewMode  = 'grid';
 let activeTags = new Set();
 let curPage = 1;
 let _savedPage = 1;
+let _suppressHashChange = false;
 let pageSize = 50;
 let _imgs = [], _slide = 0;
 const _thumbCache = new Map(); // id → successful url (or null if all failed)
@@ -790,7 +791,7 @@ function openEntry(id, push=true) {
   const e = DATA.find(x => x.id === id);
   if (!e) return;
   _savedPage = curPage;
-  if (push) location.hash = 'entry/' + id;
+  if (push) { _suppressHashChange = true; location.hash = 'entry/' + id; }
   _slide = 0;
   _imgs  = imgUrls(e);
 
@@ -891,6 +892,7 @@ function goHome(push=true) {
 
 // ── HASH ROUTING ──────────────────────────────────────────────────────────────
 function handleHash() {
+  if (_suppressHashChange) { _suppressHashChange = false; return; }
   const h = location.hash.slice(1);
   if (h.startsWith('entry/')) {
     const id = h.slice(6);
