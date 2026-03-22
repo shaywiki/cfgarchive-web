@@ -4,6 +4,9 @@ category-review.html
 admin.html
 .github/TODO.md
 
+# Claude Code local config
+.claude/
+
 # OS files
 .DS_Store
 Thumbs.db
