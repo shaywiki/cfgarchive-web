@@ -838,7 +838,10 @@ function normDemoCat(c) {
 
 function demoDlUrl(e) {
   if (!e.local_file) return null;
-  return `${DEMOS_R2}/${e.local_file.replace(/^files\//, '')}`;
+  const ext = e.local_file.split('.').pop();
+  const cat = normDemoCat(e.category).toLowerCase();
+  const filename = `${e.game_code.toLowerCase()}.${cat}.${safe(e.title)}.${safe(e.author)}.${ext}`;
+  return `${DEMOS_R2}/cfgfactory/${cat}/${filename}`;
 }
 
 async function loadDemos() {
