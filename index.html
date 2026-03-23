@@ -133,7 +133,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px}
 .list-mode .grid{grid-template-columns:1fr;gap:3px}
 .list-mode .card{display:grid;grid-template-columns:78px 1fr auto;border-radius:var(--r);align-items:center;transform:none!important}
-.list-mode .card-img{height:54px}
+.list-mode .card-img{height:54px;width:78px;aspect-ratio:unset}
 .list-mode .card-body{padding:0 12px;display:flex;align-items:center;gap:14px}
 .list-mode .card-title{-webkit-line-clamp:1;flex:1;margin-bottom:0}
 .list-mode .card-author{min-width:80px;margin-bottom:0}
@@ -233,6 +233,43 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .meta-v{color:var(--text);font-family:'DM Mono',monospace;font-size:11px;text-align:right}
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:220px;color:var(--muted);gap:8px}
 .empty p{font-size:13px}
+
+/* ── DEMOS ── */
+.demos-wrap{grid-column:1/-1;width:100%;padding:0 2px}
+.demos-filter-bar{display:flex;gap:5px;padding:2px 0 12px;flex-wrap:wrap}
+.demo-fc{font-size:10px;padding:4px 11px;border-radius:6px;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .12s;white-space:nowrap;font-family:'DM Mono',monospace}
+.demo-fc:hover{color:var(--text2);border-color:rgba(255,255,255,.15)}
+.demo-fc.on{border-color:var(--game-accent);color:var(--game-accent);background:var(--game-glow)}
+.demos-hdr{display:grid;grid-template-columns:1fr 110px 62px 128px 148px 65px 48px 20px;gap:8px;padding:5px 12px;font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--border);border-top:1px solid var(--border)}
+.demo-row{border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .1s}
+.demo-row:hover{background:rgba(255,255,255,.025)}
+.demo-row.open{background:rgba(255,255,255,.03)}
+.demo-cols{display:grid;grid-template-columns:1fr 110px 62px 128px 148px 65px 48px 20px;gap:8px;padding:8px 12px;align-items:center}
+.demo-col-title{font-size:12px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.demo-col-author,.demo-col-maps,.demo-col-weapons{font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.demo-col-size{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted)}
+.demo-col-dl{font-size:10px;font-family:'DM Mono',monospace;color:var(--text2);text-align:right}
+.demo-chevron{font-size:12px;color:var(--muted);text-align:center;line-height:1;transition:transform .15s}
+.demo-row.open .demo-chevron{transform:rotate(90deg);color:var(--game-accent)}
+.demo-badge{display:inline-block;font-size:9px;font-family:'DM Mono',monospace;padding:2px 7px;border-radius:4px;letter-spacing:.4px}
+.demo-badge.match{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.22)}
+.demo-badge.lan{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.22)}
+.demo-badge.pcw{background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.22)}
+.demo-badge.clips{background:rgba(139,92,246,.12);color:#a78bfa;border:1px solid rgba(139,92,246,.22)}
+.demo-badge.other{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border)}
+.demo-detail{padding:12px 12px 14px;background:rgba(0,0,0,.18);border-bottom:1px solid rgba(255,255,255,.06)}
+.demo-detail-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:20px;align-items:start}
+.demo-dl-lbl{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px}
+.demo-pills{display:flex;flex-wrap:wrap;gap:4px}
+.demo-pill{font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,.05);color:var(--text2);border:1px solid var(--border)}
+.demo-stats-row{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px}
+.demo-stat .stat-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-family:'DM Mono',monospace;margin-bottom:2px}
+.demo-stat .stat-v{font-size:16px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text)}
+.demo-stat .stat-v.accent{color:var(--game-accent)}
+.btn-demo-dl{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;background:var(--game-glow);color:var(--game-accent);border:1px solid var(--game-border);border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;transition:all .12s;white-space:nowrap;align-self:center}
+.btn-demo-dl:hover{background:var(--game-accent);color:var(--bg)}
+.btn-demo-dl svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.demos-empty,.demos-loading{padding:48px;text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1;font-family:'DM Mono',monospace}
 </style>
 </head>
 <body data-game="COD4">
@@ -326,14 +363,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 const R2     = 'https://files.cfgarchive.net';  // public blobs (images, files)
 const META   = 'https://meta.cfgarchive.net';   // Worker proxy → private cfgmeta bucket
-const GITHUB = 'https://github.com/shaywiki/cfgarchive-web';
+const GITHUB   = 'https://github.com/shaywiki/cfgarchive-web';
+const DEMOS_R2 = 'https://demos.cfgarchive.net'; // public R2 — demo files
 
 // ── PER-GAME CATEGORY TABS ────────────────────────────────────────────────────
 // These are the v2 display categories shown in the tab bar per game
 const GAME_CATS = {
-  COD4:  ['Configs','Movie Configs','Weapon Skins','Maps','Assets','Mods & Tools','Other'],
+  COD4:  ['Configs','Movie Configs','Weapon Skins','Maps','Assets','Mods & Tools','Other','Demos'],
   GTA4:  ['Vehicles','Weapons','Skins','Maps'],
-  COD2:  ['Configs','Movie Configs','Weapon Skins','Maps','Mods & Tools','Other'],
+  COD2:  ['Configs','Movie Configs','Weapon Skins','Maps','Mods & Tools','Other','Demos'],
   MW2:   ['Configs','Movie Configs','Weapon Skins','Maps','Assets','Mods & Tools','Other'],
   WAW:   ['Weapon Skins','Maps','Other'],
   BO2:   ['Movie Configs','Weapon Skins','Mods & Tools'],
@@ -360,6 +398,10 @@ let pageSize = 50;
 let _imgs = [], _slide = 0;
 const _thumbCache = new Map(); // id → successful url (or null if all failed)
 let fuse = null;
+let DEMOS_DATA    = null;   // null = not fetched, [] = empty/loaded
+let _demosLoading = false;
+let curDemoId     = null;   // expanded demo row ID
+let demosCat      = 'All';  // active demo sub-category filter
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const safe = s => { const t = ((s||'').toLowerCase().replace(/[^\w\s-]/g,'').trim()); return t.replace(/[\s_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40)||'unknown'; };
@@ -520,6 +562,7 @@ function setCat(el, c) {
   activeTags.clear();
   document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('on'));
   el.classList.add('on');
+  if (c === 'Demos') { demosCat = 'All'; curDemoId = null; }
   goHome();
 }
 
@@ -581,6 +624,13 @@ function clearTags() {
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
+  if (curCat === 'Demos') {
+    document.getElementById('tag-bar').style.display = 'none';
+    renderDemos();
+    return;
+  }
+  document.getElementById('tag-bar').style.display = '';
+
   const q = (document.getElementById('search').value||'').trim();
 
   // Base: current game, optionally filtered by category
@@ -774,6 +824,164 @@ function slideErrFallback(img) {
   const next = nextImgSrc(img.src);
   if (next) { img.onerror = () => slideErrFallback(img); img.src = next; }
   else { slideErr(img); }
+}
+
+// ── DEMOS ─────────────────────────────────────────────────────────────────────
+function normDemoCat(c) {
+  const m = (c||'').trim().toLowerCase();
+  if (m === 'match') return 'Match';
+  if (m === 'lan')   return 'LAN';
+  if (m === 'pcw')   return 'PCW';
+  if (m === 'clips') return 'Clips';
+  return 'Other';
+}
+
+function demoDlUrl(e) {
+  if (!e.local_file) return null;
+  const ext = e.local_file.split('.').pop();
+  const cat = normDemoCat(e.category).toLowerCase();
+  const filename = `${e.game_code.toLowerCase()}.${cat}.${safe(e.title)}.${safe(e.author)}.${ext}`;
+  return `${DEMOS_R2}/cfgfactory/${cat}/${filename}`;
+}
+
+async function loadDemos() {
+  if (DEMOS_DATA !== null) { renderDemos(); return; }
+  if (_demosLoading) return;
+  _demosLoading = true;
+  document.getElementById('grid').innerHTML = '<div class="demos-loading">Loading demos…</div>';
+  document.getElementById('pagination').innerHTML = '';
+  const data = await safeFetch(`${META}/demos-index.json`);
+  DEMOS_DATA = (data && data.entries) ? data.entries : [];
+  _demosLoading = false;
+  if (curCat === 'Demos') renderDemos();
+}
+
+function setDemosCat(cat) {
+  demosCat = cat;
+  curDemoId = null;
+  renderDemos();
+}
+
+function toggleDemoRow(id) {
+  const detail = document.getElementById('demo-det-' + id);
+  const row    = document.getElementById('demo-row-' + id);
+  if (!detail || !row) return;
+  const opening = detail.style.display === 'none';
+  document.querySelectorAll('.demo-detail').forEach(d => d.style.display = 'none');
+  document.querySelectorAll('.demo-row').forEach(r => r.classList.remove('open'));
+  if (opening) {
+    detail.style.display = 'block';
+    row.classList.add('open');
+    curDemoId = id;
+  } else {
+    curDemoId = null;
+  }
+}
+
+function renderDemoRow(e) {
+  const cat = normDemoCat(e.category);
+  const catClass = cat.toLowerCase();
+  const weapons = (e.weapons||'').split(',').map(s => s.trim()).filter(Boolean);
+  const maps    = (e.maps||'').split(',').map(s => s.trim()).filter(Boolean);
+  const dl      = demoDlUrl(e);
+  const isOpen  = curDemoId === e.id;
+
+  const weaponsShort = weapons.slice(0,3).join(', ') + (weapons.length > 3 ? ` +${weapons.length-3}` : '');
+  const mapsShort    = maps.slice(0,2).join(', ')    + (maps.length    > 2 ? ` +${maps.length-2}`    : '');
+  const fragBy       = (e.frags_by||'').trim() && e.frags_by !== e.author ? e.frags_by : null;
+  const weaponPills  = weapons.map(w => `<span class="demo-pill">${esc(w)}</span>`).join('');
+  const mapPills     = maps.map(m => `<span class="demo-pill">${esc(m)}</span>`).join('');
+
+  return `<div class="demo-row${isOpen?' open':''}" id="demo-row-${e.id}" onclick="toggleDemoRow('${e.id}')">
+  <div class="demo-cols">
+    <div class="demo-col-title">${esc(e.title)}</div>
+    <div class="demo-col-author">${esc(e.author||'—')}</div>
+    <div><span class="demo-badge ${catClass}">${cat}</span></div>
+    <div class="demo-col-maps">${esc(mapsShort||'—')}</div>
+    <div class="demo-col-weapons">${esc(weaponsShort||'—')}</div>
+    <div class="demo-col-size">${esc(e.file_size||'—')}</div>
+    <div class="demo-col-dl">${(e.downloads||0).toLocaleString()}</div>
+    <div class="demo-chevron">›</div>
+  </div>
+  <div class="demo-detail" id="demo-det-${e.id}" style="display:${isOpen?'block':'none'}">
+    <div class="demo-detail-grid">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        ${fragBy ? `<div><div class="demo-dl-lbl">Frags by</div><div style="font-size:12px;color:var(--text)">${esc(fragBy)}</div></div>` : ''}
+        <div><div class="demo-dl-lbl">Weapons</div><div class="demo-pills">${weaponPills||'<span style="color:var(--muted);font-size:11px">—</span>'}</div></div>
+        <div><div class="demo-dl-lbl">Maps</div><div class="demo-pills">${mapPills||'<span style="color:var(--muted);font-size:11px">—</span>'}</div></div>
+      </div>
+      <div>
+        <div class="demo-dl-lbl">CFGFactory stats</div>
+        <div class="demo-stats-row">
+          <div class="demo-stat"><div class="stat-l">Downloads</div><div class="stat-v">${(e.downloads||0).toLocaleString()}</div></div>
+          <div class="demo-stat"><div class="stat-l">Unique</div><div class="stat-v">${(e.unique_downloads||0).toLocaleString()}</div></div>
+          <div class="demo-stat"><div class="stat-l">Rating</div><div class="stat-v accent">${e.rating||'—'}/10</div></div>
+          <div class="demo-stat"><div class="stat-l">Votes</div><div class="stat-v">${e.votes||0}</div></div>
+        </div>
+        <div style="font-size:9px;color:var(--muted);margin-top:10px;font-family:'DM Mono',monospace">snapshot · 12 Mar 2026${e.upload_date ? ` · ${esc(e.upload_date)}` : ''}</div>
+      </div>
+      ${dl
+        ? `<a class="btn-demo-dl" href="${dl}" target="_blank" onclick="event.stopPropagation()">
+             <svg viewBox="0 0 24 24" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+             Download${e.file_size ? `<span style="font-size:9px;opacity:.6;margin-left:2px">${esc(e.file_size)}</span>` : ''}
+           </a>`
+        : `<div style="font-size:11px;color:var(--muted);padding:9px 0">File unavailable</div>`}
+    </div>
+  </div>
+</div>`;
+}
+
+function renderDemos() {
+  if (DEMOS_DATA === null) { loadDemos(); return; }
+
+  const gameItems = curGame === 'ALL'
+    ? DEMOS_DATA
+    : DEMOS_DATA.filter(e => e.game_code === curGame);
+
+  const catCounts = {};
+  gameItems.forEach(e => { const c = normDemoCat(e.category); catCounts[c] = (catCounts[c]||0) + 1; });
+
+  let items = demosCat === 'All'
+    ? [...gameItems]
+    : gameItems.filter(e => normDemoCat(e.category) === demosCat);
+
+  const q = (document.getElementById('search').value||'').trim().toLowerCase();
+  if (q) {
+    items = items.filter(e =>
+      (e.title||'').toLowerCase().includes(q) ||
+      (e.author||'').toLowerCase().includes(q) ||
+      (e.weapons||'').toLowerCase().includes(q) ||
+      (e.maps||'').toLowerCase().includes(q)
+    );
+  }
+
+  if (sortBy === 'dl')          items.sort((a,b) => (b.downloads||0) - (a.downloads||0));
+  else if (sortBy === 'rating') items.sort((a,b) => (b.rating||0) - (a.rating||0));
+  else if (sortBy === 'az')     items.sort((a,b) => (a.title||'').localeCompare(b.title||''));
+  else                          items.sort((a,b) => new Date(b.upload_date||0) - new Date(a.upload_date||0));
+
+  document.getElementById('result-count').textContent =
+    `${items.length.toLocaleString()} demo${items.length !== 1 ? 's' : ''}`;
+
+  const DEMO_CATS = ['All','Clips','LAN','Match','PCW','Other'];
+  const filterBar = `<div class="demos-filter-bar">${
+    DEMO_CATS.map(c => {
+      const cnt = c === 'All' ? gameItems.length : (catCounts[c]||0);
+      if (c !== 'All' && !cnt) return '';
+      return `<span class="demo-fc${demosCat===c?' on':''}" onclick="event.stopPropagation();setDemosCat('${c}')">${c}<span style="font-size:9px;opacity:.5;margin-left:5px">${cnt}</span></span>`;
+    }).join('')
+  }</div>`;
+
+  const hdr = `<div class="demos-hdr"><span>Title</span><span>Author</span><span>Cat</span><span>Maps</span><span>Weapons</span><span>Size</span><span>DL</span><span></span></div>`;
+
+  if (!items.length) {
+    document.getElementById('grid').innerHTML = `<div class="demos-wrap">${filterBar}<div class="demos-empty">No demos in this category</div></div>`;
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  document.getElementById('grid').innerHTML = `<div class="demos-wrap">${filterBar}${hdr}${items.map(e => renderDemoRow(e)).join('')}</div>`;
+  document.getElementById('pagination').innerHTML = '';
 }
 
 // ── ENTRY PAGE ────────────────────────────────────────────────────────────────
