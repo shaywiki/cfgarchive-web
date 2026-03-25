@@ -406,6 +406,8 @@ let demosCat      = 'All';  // active demo sub-category filter
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const safe = s => { const t = ((s||'').toLowerCase().replace(/[^\w\s-]/g,'').trim()); return t.replace(/[\s_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40)||'unknown'; };
 const fmtN = n => n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmtDate = s => { if(!s) return '—'; const [y,m,d] = s.split('-'); return `${+d} ${MONTHS[+m-1]} ${y}`; };
 const esc  = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
 function byline(e) {
@@ -918,7 +920,7 @@ function renderDemoRow(e) {
           <div class="demo-stat"><div class="stat-l">Rating</div><div class="stat-v accent">${e.rating||'—'}/10</div></div>
           <div class="demo-stat"><div class="stat-l">Votes</div><div class="stat-v">${e.votes||0}</div></div>
         </div>
-        <div style="font-size:9px;color:var(--muted);margin-top:10px;font-family:'DM Mono',monospace">snapshot · 12 Mar 2026${e.upload_date ? ` · ${esc(e.upload_date)}` : ''}</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:10px;font-family:'DM Mono',monospace">snapshot · 12 Mar 2026${e.upload_date ? ` · ${fmtDate(e.upload_date)}` : ''}</div>
       </div>
       ${dl
         ? `<a class="btn-demo-dl" href="${dl}" target="_blank" onclick="event.stopPropagation()">
@@ -1017,7 +1019,7 @@ function openEntry(id, push=true) {
     <div class="entry-top">
       <div>
         <div class="entry-title">${esc(e.title)}</div>
-        <div class="entry-byline">by <strong>${esc(bl)}</strong>&ensp;·&ensp;${e.upload_date}</div>
+        <div class="entry-byline">by <strong>${esc(bl)}</strong>&ensp;·&ensp;${fmtDate(e.upload_date)}</div>
         <div class="entry-meta-row">
           <div class="entry-badge"><svg viewBox="0 0 10 10" width="7" height="7" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>${esc(e.game_code)}</div>
           ${(e.tags||[]).slice().sort().map(t =>
@@ -1063,7 +1065,7 @@ function openEntry(id, push=true) {
           <h3>File info</h3>
           <div class="meta-row"><span class="meta-k">Author</span><span class="meta-v">${esc(e.author)||'—'}</span></div>
           ${showUploader ? `<div class="meta-row"><span class="meta-k">Uploader</span><span class="meta-v">${esc(e.uploader)}</span></div>` : ''}
-          <div class="meta-row"><span class="meta-k">Uploaded</span><span class="meta-v">${e.upload_date||'—'}</span></div>
+          <div class="meta-row"><span class="meta-k">Uploaded</span><span class="meta-v">${fmtDate(e.upload_date)}</span></div>
           <div class="meta-row"><span class="meta-k">File size</span><span class="meta-v">${esc(e.file_size)||'—'}</span></div>
           <div class="meta-row"><span class="meta-k">Game</span><span class="meta-v">${esc(e.game_code)}</span></div>
           <div class="meta-row"><span class="meta-k">Original category</span><span class="meta-v">${esc(e._raw_category)}</span></div>
