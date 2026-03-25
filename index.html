@@ -406,15 +406,26 @@ let demosCat      = 'All';  // active demo sub-category filter
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const safe = s => { const t = ((s||'').toLowerCase().replace(/[^\w\s-]/g,'').trim()); return t.replace(/[\s_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40)||'unknown'; };
 const fmtN = n => n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const MONTH_MAP = {january:0,february:1,march:2,april:3,may:4,june:5,july:6,august:7,september:8,october:9,november:10,december:11};
+const MONTHS      = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTH_MAP   = {january:0,february:1,march:2,april:3,may:4,june:5,july:6,august:7,september:8,october:9,november:10,december:11};
 const ordinal = n => { const s=['th','st','nd','rd'],v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); };
+// File Info: "28th Aug 2011, 10:12pm"
 const fmtDate = s => {
   if(!s) return '—';
   const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if(iso) return `${ordinal(+iso[3])} ${MONTHS[+iso[2]-1]}, ${+iso[1]}`;
+  if(iso) return `${ordinal(+iso[3])} ${MONTHS[+iso[2]-1]} ${+iso[1]}`;
   const lng = s.match(/^([A-Za-z]+) (\d{1,2}), (\d{4})(?:, (\d{1,2}:\d{2}) (am|pm))?/i);
-  if(lng) { const mon=MONTHS[MONTH_MAP[lng[1].toLowerCase()]]; const time=lng[4]?`, ${lng[4]}${lng[5]}`:''; return mon ? `${ordinal(+lng[2])} ${mon}, ${lng[3]}${time}` : s; }
+  if(lng) { const mon=MONTHS[MONTH_MAP[lng[1].toLowerCase()]]; const time=lng[4]?`, ${lng[4]}${lng[5]}`:''; return mon ? `${ordinal(+lng[2])} ${mon} ${lng[3]}${time}` : s; }
+  return s;
+};
+// Byline: "28th August 2011, 10:12pm"
+const fmtDateLong = s => {
+  if(!s) return s;
+  const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(iso) return `${ordinal(+iso[3])} ${MONTHS_FULL[+iso[2]-1]} ${+iso[1]}`;
+  const lng = s.match(/^([A-Za-z]+) (\d{1,2}), (\d{4})(?:, (\d{1,2}:\d{2}) (am|pm))?/i);
+  if(lng) { const mon=MONTHS_FULL[MONTH_MAP[lng[1].toLowerCase()]]; const time=lng[4]?`, ${lng[4]}${lng[5]}`:''; return mon ? `${ordinal(+lng[2])} ${mon} ${lng[3]}${time}` : s; }
   return s;
 };
 const esc  = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -1028,7 +1039,7 @@ function openEntry(id, push=true) {
     <div class="entry-top">
       <div>
         <div class="entry-title">${esc(e.title)}</div>
-        <div class="entry-byline">by <strong>${esc(bl)}</strong>&ensp;·&ensp;${e.upload_date}</div>
+        <div class="entry-byline">by <strong>${esc(bl)}</strong>&ensp;·&ensp;${fmtDateLong(e.upload_date)}</div>
         <div class="entry-meta-row">
           <div class="entry-badge"><svg viewBox="0 0 10 10" width="7" height="7" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>${esc(e.game_code)}</div>
           ${(e.tags||[]).slice().sort().map(t =>
