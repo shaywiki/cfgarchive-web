@@ -504,7 +504,7 @@ async function loadData() {
 
       setMsg('Building search index…');
       fuse = new Fuse(DATA, {
-        keys: [{name:'title',weight:2},{name:'author',weight:1},{name:'tags',weight:0.8}],
+        keys: [{name:'title',weight:2},{name:'author',weight:1},{name:'uploader',weight:1},{name:'tags',weight:0.8}],
         threshold: 0.35,
         ignoreLocation: true,
       });
@@ -645,7 +645,7 @@ function render() {
   if (q && fuse) {
     const searchBase = curGame === 'ALL' ? DATA : DATA.filter(e => e.game_code === curGame);
     const tmpFuse = new Fuse(searchBase, {
-      keys: [{name:'title',weight:2},{name:'author',weight:1},{name:'tags',weight:0.8}],
+      keys: [{name:'title',weight:2},{name:'author',weight:1},{name:'uploader',weight:1},{name:'tags',weight:0.8}],
       threshold: 0.35, ignoreLocation: true,
     });
     const ids = new Set(tmpFuse.search(q).map(r => r.item.id));
@@ -950,6 +950,7 @@ function renderDemos() {
     items = items.filter(e =>
       (e.title||'').toLowerCase().includes(q) ||
       (e.author||'').toLowerCase().includes(q) ||
+      (e.frags_by||'').toLowerCase().includes(q) ||
       (e.weapons||'').toLowerCase().includes(q) ||
       (e.maps||'').toLowerCase().includes(q)
     );
@@ -1019,7 +1020,7 @@ function openEntry(id, push=true) {
         <div class="entry-byline">by <strong>${esc(bl)}</strong>&ensp;·&ensp;${e.upload_date}</div>
         <div class="entry-meta-row">
           <div class="entry-badge"><svg viewBox="0 0 10 10" width="7" height="7" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>${esc(e.game_code)}</div>
-          ${(e.tags||[]).map(t =>
+          ${(e.tags||[]).slice().sort().map(t =>
             `<span class="etag${activeTags.has(t)?' active':''}" onclick="tagAndBack('${esc(t)}')">${esc(t)}</span>`
           ).join('')}
         </div>
