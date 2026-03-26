@@ -1,5 +1,5 @@
 /*
-  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src https://files.cfgarchive.net https://gallery.cfgarchive.net https://demos.cfgarchive.net data: blob:; connect-src https://meta.cfgarchive.net; frame-ancestors 'none'; base-uri 'self'
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src https://files.cfgarchive.net https://gallery.cfgarchive.net https://demos.cfgarchive.net data: blob:; connect-src https://meta.cfgarchive.net https://dl.cfgarchive.net; frame-ancestors 'none'; base-uri 'self'
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
