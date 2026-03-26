@@ -363,6 +363,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 const R2     = 'https://files.cfgarchive.net';  // public blobs (images, files)
 const META   = 'https://meta.cfgarchive.net';   // Worker proxy → private cfgmeta bucket
+const DLC    = 'https://dl.cfgarchive.net';     // download counter Worker
 const GITHUB   = 'https://github.com/shaywiki/cfgarchive-web';
 const DEMOS_R2 = 'https://demos.cfgarchive.net'; // public R2 — demo files
 
@@ -465,6 +466,8 @@ function dlUrl(e) {
   if (!e.r2_folder || !e.r2_file) return null;
   return `${r2base(e)}/${e.r2_file}`;
 }
+
+function countDl(id) { fetch(`${DLC}/count/${id}`, { method: 'POST' }).catch(() => {}); }
 
 // folder() — legacy, used only for report issue URLs
 function folder(e) {
@@ -1049,7 +1052,7 @@ function openEntry(id, push=true) {
       </div>
       <div class="entry-actions">
         ${e.has_file && dlUrl(e)
-          ? `<a class="btn-dl" href="${dlUrl(e)}" target="_blank">
+          ? `<a class="btn-dl" href="${dlUrl(e)}" target="_blank" onclick="countDl('${e.id}')">
                <svg viewBox="0 0 24 24" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                Download
              </a>`
