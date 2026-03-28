@@ -297,7 +297,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .gal-tile-label{padding:7px 9px 8px;background:var(--bg2)}
 .gal-tile-label-title{font-size:11px;font-weight:500;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gal-tile-label-by{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gal-tile-label-stats{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:3px;display:flex;gap:8px}
 .gallery-empty,.gallery-loading{padding:48px;text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1;font-family:'DM Mono',monospace}
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center}
 #lightbox.open{display:flex}
@@ -308,8 +307,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .lb-arrow:hover{background:rgba(255,255,255,.18)}
 .lb-arrow.prev{left:14px}.lb-arrow.next{right:14px}
 .lb-img-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 72px 0;width:100%;min-height:0;box-sizing:border-box}
-.lb-col{display:flex;flex-direction:column;max-width:100%}
-.lb-col>img{max-width:100%;max-height:calc(100vh - 160px);object-fit:contain;border-radius:var(--r);display:block}
+.lb-col{display:flex;flex-direction:column;width:100%}
+.lb-col>img{width:100%;max-height:calc(100vh - 160px);object-fit:contain;border-radius:var(--r);display:block}
 .lb-info{padding:10px 0 18px;flex-shrink:0;display:flex;align-items:center;gap:12px}
 .lb-info-text{flex:1;min-width:0}
 .lb-info-title{font-size:14px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -811,6 +810,9 @@ function render() {
         const imgEl = thumb
           ? `<img src="${thumb}" data-id="${e.id}" alt="${esc(e.title)}" loading="lazy" onerror="tileImgErr(this)">`
           : `<div class="gal-tile-ph">no image</div>`;
+        const tagPills = (e.tags||[]).slice(0, 4).map(t =>
+          `<span class="ctag${activeTags.has(t)?' active':''}" onclick="event.stopPropagation();toggleTag('${esc(t)}')">${esc(t)}</span>`
+        ).join('');
         return `<div class="gal-tile arc-tile" onclick="openEntry('${e.id}')">` +
           `<div class="gal-tile-img">${imgEl}` +
           `${e.image_count > 1 ? `<span class="gal-tile-count">${e.image_count}</span>` : ''}` +
@@ -818,7 +820,8 @@ function render() {
           `<div class="gal-tile-label">` +
           `<div class="gal-tile-label-title">${esc(e.title||'')}</div>` +
           `${e.author ? `<div class="gal-tile-label-by">${esc(e.author)}</div>` : ''}` +
-          `<div class="gal-tile-label-stats"><span>${fmtN(e.downloads)} dl</span><span>★ ${e.rating}</span></div>` +
+          `<div class="card-footer"><span class="card-dl">${fmtN(e.downloads)} dl</span><span class="card-r">★ ${e.rating}</span></div>` +
+          `${tagPills ? `<div class="card-tags">${tagPills}</div>` : ''}` +
           `</div></div>`;
       }).join('')}</div>`;
     renderPagination(totalPages);
