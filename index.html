@@ -280,16 +280,16 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .gal-count{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:auto}
 .gal-psz{display:flex;gap:4px;margin-left:8px}
 .gal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;grid-column:1/-1}
-.gal-tile{aspect-ratio:16/9;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;position:relative;transition:border-color .15s}
+.gal-tile{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;position:relative;transition:border-color .15s;display:flex;flex-direction:column}
 .gal-tile:hover{border-color:var(--game-border)}
-.gal-tile img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
-.gal-tile:hover img{transform:scale(1.05)}
+.gal-tile-img{aspect-ratio:16/9;overflow:hidden;position:relative;flex-shrink:0}
+.gal-tile-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.gal-tile:hover .gal-tile-img img{transform:scale(1.05)}
 .gal-tile-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase}
-.gal-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.82) 0%,transparent 55%);opacity:0;transition:opacity .18s;display:flex;align-items:flex-end;padding:8px}
-.gal-tile:hover .gal-overlay{opacity:1}
-.gal-overlay-txt{font-size:11px;color:#fff;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.gal-overlay-by{font-size:9px;color:rgba(255,255,255,.55);font-family:'DM Mono',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gal-tile-count{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);font-size:9px;font-family:'DM Mono',monospace;padding:2px 6px;border-radius:4px;line-height:1.3;pointer-events:none}
+.gal-tile-label{padding:7px 9px 8px;background:var(--bg2)}
+.gal-tile-label-title{font-size:11px;font-weight:500;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gal-tile-label-by{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gallery-empty,.gallery-loading{padding:48px;text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1;font-family:'DM Mono',monospace}
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center}
 #lightbox.open{display:flex}
@@ -300,7 +300,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .lb-arrow:hover{background:rgba(255,255,255,.18)}
 .lb-arrow.prev{left:14px}.lb-arrow.next{right:14px}
 .lb-img-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 72px 0;width:100%;min-height:0;box-sizing:border-box}
-.lb-img-wrap img{max-width:100%;max-height:100%;object-fit:contain;border-radius:var(--r);display:block}
+.lb-col{display:flex;flex-direction:column;max-width:100%}
+.lb-col>img{max-width:100%;max-height:calc(100vh - 160px);object-fit:contain;border-radius:var(--r);display:block}
 .lb-info{padding:10px 0 18px;flex-shrink:0;display:flex;align-items:center;gap:12px}
 .lb-info-text{flex:1;min-width:0}
 .lb-info-title{font-size:14px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -405,11 +406,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <span class="lb-counter"></span>
     <button class="lb-arrow prev" onclick="event.stopPropagation();lightboxNav(-1)">‹</button>
     <button class="lb-arrow next" onclick="event.stopPropagation();lightboxNav(1)">›</button>
-    <div class="lb-img-wrap" onclick="event.stopPropagation()"><img src="" alt=""></div>
-    <div class="lb-info" onclick="event.stopPropagation()">
-      <div class="lb-info-text">
-        <div class="lb-info-title"></div>
-        <div class="lb-info-sub"><span class="lb-game-pill"></span><span class="lb-by"></span></div>
+    <div class="lb-img-wrap" onclick="event.stopPropagation()">
+      <div class="lb-col">
+        <img src="" alt="">
+        <div class="lb-info">
+          <div class="lb-info-text">
+            <div class="lb-info-title"></div>
+            <div class="lb-info-sub"><span class="lb-game-pill"></span><span class="lb-by"></span></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -791,6 +796,26 @@ function render() {
   if (curPage > totalPages) curPage = totalPages;
   const pageItems = items.slice((curPage - 1) * pageSize, curPage * pageSize);
 
+  if (curGame === 'MW2') {
+    document.getElementById('grid').innerHTML =
+      `<div class="gal-grid">${pageItems.map(e => {
+        const thumb = _thumbCache.has(e.id) ? _thumbCache.get(e.id) : thumbUrl(e);
+        const imgEl = thumb
+          ? `<img src="${thumb}" data-id="${e.id}" alt="${esc(e.title)}" loading="lazy" onerror="tileImgErr(this)">`
+          : `<div class="gal-tile-ph">no image</div>`;
+        return `<div class="gal-tile" onclick="openEntry('${e.id}')">` +
+          `<div class="gal-tile-img">${imgEl}` +
+          `${e.image_count > 1 ? `<span class="gal-tile-count">${e.image_count}</span>` : ''}` +
+          `</div>` +
+          `<div class="gal-tile-label">` +
+          `<div class="gal-tile-label-title">${esc(e.title||'')}</div>` +
+          `${e.author ? `<div class="gal-tile-label-by">${esc(e.author)}</div>` : ''}` +
+          `</div></div>`;
+      }).join('')}</div>`;
+    renderPagination(totalPages);
+    return;
+  }
+
   document.getElementById('grid').innerHTML = pageItems.map(e => {
     const thumb = _thumbCache.has(e.id) ? _thumbCache.get(e.id) : thumbUrl(e);
     const imgEl = thumb
@@ -932,8 +957,14 @@ function cardThumbErr(img) {
 
 function tileImgErr(img) {
   const next = nextImgSrc(img.src);
-  if (next) { img.onerror = () => tileImgErr(img); img.src = next; }
-  else { img.style.display = 'none'; }
+  if (next) {
+    img.onerror = () => tileImgErr(img);
+    img.onload  = () => { if (img.dataset.id) _thumbCache.set(img.dataset.id, img.src); };
+    img.src = next;
+  } else {
+    if (img.dataset.id) _thumbCache.set(img.dataset.id, null);
+    img.parentNode.innerHTML = '<div class=gal-tile-ph>no image</div>';
+  }
 }
 function slideErrFallback(img) {
   const next = nextImgSrc(img.src);
@@ -1106,13 +1137,6 @@ function galImgErr(img) {
   if (next) { img.onerror = () => galImgErr(img); img.src = next; }
   else { img.parentNode.innerHTML = '<div class=gal-tile-ph>no image</div>'; }
 }
-function lbSyncInfo() {
-  const img  = document.querySelector('#lightbox .lb-img-wrap img');
-  const info = document.querySelector('#lightbox .lb-info');
-  if (!img || !info) return;
-  const w = img.getBoundingClientRect().width;
-  if (w > 0) info.style.width = w + 'px';
-}
 function lbImgErr(img) {
   const next = nextImgSrc(img.src);
   if (next) { img.onerror = () => lbImgErr(img); img.src = next; }
@@ -1184,11 +1208,14 @@ function renderGallery() {
     const url = `${GALLERY_R2}/${e.local_images[0]}`;
     const cnt = e.local_images.length;
     return `<div class="gal-tile" onclick="openLightbox(${absIdx})">` +
+      `<div class="gal-tile-img">` +
       `<img data-src="${url}" alt="${esc(e.title)}" onerror="galImgErr(this)">` +
       `${cnt > 1 ? `<span class="gal-tile-count">${cnt}</span>` : ''}` +
-      `<div class="gal-overlay"><div><div class="gal-overlay-txt">${esc(e.title)}</div>` +
-      `${e.uploader ? `<div class="gal-overlay-by">${esc(e.uploader)}</div>` : ''}` +
-      `</div></div></div>`;
+      `</div>` +
+      `<div class="gal-tile-label">` +
+      `<div class="gal-tile-label-title">${esc(e.title || '')}</div>` +
+      `${e.uploader || e.author ? `<div class="gal-tile-label-by">${esc(e.uploader || e.author)}</div>` : ''}` +
+      `</div></div>`;
   }).join('');
 
   document.getElementById('grid').innerHTML =
@@ -1229,9 +1256,6 @@ function openLightbox(idx) {
   const img = lb.querySelector('.lb-img-wrap img');
   img.onerror = () => lbImgErr(img);
   img.src = `${GALLERY_R2}/${e.local_images[0]}`;
-  img.decode()
-    .then(() => requestAnimationFrame(() => requestAnimationFrame(lbSyncInfo)))
-    .catch(() => setTimeout(lbSyncInfo, 150));
   img.alt = e.title || '';
   lb.querySelector('.lb-counter').textContent = `${idx + 1} / ${_galFiltered.length}`;
   lb.querySelector('.lb-arrow.prev').style.display = idx === 0 ? 'none' : '';
