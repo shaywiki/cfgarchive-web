@@ -806,7 +806,7 @@ function render() {
           ? `<img src="${thumb}" data-id="${e.id}" alt="${esc(e.title)}" loading="lazy" onerror="tileImgErr(this)">`
           : `<div class="gal-tile-ph">no image</div>`;
         const tagPills = (e.tags||[]).slice(0, 4).map(t =>
-          `<span class="ctag${activeTags.has(t)?' active':''}" onclick="event.stopPropagation();toggleTag('${esc(t)}')">${esc(t)}</span>`
+          `<span class="ctag${activeTags.has(t)?' active':''}" onclick="event.stopPropagation();openEntry('${e.id}')">${esc(t)}</span>`
         ).join('');
         return `<div class="gal-tile arc-tile" onclick="openEntry('${e.id}')">` +
           `<div class="gal-tile-img">${imgEl}` +
