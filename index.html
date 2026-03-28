@@ -279,7 +279,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .gal-pill.on{border-color:var(--game-accent);color:var(--game-accent);background:var(--game-glow)}
 .gal-count{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:auto}
 .gal-psz{display:flex;gap:4px;margin-left:8px}
-.gal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.gal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;grid-column:1/-1}
 .gal-tile{aspect-ratio:16/9;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;position:relative;transition:border-color .15s}
 .gal-tile:hover{border-color:var(--game-border)}
 .gal-tile img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
@@ -1239,9 +1239,9 @@ function openLightbox(idx) {
   const e   = _galFiltered[idx];
   const lb  = document.getElementById('lightbox');
   const img = lb.querySelector('.lb-img-wrap img');
-  img.onload  = lbSyncInfo;
   img.onerror = () => lbImgErr(img);
   img.src = `${GALLERY_R2}/${e.local_images[0]}`;
+  img.decode().then(lbSyncInfo).catch(() => setTimeout(lbSyncInfo, 100));
   img.alt = e.title || '';
   lb.querySelector('.lb-counter').textContent = `${idx + 1} / ${_galFiltered.length}`;
   lb.querySelector('.lb-arrow.prev').style.display = idx === 0 ? 'none' : '';
@@ -1264,7 +1264,6 @@ function openLightbox(idx) {
   }
   lb.classList.add('open');
   _lightboxOpen = true;
-  requestAnimationFrame(lbSyncInfo); // cached images won't fire onload
 }
 
 function closeLightbox() {
