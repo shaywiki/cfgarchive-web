@@ -1140,9 +1140,12 @@ function renderDemos() {
 
 // ── GALLERY ───────────────────────────────────────────────────────────────────
 function galImgErr(img) {
-  const next = nextImgSrc(img.src);
-  if (next) { img.onerror = () => galImgErr(img); img.src = next; }
-  else { img.parentNode.innerHTML = '<div class=gal-tile-ph>no image</div>'; }
+  const base = img.src.replace(/\.[^./?#]*$/, '');
+  const tried = (img.dataset.gft||'').split(',').filter(Boolean);
+  tried.push(img.src.slice(base.length));
+  const next = ['.jpg','.png'].find(e => !tried.includes(e));
+  if (next) { img.dataset.gft = tried.join(','); img.onerror = ()=>galImgErr(img); img.src = base+next; }
+  else img.parentNode.innerHTML = '<div class=gal-tile-ph>no image</div>';
 }
 function lbSyncInfo() {
   const img  = document.querySelector('#lightbox .lb-img-wrap img');
@@ -1152,9 +1155,12 @@ function lbSyncInfo() {
   if (w > 0) info.style.width = w + 'px';
 }
 function lbImgErr(img) {
-  const next = nextImgSrc(img.src);
-  if (next) { img.onerror = () => lbImgErr(img); img.src = next; }
-  else { img.style.opacity = '.2'; img.alt = 'Image unavailable'; }
+  const base = img.src.replace(/\.[^./?#]*$/, '');
+  const tried = (img.dataset.gft||'').split(',').filter(Boolean);
+  tried.push(img.src.slice(base.length));
+  const next = ['.jpg','.png'].find(e => !tried.includes(e));
+  if (next) { img.dataset.gft = tried.join(','); img.onerror = ()=>lbImgErr(img); img.src = base+next; }
+  else { img.style.opacity='.2'; img.alt='Image unavailable'; }
 }
 const GAL_GAME_NORM  = { B02:'BO2', BOIII:'Other', NFSMW2012:'Other', APEX:'Other', '101':'Other', GHOSTS:'Other' };
 const GAL_GAME_ORDER = ['COD4','BO','MW2','BO2','MW3','WAW','COD2','CSGO','Other'];
