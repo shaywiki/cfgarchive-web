@@ -83,9 +83,9 @@ Deployed via Cloudflare Pages connected to this repository.
 - Every merge to `main` → auto-deploys to production
 - No build step — Cloudflare serves `index.html` directly
 
-### Download counter — Cloudflare Workers + KV *(planned)*
+### Download counter — Cloudflare Workers + KV
 
-A future Cloudflare Worker (`dl.cfgarchive.net`) will increment a per-entry counter in Workers KV on each download button click. Downloads will continue to link directly to R2 — a fire-and-forget POST records the count without adding any redirect latency. Archive download counts will be displayed separately from the original CFGFactory stats.
+A Cloudflare Worker at `dl.cfgarchive.net` increments a per-entry counter in Workers KV on each download button click. Downloads link directly to R2 — a fire-and-forget POST records the count without adding any redirect latency. Archive download counts are displayed in the admin panel separately from the original CFGFactory stats.
 
 ---
 

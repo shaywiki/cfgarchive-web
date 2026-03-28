@@ -270,6 +270,53 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .btn-demo-dl:hover{background:var(--game-accent);color:var(--bg)}
 .btn-demo-dl svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .demos-empty,.demos-loading{padding:48px;text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1;font-family:'DM Mono',monospace}
+
+/* ── GALLERY ── */
+.gallery-wrap{grid-column:1/-1;width:100%;padding:0 2px}
+.gallery-filter{display:flex;gap:5px;padding:2px 0 12px;flex-wrap:wrap;align-items:center}
+.gal-pill{font-size:10px;padding:4px 11px;border-radius:6px;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .12s;white-space:nowrap;font-family:'DM Mono',monospace}
+.gal-pill:hover{color:var(--text2);border-color:rgba(255,255,255,.15)}
+.gal-pill.on{border-color:var(--game-accent);color:var(--game-accent);background:var(--game-glow)}
+.gal-count{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:auto}
+.gal-psz{display:flex;gap:4px;margin-left:8px}
+.gal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;grid-column:1/-1}
+.gal-tile{aspect-ratio:16/9;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;position:relative;transition:border-color .15s}
+.gal-tile:hover{border-color:var(--game-border)}
+.gal-tile img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.gal-tile:hover img{transform:scale(1.05)}
+.gal-tile-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+.gal-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.82) 0%,transparent 55%);opacity:0;transition:opacity .18s;display:flex;align-items:flex-end;padding:8px}
+.gal-tile:hover .gal-overlay{opacity:1}
+.gal-overlay-txt{font-size:11px;color:#fff;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.gal-overlay-by{font-size:9px;color:rgba(255,255,255,.55);font-family:'DM Mono',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gal-tile-count{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);font-size:9px;font-family:'DM Mono',monospace;padding:2px 6px;border-radius:4px;line-height:1.3;pointer-events:none}
+.arc-tile{aspect-ratio:unset;display:flex;flex-direction:column}
+.arc-tile .gal-tile-img{aspect-ratio:16/9;overflow:hidden;position:relative;flex-shrink:0}
+.arc-tile .gal-tile-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.arc-tile:hover .gal-tile-img img{transform:scale(1.05)}
+.gal-tile-label{padding:7px 9px 8px;background:var(--bg2)}
+.gal-tile-label-title{font-size:11px;font-weight:500;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gal-tile-label-by{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gallery-empty,.gallery-loading{padding:48px;text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1;font-family:'DM Mono',monospace}
+#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center}
+#lightbox.open{display:flex}
+.lb-close{position:absolute;top:14px;right:18px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:background .15s;z-index:2}
+.lb-close:hover{background:rgba(255,255,255,.18)}
+.lb-counter{position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:10px;font-family:'DM Mono',monospace;color:rgba(255,255,255,.35);z-index:2;pointer-events:none}
+.lb-arrow{position:absolute;top:50%;transform:translateY(-55%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;transition:background .15s;z-index:2}
+.lb-arrow:hover{background:rgba(255,255,255,.18)}
+.lb-arrow.prev{left:14px}.lb-arrow.next{right:14px}
+.lb-img-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 72px 0;width:100%;min-height:0;box-sizing:border-box}
+.lb-img-wrap img{max-width:100%;max-height:100%;object-fit:contain;border-radius:var(--r);display:block}
+.lb-info{padding:10px 0 18px;flex-shrink:0;display:flex;align-items:center;gap:12px}
+.lb-info-text{flex:1;min-width:0}
+.lb-info-title{font-size:14px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-info-sub{font-size:10px;color:rgba(255,255,255,.4);font-family:'DM Mono',monospace;margin-top:3px;display:flex;align-items:center;gap:8px}
+.lb-game-pill{font-size:9px;font-family:'DM Mono',monospace;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.12);white-space:nowrap}
+.lb-dl-btn{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-family:'DM Mono',monospace;padding:5px 14px;border-radius:6px;background:var(--game-glow);border:1px solid var(--game-border);color:var(--game-accent);text-decoration:none;white-space:nowrap;transition:background .12s;flex-shrink:0}
+.lb-dl-btn:hover{background:rgba(255,255,255,.08)}
+
+/* ── LIGHTBOX ── */
 </style>
 </head>
 <body data-game="COD4">
@@ -324,6 +371,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
       <div class="si" data-game="CSGO" onclick="setGame(this,'CSGO')"><span class="si-label"><span class="game-dot" style="background:#38bdf8"></span><span class="si-name">CSGO</span></span><span class="badge">10</span></div>
       <div class="si" data-game="FS" onclick="setGame(this,'FS')"><span class="si-label"><span class="game-dot" style="background:#7ecf4a"></span><span class="si-name">Farming Simulator</span></span><span class="badge">4</span></div>
       <div class="si" data-game="CF" onclick="setGame(this,'CF')"><span class="si-label"><span class="game-dot" style="background:#f97316"></span><span class="si-name">Crossfire</span></span><span class="badge">3</span></div>
+      <div class="sl" style="margin-top:8px">Gallery</div>
+      <div class="si" id="si-gallery" onclick="setGallery()"><span class="si-label"><span class="game-dot" style="background:rgba(255,255,255,.2)"></span><span class="si-name">Screenshots</span></span><span class="badge">1,097</span></div>
     </div>
     <div class="sidebar-footer">cfgfactory.com archive<br>13 March 2026<br><a href="https://github.com/shaywiki/cfgarchive-web" target="_blank">github &nearr;</a></div>
   </div>
@@ -357,6 +406,21 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   <div id="view-entry" style="display:none;flex-direction:column;position:fixed;inset:52px 0 0 192px;overflow-y:auto;background:var(--bg);z-index:10">
     <div class="entry-page" id="entry-page"></div>
   </div>
+
+  <div id="lightbox" onclick="closeLightbox()">
+    <button class="lb-close" onclick="event.stopPropagation();closeLightbox()">✕</button>
+    <span class="lb-counter"></span>
+    <button class="lb-arrow prev" onclick="event.stopPropagation();lightboxNav(-1)">‹</button>
+    <button class="lb-arrow next" onclick="event.stopPropagation();lightboxNav(1)">›</button>
+    <div class="lb-img-wrap" onclick="event.stopPropagation()"><img src="" alt=""></div>
+    <div class="lb-info" onclick="event.stopPropagation()">
+      <div class="lb-info-text">
+        <div class="lb-info-title"></div>
+        <div class="lb-info-sub"><span class="lb-game-pill"></span><span class="lb-by"></span></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -365,7 +429,8 @@ const R2     = 'https://files.cfgarchive.net';  // public blobs (images, files)
 const META   = 'https://meta.cfgarchive.net';   // Worker proxy → private cfgmeta bucket
 const DLC    = 'https://dl.cfgarchive.net';     // download counter Worker
 const GITHUB   = 'https://github.com/shaywiki/cfgarchive-web';
-const DEMOS_R2 = 'https://demos.cfgarchive.net'; // public R2 — demo files
+const DEMOS_R2   = 'https://demos.cfgarchive.net'; // public R2 — demo files
+const GALLERY_R2 = 'https://gallery.cfgarchive.net'; // public R2 — gallery screenshots
 
 // ── PER-GAME CATEGORY TABS ────────────────────────────────────────────────────
 // These are the v2 display categories shown in the tab bar per game
@@ -393,7 +458,9 @@ let sortBy    = 'dl';
 let viewMode  = 'grid';
 let activeTags = new Set();
 let curPage = 1;
-let _savedPage = 1;
+let _savedPage       = 1;
+let _savedCurCat     = 'All';
+let _savedActiveTags = new Set();
 let _suppressHashChange = false;
 let pageSize = 50;
 let _imgs = [], _slide = 0;
@@ -403,6 +470,18 @@ let DEMOS_DATA    = null;   // null = not fetched, [] = empty/loaded
 let _demosLoading = false;
 let curDemoId     = null;   // expanded demo row ID
 let demosCat      = 'All';  // active demo sub-category filter
+let GALLERY_DATA    = null;  // null = not fetched
+let _galCounts      = null;  // cached game counts (set after load)
+let _galleryLoading = false;
+let galleryCurGame  = 'COD4';
+let galPage         = 1;
+let galPageSize     = 50;
+let _galFiltered    = [];
+let _galLbIdx       = -1;
+let _galObserver    = null;
+let _lightboxOpen   = false;
+let curMode         = 'archive'; // 'archive' | 'gallery'
+let _prevMode       = 'archive';
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const safe = s => { const t = ((s||'').toLowerCase().replace(/[^\w\s-]/g,'').trim()); return t.replace(/[\s_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40)||'unknown'; };
@@ -554,6 +633,8 @@ async function loadData() {
 
 // ── GAME / CAT ────────────────────────────────────────────────────────────────
 function setGame(el, g) {
+  curMode = 'archive';
+  document.getElementById('si-gallery').classList.remove('on');
   curGame = g;
   document.body.setAttribute('data-game', g);
   document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
@@ -649,6 +730,19 @@ function clearTags() {
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
+  if (curMode === 'gallery') {
+    if (_prevMode !== 'gallery') {
+      document.getElementById('grid-toolbar').style.display = 'none';
+      document.getElementById('tag-bar').style.display = 'none';
+      _prevMode = 'gallery';
+    }
+    renderGallery();
+    return;
+  }
+  if (_prevMode === 'gallery') {
+    _prevMode = 'archive';
+  }
+  document.getElementById('grid-toolbar').style.display = '';
   if (curCat === 'Demos') {
     document.getElementById('tag-bar').style.display = 'none';
     renderDemos();
@@ -704,6 +798,31 @@ function render() {
   if (curPage > totalPages) curPage = totalPages;
   const pageItems = items.slice((curPage - 1) * pageSize, curPage * pageSize);
 
+  if (curGame === 'MW2') {
+    document.getElementById('grid').innerHTML =
+      `<div class="gal-grid">${pageItems.map(e => {
+        const thumb = _thumbCache.has(e.id) ? _thumbCache.get(e.id) : thumbUrl(e);
+        const imgEl = thumb
+          ? `<img src="${thumb}" data-id="${e.id}" alt="${esc(e.title)}" loading="lazy" onerror="tileImgErr(this)">`
+          : `<div class="gal-tile-ph">no image</div>`;
+        const tagPills = (e.tags||[]).slice(0, 4).map(t =>
+          `<span class="ctag${activeTags.has(t)?' active':''}" onclick="event.stopPropagation();openEntry('${e.id}')">${esc(t)}</span>`
+        ).join('');
+        return `<div class="gal-tile arc-tile" onclick="openEntry('${e.id}')">` +
+          `<div class="gal-tile-img">${imgEl}` +
+          `${e.image_count > 1 ? `<span class="gal-tile-count">${e.image_count}</span>` : ''}` +
+          `</div>` +
+          `<div class="gal-tile-label">` +
+          `<div class="gal-tile-label-title">${esc(e.title||'')}</div>` +
+          `${e.author ? `<div class="gal-tile-label-by">${esc(e.author)}</div>` : ''}` +
+          `<div class="card-footer"><span class="card-dl">${fmtN(e.downloads)} dl</span><span class="card-r">★ ${e.rating}</span></div>` +
+          `${tagPills ? `<div class="card-tags">${tagPills}</div>` : ''}` +
+          `</div></div>`;
+      }).join('')}</div>`;
+    renderPagination(totalPages);
+    return;
+  }
+
   document.getElementById('grid').innerHTML = pageItems.map(e => {
     const thumb = _thumbCache.has(e.id) ? _thumbCache.get(e.id) : thumbUrl(e);
     const imgEl = thumb
@@ -734,24 +853,22 @@ function render() {
   renderPagination(totalPages);
 }
 
-function renderPagination(totalPages) {
+function renderPagination(totalPages, page=curPage, setFn='setPage') {
   const el = document.getElementById('pagination');
   if (!el || totalPages <= 1) { if (el) el.innerHTML = ''; return; }
   const spread = 2;
   const pages = [];
   for (let i = 1; i <= totalPages; i++) {
-    if (i === 1 || i === totalPages || (i >= curPage - spread && i <= curPage + spread)) {
-      pages.push(i);
-    }
+    if (i === 1 || i === totalPages || (i >= page - spread && i <= page + spread)) pages.push(i);
   }
-  let html = `<button class="pg-btn" onclick="setPage(${curPage-1})" ${curPage===1?'disabled':''}>&#8592;</button>`;
+  let html = `<button class="pg-btn" onclick="${setFn}(${page-1})" ${page===1?'disabled':''}>&#8592;</button>`;
   let prev = null;
   for (const p of pages) {
     if (prev !== null && p > prev + 1) html += `<span class="pg-gap">…</span>`;
-    html += `<button class="pg-btn${p===curPage?' on':''}" onclick="setPage(${p})">${p}</button>`;
+    html += `<button class="pg-btn${p===page?' on':''}" onclick="${setFn}(${p})">${p}</button>`;
     prev = p;
   }
-  html += `<button class="pg-btn" onclick="setPage(${curPage+1})" ${curPage===totalPages?'disabled':''}>&#8594;</button>`;
+  html += `<button class="pg-btn" onclick="${setFn}(${page+1})" ${page===totalPages?'disabled':''}>&#8594;</button>`;
   el.innerHTML = html;
 }
 
@@ -845,6 +962,17 @@ function cardThumbErr(img) {
   }
 }
 
+function tileImgErr(img) {
+  const next = nextImgSrc(img.src);
+  if (next) {
+    img.onerror = () => tileImgErr(img);
+    img.onload  = () => { if (img.dataset.id) _thumbCache.set(img.dataset.id, img.src); };
+    img.src = next;
+  } else {
+    if (img.dataset.id) _thumbCache.set(img.dataset.id, null);
+    img.parentNode.innerHTML = '<div class=gal-tile-ph>no image</div>';
+  }
+}
 function slideErrFallback(img) {
   const next = nextImgSrc(img.src);
   if (next) { img.onerror = () => slideErrFallback(img); img.src = next; }
@@ -1010,6 +1138,177 @@ function renderDemos() {
   document.getElementById('pagination').innerHTML = '';
 }
 
+// ── GALLERY ───────────────────────────────────────────────────────────────────
+function galImgErr(img) {
+  const base = img.src.replace(/\.[^./?#]*$/, '');
+  const tried = (img.dataset.gft||'').split(',').filter(Boolean);
+  tried.push(img.src.slice(base.length));
+  const next = ['.jpg','.png'].find(e => !tried.includes(e));
+  if (next) { img.dataset.gft = tried.join(','); img.onerror = ()=>galImgErr(img); img.src = base+next; }
+  else img.parentNode.innerHTML = '<div class=gal-tile-ph>no image</div>';
+}
+function lbSyncInfo() {
+  const img  = document.querySelector('#lightbox .lb-img-wrap img');
+  const info = document.querySelector('#lightbox .lb-info');
+  if (!img || !info) return;
+  const w = img.getBoundingClientRect().width;
+  if (w > 0) info.style.width = w + 'px';
+}
+function lbImgErr(img) {
+  const base = img.src.replace(/\.[^./?#]*$/, '');
+  const tried = (img.dataset.gft||'').split(',').filter(Boolean);
+  tried.push(img.src.slice(base.length));
+  const next = ['.jpg','.png'].find(e => !tried.includes(e));
+  if (next) { img.dataset.gft = tried.join(','); img.onerror = ()=>lbImgErr(img); img.src = base+next; }
+  else { img.style.opacity='.2'; img.alt='Image unavailable'; }
+}
+const GAL_GAME_NORM  = { B02:'BO2', BOIII:'Other', NFSMW2012:'Other', APEX:'Other', '101':'Other', GHOSTS:'Other' };
+const GAL_GAME_ORDER = ['COD4','BO','MW2','BO2','MW3','WAW','COD2','CSGO','Other'];
+
+function setGallery() {
+  curMode = 'gallery';
+  document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
+  document.getElementById('si-gallery').classList.add('on');
+  document.getElementById('cat-bar').innerHTML = '';
+  document.getElementById('view-entry').style.display = 'none';
+  render();
+}
+
+async function loadGallery() {
+  if (GALLERY_DATA !== null) { renderGallery(); return; }
+  if (_galleryLoading) return;
+  _galleryLoading = true;
+  document.getElementById('grid').innerHTML = '<div class="gallery-loading">Loading gallery…</div>';
+  document.getElementById('pagination').innerHTML = '';
+  const data = await safeFetch(`${META}/gallery-index.json`);
+  const entries = Array.isArray(data) ? data : (data && data.entries ? data.entries : []);
+  GALLERY_DATA = entries
+    .filter(e => e.has_images && e.local_images && e.local_images.length > 0)
+    .map(e => ({ ...e, _game: GAL_GAME_NORM[e.game_code] || e.game_code }));
+  _galCounts = {};
+  GALLERY_DATA.forEach(e => { _galCounts[e._game] = (_galCounts[e._game]||0) + 1; });
+  _galleryLoading = false;
+  if (curMode === 'gallery') renderGallery();
+}
+
+function setGalleryCurGame(game) {
+  galleryCurGame = game;
+  galPage = 1;
+  renderGallery();
+}
+
+function renderGallery() {
+  if (GALLERY_DATA === null) { loadGallery(); return; }
+
+  const counts = _galCounts;
+
+  _galFiltered = GALLERY_DATA.filter(e => e._game === galleryCurGame);
+
+  const totalPages = Math.max(1, Math.ceil(_galFiltered.length / galPageSize));
+  if (galPage > totalPages) galPage = totalPages;
+  const pageItems = _galFiltered.slice((galPage - 1) * galPageSize, galPage * galPageSize);
+
+  const pills = GAL_GAME_ORDER
+    .filter(g => counts[g])
+    .map(g => `<span class="gal-pill${galleryCurGame===g?' on':''}" onclick="setGalleryCurGame('${g}')">${esc(g)}<span style="font-size:9px;opacity:.5;margin-left:5px">${counts[g]}</span></span>`)
+    .join('');
+  const psSizes = [25, 50, 100].map(n =>
+    `<span class="sc${galPageSize===n?' on':''}" onclick="setGalPageSize(${n})">${n}</span>`
+  ).join('');
+  const filterBar = `<div class="gallery-filter">${pills}<span class="gal-count">${_galFiltered.length.toLocaleString()} images</span><div class="gal-psz">${psSizes}</div></div>`;
+
+  if (!_galFiltered.length) {
+    document.getElementById('grid').innerHTML = `<div class="gallery-wrap">${filterBar}<div class="gallery-empty">No images</div></div>`;
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  const tiles = pageItems.map((e, i) => {
+    const absIdx = (galPage - 1) * galPageSize + i;
+    const url = `${GALLERY_R2}/${e.local_images[0]}`;
+    const cnt = e.local_images.length;
+    return `<div class="gal-tile" onclick="openLightbox(${absIdx})">` +
+      `<img data-src="${url}" alt="${esc(e.title)}" onerror="galImgErr(this)">` +
+      `${cnt > 1 ? `<span class="gal-tile-count">${cnt}</span>` : ''}` +
+      `<div class="gal-overlay"><div><div class="gal-overlay-txt">${esc(e.title)}</div>` +
+      `${e.uploader ? `<div class="gal-overlay-by">${esc(e.uploader)}</div>` : ''}` +
+      `</div></div></div>`;
+  }).join('');
+
+  document.getElementById('grid').innerHTML =
+    `<div class="gallery-wrap">${filterBar}<div class="gal-grid">${tiles}</div></div>`;
+
+  renderPagination(totalPages, galPage, 'setGalPage');
+
+  if (_galObserver) _galObserver.disconnect();
+  _galObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const img = entry.target.querySelector('img[data-src]');
+      if (img) { img.src = img.dataset.src; img.removeAttribute('data-src'); }
+      _galObserver.unobserve(entry.target);
+    });
+  }, { rootMargin: '100px' });
+  document.querySelectorAll('.gal-tile').forEach(tile => _galObserver.observe(tile));
+}
+
+
+function setGalPage(p) {
+  galPage = p;
+  renderGallery();
+  document.getElementById('grid-scroll').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setGalPageSize(n) {
+  galPageSize = n;
+  galPage = 1;
+  renderGallery();
+}
+
+function openLightbox(idx) {
+  if (idx < 0 || idx >= _galFiltered.length) return;
+  _galLbIdx = idx;
+  const e   = _galFiltered[idx];
+  const lb  = document.getElementById('lightbox');
+  const img = lb.querySelector('.lb-img-wrap img');
+  img.onerror = () => lbImgErr(img);
+  img.src = `${GALLERY_R2}/${e.local_images[0]}`;
+  img.decode()
+    .then(() => requestAnimationFrame(() => requestAnimationFrame(lbSyncInfo)))
+    .catch(() => setTimeout(lbSyncInfo, 150));
+  img.alt = e.title || '';
+  lb.querySelector('.lb-counter').textContent = `${idx + 1} / ${_galFiltered.length}`;
+  lb.querySelector('.lb-arrow.prev').style.display = idx === 0 ? 'none' : '';
+  lb.querySelector('.lb-arrow.next').style.display = idx === _galFiltered.length - 1 ? 'none' : '';
+  lb.querySelector('.lb-info-title').textContent = e.title || '';
+  lb.querySelector('.lb-game-pill').textContent  = e._game || e.game_code || '';
+  lb.querySelector('.lb-by').textContent = e.uploader ? `by ${e.uploader}` : (e.author ? `by ${e.author}` : '');
+  // Download button — look up matching archive entry
+  const arch = DATA ? DATA.find(x => x.id === e.id) : null;
+  const dlEl = lb.querySelector('.lb-dl-btn');
+  if (dlEl) dlEl.remove();
+  if (arch && arch.has_file && dlUrl(arch)) {
+    const btn = document.createElement('a');
+    btn.className = 'lb-dl-btn';
+    btn.href = dlUrl(arch);
+    btn.target = '_blank';
+    btn.setAttribute('onclick', `countDl('${arch.id}')`);
+    btn.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download`;
+    lb.querySelector('.lb-info').appendChild(btn);
+  }
+  lb.classList.add('open');
+  _lightboxOpen = true;
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  _lightboxOpen = false;
+}
+
+function lightboxNav(dir) {
+  openLightbox(_galLbIdx + dir);
+}
+
 // ── ENTRY PAGE ────────────────────────────────────────────────────────────────
 function reportUrl(e) {
   const t = encodeURIComponent(`[REPORT] ${e.title} (${e.id})`);
@@ -1024,7 +1323,9 @@ function reportUrl(e) {
 function openEntry(id, push=true) {
   const e = DATA.find(x => x.id === id);
   if (!e) return;
-  _savedPage = curPage;
+  _savedPage       = curPage;
+  _savedCurCat     = curCat;
+  _savedActiveTags = new Set(activeTags);
   if (push) { _suppressHashChange = true; location.hash = 'entry/' + id; }
   _slide = 0;
   _imgs  = imgUrls(e);
@@ -1112,8 +1413,11 @@ function tagAndBack(t) {
 
 function closeEntry() {
   curPage = _savedPage;
+  curCat  = _savedCurCat;
+  activeTags = new Set(_savedActiveTags);
   history.pushState(null, '', location.pathname + location.search);
   document.getElementById('view-entry').style.display = 'none';
+  if (curCat !== 'All') buildCatBar(curGame);
   render();
 }
 
@@ -1153,6 +1457,12 @@ function handleHash() {
 
 window.addEventListener('hashchange', handleHash);
 window.addEventListener('popstate', handleHash);
+document.addEventListener('keydown', e => {
+  if (!_lightboxOpen) return;
+  if (e.key === 'Escape')          closeLightbox();
+  else if (e.key === 'ArrowLeft')  lightboxNav(-1);
+  else if (e.key === 'ArrowRight') lightboxNav(1);
+});
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
 loadData();
