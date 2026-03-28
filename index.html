@@ -451,7 +451,9 @@ let sortBy    = 'dl';
 let viewMode  = 'grid';
 let activeTags = new Set();
 let curPage = 1;
-let _savedPage = 1;
+let _savedPage       = 1;
+let _savedCurCat     = 'All';
+let _savedActiveTags = new Set();
 let _suppressHashChange = false;
 let pageSize = 50;
 let _imgs = [], _slide = 0;
@@ -788,20 +790,6 @@ function render() {
   const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
   if (curPage > totalPages) curPage = totalPages;
   const pageItems = items.slice((curPage - 1) * pageSize, curPage * pageSize);
-
-  if (curGame === 'MW2') {
-    document.getElementById('grid').innerHTML = `<div class="gal-grid">${pageItems.map(e => {
-      const thumb = _thumbCache.has(e.id) ? _thumbCache.get(e.id) : thumbUrl(e);
-      return `<div class="gal-tile" onclick="openEntry('${e.id}')">` +
-        (thumb ? `<img src="${thumb}" data-id="${e.id}" alt="${esc(e.title)}" loading="lazy" onerror="tileImgErr(this)">` : `<div class="gal-tile-ph">no image</div>`) +
-        `<div class="gal-overlay"><div>` +
-        `<div class="gal-overlay-txt">${esc(e.title)}</div>` +
-        `<div class="gal-overlay-by">by ${esc(byline(e))}</div>` +
-        `</div></div></div>`;
-    }).join('')}</div>`;
-    renderPagination(totalPages);
-    return;
-  }
 
   document.getElementById('grid').innerHTML = pageItems.map(e => {
     const thumb = _thumbCache.has(e.id) ? _thumbCache.get(e.id) : thumbUrl(e);
@@ -1241,7 +1229,9 @@ function openLightbox(idx) {
   const img = lb.querySelector('.lb-img-wrap img');
   img.onerror = () => lbImgErr(img);
   img.src = `${GALLERY_R2}/${e.local_images[0]}`;
-  img.decode().then(lbSyncInfo).catch(() => setTimeout(lbSyncInfo, 100));
+  img.decode()
+    .then(() => requestAnimationFrame(() => requestAnimationFrame(lbSyncInfo)))
+    .catch(() => setTimeout(lbSyncInfo, 150));
   img.alt = e.title || '';
   lb.querySelector('.lb-counter').textContent = `${idx + 1} / ${_galFiltered.length}`;
   lb.querySelector('.lb-arrow.prev').style.display = idx === 0 ? 'none' : '';
@@ -1289,7 +1279,9 @@ function reportUrl(e) {
 function openEntry(id, push=true) {
   const e = DATA.find(x => x.id === id);
   if (!e) return;
-  _savedPage = curPage;
+  _savedPage       = curPage;
+  _savedCurCat     = curCat;
+  _savedActiveTags = new Set(activeTags);
   if (push) { _suppressHashChange = true; location.hash = 'entry/' + id; }
   _slide = 0;
   _imgs  = imgUrls(e);
@@ -1377,8 +1369,11 @@ function tagAndBack(t) {
 
 function closeEntry() {
   curPage = _savedPage;
+  curCat  = _savedCurCat;
+  activeTags = new Set(_savedActiveTags);
   history.pushState(null, '', location.pathname + location.search);
   document.getElementById('view-entry').style.display = 'none';
+  if (curCat !== 'All') buildCatBar(curGame);
   render();
 }
 
