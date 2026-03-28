@@ -138,18 +138,6 @@ Stored in the private `cfgmeta` R2 bucket, served via `meta.cfgarchive.net`. Wri
 
 ---
 
-## Running locally
-
-No build step needed — open `index.html` directly in a browser, or serve it:
-
-```bash
-python3 -m http.server 8080
-```
-
-The SPA fetches `index.json` from R2. For local development with real data, point the `R2` constant at the live bucket or serve a local copy of `index.json`.
-
----
-
 ## Reporting issues
 
 Use the **Report an issue** button on any entry page, or [open an issue](https://github.com/shaywiki/cfgarchive-web/issues/new?template=report.md) directly.
