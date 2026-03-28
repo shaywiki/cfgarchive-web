@@ -307,8 +307,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .lb-arrow:hover{background:rgba(255,255,255,.18)}
 .lb-arrow.prev{left:14px}.lb-arrow.next{right:14px}
 .lb-img-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 72px 0;width:100%;min-height:0;box-sizing:border-box}
-.lb-col{display:flex;flex-direction:column;width:100%}
-.lb-col>img{width:100%;max-height:calc(100vh - 160px);object-fit:contain;border-radius:var(--r);display:block}
+.lb-img-wrap img{max-width:100%;max-height:100%;object-fit:contain;border-radius:var(--r);display:block}
 .lb-info{padding:10px 0 18px;flex-shrink:0;display:flex;align-items:center;gap:12px}
 .lb-info-text{flex:1;min-width:0}
 .lb-info-title{font-size:14px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -413,15 +412,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <span class="lb-counter"></span>
     <button class="lb-arrow prev" onclick="event.stopPropagation();lightboxNav(-1)">‹</button>
     <button class="lb-arrow next" onclick="event.stopPropagation();lightboxNav(1)">›</button>
-    <div class="lb-img-wrap" onclick="event.stopPropagation()">
-      <div class="lb-col">
-        <img src="" alt="">
-        <div class="lb-info">
-          <div class="lb-info-text">
-            <div class="lb-info-title"></div>
-            <div class="lb-info-sub"><span class="lb-game-pill"></span><span class="lb-by"></span></div>
-          </div>
-        </div>
+    <div class="lb-img-wrap" onclick="event.stopPropagation()"><img src="" alt=""></div>
+    <div class="lb-info" onclick="event.stopPropagation()">
+      <div class="lb-info-text">
+        <div class="lb-info-title"></div>
+        <div class="lb-info-sub"><span class="lb-game-pill"></span><span class="lb-by"></span></div>
       </div>
     </div>
   </div>
@@ -1149,6 +1144,13 @@ function galImgErr(img) {
   if (next) { img.onerror = () => galImgErr(img); img.src = next; }
   else { img.parentNode.innerHTML = '<div class=gal-tile-ph>no image</div>'; }
 }
+function lbSyncInfo() {
+  const img  = document.querySelector('#lightbox .lb-img-wrap img');
+  const info = document.querySelector('#lightbox .lb-info');
+  if (!img || !info) return;
+  const w = img.getBoundingClientRect().width;
+  if (w > 0) info.style.width = w + 'px';
+}
 function lbImgErr(img) {
   const next = nextImgSrc(img.src);
   if (next) { img.onerror = () => lbImgErr(img); img.src = next; }
@@ -1265,6 +1267,9 @@ function openLightbox(idx) {
   const img = lb.querySelector('.lb-img-wrap img');
   img.onerror = () => lbImgErr(img);
   img.src = `${GALLERY_R2}/${e.local_images[0]}`;
+  img.decode()
+    .then(() => requestAnimationFrame(() => requestAnimationFrame(lbSyncInfo)))
+    .catch(() => setTimeout(lbSyncInfo, 150));
   img.alt = e.title || '';
   lb.querySelector('.lb-counter').textContent = `${idx + 1} / ${_galFiltered.length}`;
   lb.querySelector('.lb-arrow.prev').style.display = idx === 0 ? 'none' : '';
