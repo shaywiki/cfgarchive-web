@@ -1077,6 +1077,22 @@ function renderDemos() {
 }
 
 // ── GALLERY ───────────────────────────────────────────────────────────────────
+function galImgErr(img) {
+  const src = img.src || '';
+  if (src && !/\.jpg$/i.test(src)) {
+    img.onerror = () => { img.parentNode.innerHTML = '<div class=gal-tile-ph>no image</div>'; };
+    img.src = src.replace(/\.[^.]+$/, '.jpg');
+  } else {
+    img.parentNode.innerHTML = '<div class=gal-tile-ph>no image</div>';
+  }
+}
+function lbImgErr(img) {
+  const src = img.src || '';
+  if (src && !/\.jpg$/i.test(src)) {
+    img.onerror = null;
+    img.src = src.replace(/\.[^.]+$/, '.jpg');
+  }
+}
 const GAL_GAME_NORM  = { B02:'BO2', BOIII:'Other', NFSMW2012:'Other', APEX:'Other', '101':'Other', GHOSTS:'Other' };
 const GAL_GAME_ORDER = ['COD4','BO','MW2','BO2','MW3','WAW','COD2','CSGO','Other'];
 
@@ -1132,7 +1148,7 @@ function renderGallery() {
   const tiles = _galFiltered.map((e, i) => {
     const url = `${GALLERY_R2}/${e.local_images[0]}`;
     return `<div class="gal-tile" onclick="openLightbox(${i})">` +
-      `<img data-src="${url}" alt="${esc(e.title)}" onerror="this.parentNode.innerHTML='<div class=gal-tile-ph>no image</div>'">` +
+      `<img data-src="${url}" alt="${esc(e.title)}" onerror="galImgErr(this)">` +
       `<div class="gal-overlay"><div><div class="gal-overlay-txt">${esc(e.title)}</div>` +
       `${e.uploader ? `<div class="gal-overlay-by">${esc(e.uploader)}</div>` : ''}` +
       `</div></div></div>`;
@@ -1160,6 +1176,7 @@ function openLightbox(idx) {
   const e   = _galFiltered[idx];
   const lb  = document.getElementById('lightbox');
   const img = lb.querySelector('.lb-img-wrap img');
+  img.onerror = () => lbImgErr(img);
   img.src = `${GALLERY_R2}/${e.local_images[0]}`;
   img.alt = e.title || '';
   lb.querySelector('.lb-title').textContent  = e.title || '';
