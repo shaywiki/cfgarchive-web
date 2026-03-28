@@ -278,7 +278,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .gal-pill:hover{color:var(--text2);border-color:rgba(255,255,255,.15)}
 .gal-pill.on{border-color:var(--game-accent);color:var(--game-accent);background:var(--game-glow)}
 .gal-count{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:auto}
-.gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:5px}
+.gal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
 .gal-tile{aspect-ratio:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;position:relative;transition:border-color .15s}
 .gal-tile:hover{border-color:var(--game-border)}
 .gal-tile img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
@@ -456,6 +456,8 @@ let demosCat      = 'All';  // active demo sub-category filter
 let GALLERY_DATA    = null;  // null = not fetched
 let _galleryLoading = false;
 let galleryCurGame  = 'COD4';
+let galPage         = 1;
+let galPageSize     = 50;
 let _galFiltered    = [];
 let _galLbIdx       = -1;
 let _galObserver    = null;
@@ -1122,6 +1124,7 @@ async function loadGallery() {
 
 function setGalleryCurGame(game) {
   galleryCurGame = game;
+  galPage = 1;
   renderGallery();
 }
 
@@ -1133,11 +1136,18 @@ function renderGallery() {
 
   _galFiltered = GALLERY_DATA.filter(e => e._game === galleryCurGame);
 
+  const totalPages = Math.max(1, Math.ceil(_galFiltered.length / galPageSize));
+  if (galPage > totalPages) galPage = totalPages;
+  const pageItems = _galFiltered.slice((galPage - 1) * galPageSize, galPage * galPageSize);
+
   const pills = GAL_GAME_ORDER
     .filter(g => counts[g])
     .map(g => `<span class="gal-pill${galleryCurGame===g?' on':''}" onclick="setGalleryCurGame('${g}')">${esc(g)}<span style="font-size:9px;opacity:.5;margin-left:5px">${counts[g]}</span></span>`)
     .join('');
-  const filterBar = `<div class="gallery-filter">${pills}<span class="gal-count">${_galFiltered.length.toLocaleString()} images</span></div>`;
+  const psSizes = [25, 50, 100].map(n =>
+    `<span class="sc${galPageSize===n?' on':''}" onclick="setGalPageSize(${n})">${n}</span>`
+  ).join('');
+  const filterBar = `<div class="gallery-filter">${pills}<span class="gal-count">${_galFiltered.length.toLocaleString()} images</span><div style="display:flex;gap:4px;margin-left:8px">${psSizes}</div></div>`;
 
   if (!_galFiltered.length) {
     document.getElementById('grid').innerHTML = `<div class="gallery-wrap">${filterBar}<div class="gallery-empty">No images</div></div>`;
@@ -1145,9 +1155,10 @@ function renderGallery() {
     return;
   }
 
-  const tiles = _galFiltered.map((e, i) => {
+  const tiles = pageItems.map((e, i) => {
+    const absIdx = (galPage - 1) * galPageSize + i;
     const url = `${GALLERY_R2}/${e.local_images[0]}`;
-    return `<div class="gal-tile" onclick="openLightbox(${i})">` +
+    return `<div class="gal-tile" onclick="openLightbox(${absIdx})">` +
       `<img data-src="${url}" alt="${esc(e.title)}" onerror="galImgErr(this)">` +
       `<div class="gal-overlay"><div><div class="gal-overlay-txt">${esc(e.title)}</div>` +
       `${e.uploader ? `<div class="gal-overlay-by">${esc(e.uploader)}</div>` : ''}` +
@@ -1156,7 +1167,8 @@ function renderGallery() {
 
   document.getElementById('grid').innerHTML =
     `<div class="gallery-wrap">${filterBar}<div class="gal-grid">${tiles}</div></div>`;
-  document.getElementById('pagination').innerHTML = '';
+
+  renderGalPagination(totalPages);
 
   if (_galObserver) _galObserver.disconnect();
   _galObserver = new IntersectionObserver(entries => {
@@ -1166,8 +1178,39 @@ function renderGallery() {
       if (img) { img.src = img.dataset.src; img.removeAttribute('data-src'); }
       _galObserver.unobserve(entry.target);
     });
-  }, { rootMargin: '300px' });
+  }, { rootMargin: '100px' });
   document.querySelectorAll('.gal-tile').forEach(tile => _galObserver.observe(tile));
+}
+
+function renderGalPagination(totalPages) {
+  const el = document.getElementById('pagination');
+  if (!el || totalPages <= 1) { if (el) el.innerHTML = ''; return; }
+  const spread = 2;
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= galPage - spread && i <= galPage + spread)) pages.push(i);
+  }
+  let html = `<button class="pg-btn" onclick="setGalPage(${galPage-1})" ${galPage===1?'disabled':''}>&#8592;</button>`;
+  let prev = null;
+  for (const p of pages) {
+    if (prev !== null && p > prev + 1) html += `<span class="pg-gap">…</span>`;
+    html += `<button class="pg-btn${p===galPage?' on':''}" onclick="setGalPage(${p})">${p}</button>`;
+    prev = p;
+  }
+  html += `<button class="pg-btn" onclick="setGalPage(${galPage+1})" ${galPage===totalPages?'disabled':''}>&#8594;</button>`;
+  el.innerHTML = html;
+}
+
+function setGalPage(p) {
+  galPage = p;
+  renderGallery();
+  document.getElementById('grid-scroll').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setGalPageSize(n) {
+  galPageSize = n;
+  galPage = 1;
+  renderGallery();
 }
 
 function openLightbox(idx) {
