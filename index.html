@@ -270,6 +270,41 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .btn-demo-dl:hover{background:var(--game-accent);color:var(--bg)}
 .btn-demo-dl svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .demos-empty,.demos-loading{padding:48px;text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1;font-family:'DM Mono',monospace}
+
+/* ── GALLERY ── */
+.gallery-wrap{grid-column:1/-1;width:100%;padding:0 2px}
+.gallery-filter{display:flex;gap:5px;padding:2px 0 12px;flex-wrap:wrap;align-items:center}
+.gal-pill{font-size:10px;padding:4px 11px;border-radius:6px;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .12s;white-space:nowrap;font-family:'DM Mono',monospace}
+.gal-pill:hover{color:var(--text2);border-color:rgba(255,255,255,.15)}
+.gal-pill.on{border-color:var(--game-accent);color:var(--game-accent);background:var(--game-glow)}
+.gal-count{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:auto}
+.gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:5px}
+.gal-tile{aspect-ratio:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;position:relative;transition:border-color .15s}
+.gal-tile:hover{border-color:var(--game-border)}
+.gal-tile img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.gal-tile:hover img{transform:scale(1.05)}
+.gal-tile-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+.gal-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.82) 0%,transparent 55%);opacity:0;transition:opacity .18s;display:flex;align-items:flex-end;padding:8px}
+.gal-tile:hover .gal-overlay{opacity:1}
+.gal-overlay-txt{font-size:11px;color:#fff;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.gal-overlay-by{font-size:9px;color:rgba(255,255,255,.55);font-family:'DM Mono',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gallery-empty,.gallery-loading{padding:48px;text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1;font-family:'DM Mono',monospace}
+
+/* ── LIGHTBOX ── */
+#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:300;display:none;align-items:center;justify-content:center;flex-direction:column}
+#lightbox.open{display:flex}
+.lb-close{position:absolute;top:16px;right:20px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;transition:background .15s;z-index:2}
+.lb-close:hover{background:rgba(255,255,255,.18)}
+.lb-counter{position:absolute;top:20px;left:50%;transform:translateX(-50%);font-size:10px;font-family:'DM Mono',monospace;color:rgba(255,255,255,.35);z-index:2;pointer-events:none}
+.lb-arrow{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;transition:background .15s;z-index:2}
+.lb-arrow:hover{background:rgba(255,255,255,.18)}
+.lb-arrow.prev{left:16px}.lb-arrow.next{right:16px}
+.lb-img-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:56px 80px 12px;width:100%;min-height:0;box-sizing:border-box}
+.lb-img-wrap img{max-width:100%;max-height:100%;object-fit:contain;border-radius:var(--r);display:block}
+.lb-meta{padding:10px 80px 22px;text-align:center;flex-shrink:0}
+.lb-title{font-size:14px;font-weight:500;color:#fff;margin-bottom:5px}
+.lb-sub{font-size:11px;color:rgba(255,255,255,.4);font-family:'DM Mono',monospace;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.lb-game-pill{font-size:9px;font-family:'DM Mono',monospace;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.12)}
 </style>
 </head>
 <body data-game="COD4">
@@ -324,6 +359,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
       <div class="si" data-game="CSGO" onclick="setGame(this,'CSGO')"><span class="si-label"><span class="game-dot" style="background:#38bdf8"></span><span class="si-name">CSGO</span></span><span class="badge">10</span></div>
       <div class="si" data-game="FS" onclick="setGame(this,'FS')"><span class="si-label"><span class="game-dot" style="background:#7ecf4a"></span><span class="si-name">Farming Simulator</span></span><span class="badge">4</span></div>
       <div class="si" data-game="CF" onclick="setGame(this,'CF')"><span class="si-label"><span class="game-dot" style="background:#f97316"></span><span class="si-name">Crossfire</span></span><span class="badge">3</span></div>
+      <div class="sl" style="margin-top:8px">Gallery</div>
+      <div class="si" id="si-gallery" onclick="setGallery()"><span class="si-label"><span class="game-dot" style="background:rgba(255,255,255,.2)"></span><span class="si-name">Screenshots</span></span><span class="badge">1,097</span></div>
     </div>
     <div class="sidebar-footer">cfgfactory.com archive<br>13 March 2026<br><a href="https://github.com/shaywiki/cfgarchive-web" target="_blank">github &nearr;</a></div>
   </div>
@@ -357,6 +394,18 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   <div id="view-entry" style="display:none;flex-direction:column;position:fixed;inset:52px 0 0 192px;overflow-y:auto;background:var(--bg);z-index:10">
     <div class="entry-page" id="entry-page"></div>
   </div>
+
+  <div id="lightbox" onclick="closeLightbox()">
+    <button class="lb-close" onclick="event.stopPropagation();closeLightbox()">✕</button>
+    <span class="lb-counter"></span>
+    <button class="lb-arrow prev" onclick="event.stopPropagation();lightboxNav(-1)">‹</button>
+    <button class="lb-arrow next" onclick="event.stopPropagation();lightboxNav(1)">›</button>
+    <div class="lb-img-wrap" onclick="event.stopPropagation()"><img src="" alt=""></div>
+    <div class="lb-meta" onclick="event.stopPropagation()">
+      <div class="lb-title"></div>
+      <div class="lb-sub"><span class="lb-game-pill"></span><span class="lb-by"></span></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -365,7 +414,8 @@ const R2     = 'https://files.cfgarchive.net';  // public blobs (images, files)
 const META   = 'https://meta.cfgarchive.net';   // Worker proxy → private cfgmeta bucket
 const DLC    = 'https://dl.cfgarchive.net';     // download counter Worker
 const GITHUB   = 'https://github.com/shaywiki/cfgarchive-web';
-const DEMOS_R2 = 'https://demos.cfgarchive.net'; // public R2 — demo files
+const DEMOS_R2   = 'https://demos.cfgarchive.net'; // public R2 — demo files
+const GALLERY_R2 = 'https://gallery.cfgarchive.net'; // public R2 — gallery screenshots
 
 // ── PER-GAME CATEGORY TABS ────────────────────────────────────────────────────
 // These are the v2 display categories shown in the tab bar per game
@@ -403,6 +453,13 @@ let DEMOS_DATA    = null;   // null = not fetched, [] = empty/loaded
 let _demosLoading = false;
 let curDemoId     = null;   // expanded demo row ID
 let demosCat      = 'All';  // active demo sub-category filter
+let GALLERY_DATA    = null;  // null = not fetched
+let _galleryLoading = false;
+let galleryCurGame  = 'COD4';
+let _galFiltered    = [];
+let _galLbIdx       = -1;
+let _galObserver    = null;
+let curMode = 'archive';     // 'archive' | 'gallery'
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const safe = s => { const t = ((s||'').toLowerCase().replace(/[^\w\s-]/g,'').trim()); return t.replace(/[\s_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40)||'unknown'; };
@@ -554,6 +611,8 @@ async function loadData() {
 
 // ── GAME / CAT ────────────────────────────────────────────────────────────────
 function setGame(el, g) {
+  curMode = 'archive';
+  document.getElementById('si-gallery').classList.remove('on');
   curGame = g;
   document.body.setAttribute('data-game', g);
   document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
@@ -649,6 +708,13 @@ function clearTags() {
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
+  if (curMode === 'gallery') {
+    document.getElementById('grid-toolbar').style.display = 'none';
+    document.getElementById('tag-bar').style.display = 'none';
+    renderGallery();
+    return;
+  }
+  document.getElementById('grid-toolbar').style.display = '';
   if (curCat === 'Demos') {
     document.getElementById('tag-bar').style.display = 'none';
     renderDemos();
@@ -1010,6 +1076,109 @@ function renderDemos() {
   document.getElementById('pagination').innerHTML = '';
 }
 
+// ── GALLERY ───────────────────────────────────────────────────────────────────
+const GAL_GAME_NORM  = { B02:'BO2', BOIII:'Other', NFSMW2012:'Other', APEX:'Other', '101':'Other', GHOSTS:'Other' };
+const GAL_GAME_ORDER = ['COD4','BO','MW2','BO2','MW3','WAW','COD2','CSGO','Other'];
+
+function setGallery() {
+  curMode = 'gallery';
+  document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
+  document.getElementById('si-gallery').classList.add('on');
+  document.getElementById('cat-bar').innerHTML = '';
+  document.getElementById('view-entry').style.display = 'none';
+  render();
+}
+
+async function loadGallery() {
+  if (GALLERY_DATA !== null) { renderGallery(); return; }
+  if (_galleryLoading) return;
+  _galleryLoading = true;
+  document.getElementById('grid').innerHTML = '<div class="gallery-loading">Loading gallery…</div>';
+  document.getElementById('pagination').innerHTML = '';
+  const data = await safeFetch(`${META}/gallery-index.json`);
+  const entries = Array.isArray(data) ? data : (data && data.entries ? data.entries : []);
+  GALLERY_DATA = entries
+    .filter(e => e.has_images && e.local_images && e.local_images.length > 0)
+    .map(e => ({ ...e, _game: GAL_GAME_NORM[e.game_code] || e.game_code }));
+  _galleryLoading = false;
+  if (curMode === 'gallery') renderGallery();
+}
+
+function setGalleryCurGame(game) {
+  galleryCurGame = game;
+  renderGallery();
+}
+
+function renderGallery() {
+  if (GALLERY_DATA === null) { loadGallery(); return; }
+
+  const counts = {};
+  GALLERY_DATA.forEach(e => { counts[e._game] = (counts[e._game]||0) + 1; });
+
+  _galFiltered = GALLERY_DATA.filter(e => e._game === galleryCurGame);
+
+  const pills = GAL_GAME_ORDER
+    .filter(g => counts[g])
+    .map(g => `<span class="gal-pill${galleryCurGame===g?' on':''}" onclick="setGalleryCurGame('${g}')">${esc(g)}<span style="font-size:9px;opacity:.5;margin-left:5px">${counts[g]}</span></span>`)
+    .join('');
+  const filterBar = `<div class="gallery-filter">${pills}<span class="gal-count">${_galFiltered.length.toLocaleString()} images</span></div>`;
+
+  if (!_galFiltered.length) {
+    document.getElementById('grid').innerHTML = `<div class="gallery-wrap">${filterBar}<div class="gallery-empty">No images</div></div>`;
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  const tiles = _galFiltered.map((e, i) => {
+    const url = `${GALLERY_R2}/${e.local_images[0]}`;
+    return `<div class="gal-tile" onclick="openLightbox(${i})">` +
+      `<img data-src="${url}" alt="${esc(e.title)}" onerror="this.parentNode.innerHTML='<div class=gal-tile-ph>no image</div>'">` +
+      `<div class="gal-overlay"><div><div class="gal-overlay-txt">${esc(e.title)}</div>` +
+      `${e.uploader ? `<div class="gal-overlay-by">${esc(e.uploader)}</div>` : ''}` +
+      `</div></div></div>`;
+  }).join('');
+
+  document.getElementById('grid').innerHTML =
+    `<div class="gallery-wrap">${filterBar}<div class="gal-grid">${tiles}</div></div>`;
+  document.getElementById('pagination').innerHTML = '';
+
+  if (_galObserver) _galObserver.disconnect();
+  _galObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const img = entry.target.querySelector('img[data-src]');
+      if (img) { img.src = img.dataset.src; img.removeAttribute('data-src'); }
+      _galObserver.unobserve(entry.target);
+    });
+  }, { rootMargin: '300px' });
+  document.querySelectorAll('.gal-tile').forEach(tile => _galObserver.observe(tile));
+}
+
+function openLightbox(idx) {
+  if (idx < 0 || idx >= _galFiltered.length) return;
+  _galLbIdx = idx;
+  const e   = _galFiltered[idx];
+  const lb  = document.getElementById('lightbox');
+  const img = lb.querySelector('.lb-img-wrap img');
+  img.src = `${GALLERY_R2}/${e.local_images[0]}`;
+  img.alt = e.title || '';
+  lb.querySelector('.lb-title').textContent  = e.title || '';
+  lb.querySelector('.lb-by').textContent     = e.uploader ? `by ${e.uploader}` : '';
+  lb.querySelector('.lb-game-pill').textContent = e._game || e.game_code || '';
+  lb.querySelector('.lb-counter').textContent   = `${idx + 1} / ${_galFiltered.length}`;
+  lb.querySelector('.lb-arrow.prev').style.display = idx === 0 ? 'none' : '';
+  lb.querySelector('.lb-arrow.next').style.display = idx === _galFiltered.length - 1 ? 'none' : '';
+  lb.classList.add('open');
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+function lightboxNav(dir) {
+  openLightbox(_galLbIdx + dir);
+}
+
 // ── ENTRY PAGE ────────────────────────────────────────────────────────────────
 function reportUrl(e) {
   const t = encodeURIComponent(`[REPORT] ${e.title} (${e.id})`);
@@ -1153,6 +1322,12 @@ function handleHash() {
 
 window.addEventListener('hashchange', handleHash);
 window.addEventListener('popstate', handleHash);
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'Escape')      closeLightbox();
+  else if (e.key === 'ArrowLeft')  lightboxNav(-1);
+  else if (e.key === 'ArrowRight') lightboxNav(1);
+});
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
 loadData();
