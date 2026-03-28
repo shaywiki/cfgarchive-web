@@ -301,7 +301,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .lb-arrow.prev{left:14px}.lb-arrow.next{right:14px}
 .lb-img-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 72px 0;width:100%;min-height:0;box-sizing:border-box}
 .lb-img-wrap img{max-width:100%;max-height:100%;object-fit:contain;border-radius:var(--r);display:block}
-.lb-info{padding:10px 72px 18px;flex-shrink:0;width:100%;box-sizing:border-box;display:flex;align-items:center;gap:12px}
+.lb-info{padding:10px 0 18px;flex-shrink:0;display:flex;align-items:center;gap:12px}
 .lb-info-text{flex:1;min-width:0}
 .lb-info-title{font-size:14px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lb-info-sub{font-size:10px;color:rgba(255,255,255,.4);font-family:'DM Mono',monospace;margin-top:3px;display:flex;align-items:center;gap:8px}
@@ -789,6 +789,20 @@ function render() {
   if (curPage > totalPages) curPage = totalPages;
   const pageItems = items.slice((curPage - 1) * pageSize, curPage * pageSize);
 
+  if (curGame === 'MW2') {
+    document.getElementById('grid').innerHTML = `<div class="gal-grid">${pageItems.map(e => {
+      const thumb = _thumbCache.has(e.id) ? _thumbCache.get(e.id) : thumbUrl(e);
+      return `<div class="gal-tile" onclick="openEntry('${e.id}')">` +
+        (thumb ? `<img src="${thumb}" data-id="${e.id}" alt="${esc(e.title)}" loading="lazy" onerror="tileImgErr(this)">` : `<div class="gal-tile-ph">no image</div>`) +
+        `<div class="gal-overlay"><div>` +
+        `<div class="gal-overlay-txt">${esc(e.title)}</div>` +
+        `<div class="gal-overlay-by">by ${esc(byline(e))}</div>` +
+        `</div></div></div>`;
+    }).join('')}</div>`;
+    renderPagination(totalPages);
+    return;
+  }
+
   document.getElementById('grid').innerHTML = pageItems.map(e => {
     const thumb = _thumbCache.has(e.id) ? _thumbCache.get(e.id) : thumbUrl(e);
     const imgEl = thumb
@@ -928,6 +942,11 @@ function cardThumbErr(img) {
   }
 }
 
+function tileImgErr(img) {
+  const next = nextImgSrc(img.src);
+  if (next) { img.onerror = () => tileImgErr(img); img.src = next; }
+  else { img.style.display = 'none'; }
+}
 function slideErrFallback(img) {
   const next = nextImgSrc(img.src);
   if (next) { img.onerror = () => slideErrFallback(img); img.src = next; }
@@ -1099,6 +1118,13 @@ function galImgErr(img) {
   if (next) { img.onerror = () => galImgErr(img); img.src = next; }
   else { img.parentNode.innerHTML = '<div class=gal-tile-ph>no image</div>'; }
 }
+function lbSyncInfo() {
+  const img  = document.querySelector('#lightbox .lb-img-wrap img');
+  const info = document.querySelector('#lightbox .lb-info');
+  if (!img || !info) return;
+  const w = img.getBoundingClientRect().width;
+  if (w > 0) info.style.width = w + 'px';
+}
 function lbImgErr(img) {
   const next = nextImgSrc(img.src);
   if (next) { img.onerror = () => lbImgErr(img); img.src = next; }
@@ -1213,6 +1239,7 @@ function openLightbox(idx) {
   const e   = _galFiltered[idx];
   const lb  = document.getElementById('lightbox');
   const img = lb.querySelector('.lb-img-wrap img');
+  img.onload  = lbSyncInfo;
   img.onerror = () => lbImgErr(img);
   img.src = `${GALLERY_R2}/${e.local_images[0]}`;
   img.alt = e.title || '';
@@ -1237,6 +1264,7 @@ function openLightbox(idx) {
   }
   lb.classList.add('open');
   _lightboxOpen = true;
+  requestAnimationFrame(lbSyncInfo); // cached images won't fire onload
 }
 
 function closeLightbox() {
