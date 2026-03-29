@@ -58,6 +58,13 @@ The site is a single self-contained HTML file with no dependencies, no framework
 
 ## Infrastructure
 
+### Features
+
+- Browse 13,804 entries across 13 games — filter by category, tag, sort, and search
+- **Gallery** — 5-column screenshot grid with lightbox, sourced from `cfggallery` R2 bucket
+- **Demos** — inline expandable demo list with weapon/map details, sourced from `cfgdemos` R2 bucket
+- Download counter tracks per-entry downloads since archive launch (separate from CFGFactory stats)
+
 ### Storage — Cloudflare R2
 
 All archive files are served from Cloudflare R2 with zero egress cost.
