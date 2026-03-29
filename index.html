@@ -395,8 +395,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
         <span class="sc" onclick="setPageSize(this,200)">200</span>
       </div>
       <div class="page-size-chips" id="view-chips" style="margin-left:8px">
-        <span class="sc on" id="view-chip-tile" onclick="setViewMode(this,'tile')">⊞ Tiles</span>
-        <span class="sc"    id="view-chip-card" onclick="setViewMode(this,'card')">▦ Cards</span>
+        <span class="sc on" id="view-chip-tile" onclick="setCardStyle(this,'tile')">⊞ Tiles</span>
+        <span class="sc"    id="view-chip-card" onclick="setCardStyle(this,'card')">▦ Cards</span>
       </div>
     </div>
     <div class="tag-bar" id="tag-bar"><span class="tb-label">Tags</span></div>
@@ -468,7 +468,7 @@ let _savedCurCat     = 'All';
 let _savedActiveTags = new Set();
 let _suppressHashChange = false;
 let pageSize = 50;
-let viewMode = localStorage.getItem('cfgarchive_view') || 'tile';
+let cardStyle = localStorage.getItem('cfgarchive_cardstyle') || 'tile';
 let _imgs = [], _slide = 0;
 const _thumbCache = new Map(); // id → successful url (or null if all failed)
 let fuse = null;
@@ -695,12 +695,12 @@ function setPageSize(el, n) {
   render();
 }
 
-function setViewMode(el, mode) {
-  viewMode = mode;
-  localStorage.setItem('cfgarchive_view', mode);
+function setCardStyle(el, style) {
+  cardStyle = style;
+  localStorage.setItem('cfgarchive_cardstyle', style);
   curPage = 1;
-  document.getElementById('view-chip-tile').classList.toggle('on', mode === 'tile');
-  document.getElementById('view-chip-card').classList.toggle('on', mode === 'card');
+  document.getElementById('view-chip-tile').classList.toggle('on', style === 'tile');
+  document.getElementById('view-chip-card').classList.toggle('on', style === 'card');
   render();
 }
 
@@ -813,7 +813,7 @@ function render() {
   if (curPage > totalPages) curPage = totalPages;
   const pageItems = items.slice((curPage - 1) * pageSize, curPage * pageSize);
 
-  if (viewMode === 'tile') {
+  if (cardStyle === 'tile') {
     document.getElementById('grid').innerHTML =
       `<div class="gal-grid">${pageItems.map(e => {
         const thumb = _thumbCache.has(e.id) ? _thumbCache.get(e.id) : thumbUrl(e);
@@ -1480,8 +1480,8 @@ document.addEventListener('keydown', e => {
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
 // Apply persisted view mode chip state
-document.getElementById('view-chip-tile').classList.toggle('on', viewMode === 'tile');
-document.getElementById('view-chip-card').classList.toggle('on', viewMode === 'card');
+document.getElementById('view-chip-tile').classList.toggle('on', cardStyle === 'tile');
+document.getElementById('view-chip-card').classList.toggle('on', cardStyle === 'card');
 loadData();
 </script>
 </body>
