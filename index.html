@@ -392,6 +392,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
         <span class="sc" onclick="setPageSize(this,25)">25</span>
         <span class="sc on" onclick="setPageSize(this,50)">50</span>
         <span class="sc" onclick="setPageSize(this,100)">100</span>
+        <span class="sc" onclick="setPageSize(this,200)">200</span>
+      </div>
+      <div class="page-size-chips" id="view-chips" style="margin-left:8px">
+        <span class="sc on" id="view-chip-tile" onclick="setViewMode(this,'tile')">⊞ Tiles</span>
+        <span class="sc"    id="view-chip-card" onclick="setViewMode(this,'card')">▦ Cards</span>
       </div>
     </div>
     <div class="tag-bar" id="tag-bar"><span class="tb-label">Tags</span></div>
@@ -463,6 +468,7 @@ let _savedCurCat     = 'All';
 let _savedActiveTags = new Set();
 let _suppressHashChange = false;
 let pageSize = 50;
+let viewMode = localStorage.getItem('cfgarchive_view') || 'tile';
 let _imgs = [], _slide = 0;
 const _thumbCache = new Map(); // id → successful url (or null if all failed)
 let fuse = null;
@@ -689,6 +695,15 @@ function setPageSize(el, n) {
   render();
 }
 
+function setViewMode(el, mode) {
+  viewMode = mode;
+  localStorage.setItem('cfgarchive_view', mode);
+  curPage = 1;
+  document.getElementById('view-chip-tile').classList.toggle('on', mode === 'tile');
+  document.getElementById('view-chip-card').classList.toggle('on', mode === 'card');
+  render();
+}
+
 function setViewMode(m) {
   viewMode = m;
   document.getElementById('btn-grid').classList.toggle('on', m==='grid');
@@ -798,8 +813,7 @@ function render() {
   if (curPage > totalPages) curPage = totalPages;
   const pageItems = items.slice((curPage - 1) * pageSize, curPage * pageSize);
 
-  const TILE_GAMES = ['MW2','WAW','BO','BO2','MW3','COD2','BF2','CSS','CSGO','CF','FS'];
-  if (TILE_GAMES.includes(curGame)) {
+  if (viewMode === 'tile') {
     document.getElementById('grid').innerHTML =
       `<div class="gal-grid">${pageItems.map(e => {
         const thumb = _thumbCache.has(e.id) ? _thumbCache.get(e.id) : thumbUrl(e);
@@ -1465,6 +1479,9 @@ document.addEventListener('keydown', e => {
 });
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
+// Apply persisted view mode chip state
+document.getElementById('view-chip-tile').classList.toggle('on', viewMode === 'tile');
+document.getElementById('view-chip-card').classList.toggle('on', viewMode === 'card');
 loadData();
 </script>
 </body>
