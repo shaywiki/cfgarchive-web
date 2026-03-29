@@ -798,7 +798,8 @@ function render() {
   if (curPage > totalPages) curPage = totalPages;
   const pageItems = items.slice((curPage - 1) * pageSize, curPage * pageSize);
 
-  if (curGame === 'MW2') {
+  const TILE_GAMES = ['MW2','WAW','BO','BO2','MW3','COD2','BF2','CSS','CSGO','CF','FS'];
+  if (TILE_GAMES.includes(curGame)) {
     document.getElementById('grid').innerHTML =
       `<div class="gal-grid">${pageItems.map(e => {
         const thumb = _thumbCache.has(e.id) ? _thumbCache.get(e.id) : thumbUrl(e);
