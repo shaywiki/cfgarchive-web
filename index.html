@@ -829,7 +829,7 @@ function render() {
           `</div>` +
           `<div class="gal-tile-label">` +
           `<div class="gal-tile-label-title">${esc(e.title||'')}</div>` +
-          `${e.author ? `<div class="gal-tile-label-by">${esc(e.author)}</div>` : ''}` +
+          `${byline(e) !== 'unknown' ? `<div class="gal-tile-label-by">${esc(byline(e))}</div>` : ''}` +
           `<div class="card-footer"><span class="card-dl">${fmtN(e.downloads)} dl</span><span class="card-r">★ ${e.rating}</span></div>` +
           `${tagPills ? `<div class="card-tags">${tagPills}</div>` : ''}` +
           `</div></div>`;
