@@ -50,7 +50,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .logo-mark{width:22px;height:22px;border-radius:6px;background:var(--game-accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .3s}
 .logo-mark svg{width:12px;height:12px;fill:var(--bg)}
 .topbar-centre{flex:1;display:flex;justify-content:center;align-items:center;min-width:0;padding:0 12px}
-.topbar-search{position:relative;width:100%;max-width:400px;min-width:120px}
+.topbar-search{position:relative;width:100%;max-width:560px;min-width:120px}
 .topbar-search input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;padding:7px 14px 7px 30px;border-radius:20px;outline:none;transition:border-color .15s}
 .topbar-search input:focus{border-color:var(--game-accent)}
 .topbar-search input::placeholder{color:var(--muted)}
@@ -377,9 +377,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
       </div>
     </div>
     <div class="topbar-right">
-      <span class="tpill"><strong id="pill-total">13,804</strong> entries</span>
-      <span class="tpill"><strong>94k</strong> files</span>
-      <span class="tpill">archived Mar 2026</span>
       <div class="view-toggle">
         <button class="vt-btn on" id="btn-grid" onclick="setViewMode('grid')" title="Grid">⊞</button>
         <button class="vt-btn" id="btn-list" onclick="setViewMode('list')" title="List">☰</button>
@@ -647,7 +644,6 @@ async function loadData() {
         downloads:        statsV2?.[e.id]?.downloads       ?? e.downloads,
         unique_downloads: statsV2?.[e.id]?.unique_downloads ?? e.unique_downloads,
       })).filter(e => e.title && e.title.trim() && !(hiddenV2 && hiddenV2[e.id]));
-      document.getElementById('pill-total').textContent = DATA.length.toLocaleString();
       document.getElementById('badge-all').textContent = DATA.length.toLocaleString();
 
       setMsg('Building search index…');
@@ -659,7 +655,6 @@ async function loadData() {
     } else {
       // index.json not available yet — show empty UI
       console.warn('index.json not available — showing empty archive UI');
-      document.getElementById('pill-total').textContent = '—';
     }
 
     showApp();
