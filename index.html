@@ -36,7 +36,7 @@ body[data-game="MW3"]{--game-accent:#22c55e;--game-glow:rgba(34,197,94,.11);--ga
 body[data-game="BF2"]{--game-accent:#fb923c;--game-glow:rgba(251,146,60,.11);--game-border:rgba(251,146,60,.24)}
 body[data-game="BO"]{--game-accent:#ef4444;--game-glow:rgba(239,68,68,.1);--game-border:rgba(239,68,68,.22)}
 body[data-game="CSS"]{--game-accent:#10b981;--game-glow:rgba(16,185,129,.1);--game-border:rgba(16,185,129,.22)}
-body[data-game="CSGO"]{--game-accent:#38bdf8;--game-glow:rgba(56,189,248,.1);--game-border:rgba(56,189,248,.22)}
+body[data-game="CSGO"]{--game-accent:#d4af37;--game-glow:rgba(212,175,55,.1);--game-border:rgba(212,175,55,.22)}
 body[data-game="FS"]{--game-accent:#7ecf4a;--game-glow:rgba(126,207,74,.1);--game-border:rgba(126,207,74,.22)}
 body[data-game="CF"]{--game-accent:#f97316;--game-glow:rgba(249,115,22,.11);--game-border:rgba(249,115,22,.24)}
 html{zoom:1.2}
@@ -399,7 +399,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
       <div class="si" data-game="BF2" onclick="setGame(this,'BF2')"><span class="si-label"><span class="game-dot" style="background:#fb923c"></span><span class="si-name">BF2</span></span><span class="badge">42</span></div>
       <div class="si" data-game="BO" onclick="setGame(this,'BO')"><span class="si-label"><span class="game-dot" style="background:#ef4444"></span><span class="si-name">BO</span></span><span class="badge">36</span></div>
       <div class="si" data-game="CSS" onclick="setGame(this,'CSS')"><span class="si-label"><span class="game-dot" style="background:#10b981"></span><span class="si-name">CSS</span></span><span class="badge">21</span></div>
-      <div class="si" data-game="CSGO" onclick="setGame(this,'CSGO')"><span class="si-label"><span class="game-dot" style="background:#38bdf8"></span><span class="si-name">CSGO</span></span><span class="badge">10</span></div>
+      <div class="si" data-game="CSGO" onclick="setGame(this,'CSGO')"><span class="si-label"><span class="game-dot" style="background:#d4af37"></span><span class="si-name">CSGO</span></span><span class="badge">10</span></div>
       <div class="si" data-game="FS" onclick="setGame(this,'FS')"><span class="si-label"><span class="game-dot" style="background:#7ecf4a"></span><span class="si-name">Farming Simulator</span></span><span class="badge">4</span></div>
       <div class="si" data-game="CF" onclick="setGame(this,'CF')"><span class="si-label"><span class="game-dot" style="background:#f97316"></span><span class="si-name">Crossfire</span></span><span class="badge">3</span></div>
       <div class="sl" style="margin-top:8px">Gallery</div>
@@ -1263,7 +1263,7 @@ function renderAbout() {
   const GAME_COLORS = {
     COD4:'#3dba6f', GTA4:'#f97316', COD2:'#e8c84a', MW2:'#d4af37',
     WAW:'#67e8f9', BO2:'#e05b6a', MW3:'#22c55e', BF2:'#fb923c',
-    BO:'#ef4444', CSS:'#10b981', CSGO:'#38bdf8', FS:'#7ecf4a', CF:'#f97316'
+    BO:'#ef4444', CSS:'#10b981', CSGO:'#d4af37', FS:'#7ecf4a', CF:'#f97316'
   };
   const gameRows = Object.keys(GAME_NAMES).map(code => {
     const count = DATA.filter(e => e.game_code === code).length;
