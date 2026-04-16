@@ -1324,10 +1324,13 @@ async function loadGallery() {
   _galleryLoading = true;
   document.getElementById('grid').innerHTML = '<div class="gallery-loading">Loading gallery…</div>';
   document.getElementById('pagination').innerHTML = '';
-  const data = await safeFetch(`${META}/gallery-index.json`);
+  const [data, hiddenGallery] = await Promise.all([
+    safeFetch(`${META}/gallery-index.json`),
+    safeFetch(`${META}/hidden-gallery.json`),
+  ]);
   const entries = Array.isArray(data) ? data : (data && data.entries ? data.entries : []);
   GALLERY_DATA = entries
-    .filter(e => e.has_images && e.local_images && e.local_images.length > 0)
+    .filter(e => e.has_images && e.local_images && e.local_images.length > 0 && !(hiddenGallery && hiddenGallery[e.id]))
     .map(e => ({ ...e, _game: GAL_GAME_NORM[e.game_code] || e.game_code }));
   _galCounts = {};
   GALLERY_DATA.forEach(e => { _galCounts[e._game] = (_galCounts[e._game]||0) + 1; });
