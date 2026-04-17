@@ -143,6 +143,8 @@ Stored in the private `cfgmeta` R2 bucket, served via `meta.cfgarchive.net`. Wri
 | `uploaders-v2.json` | `{ "a1b2c3": "phaz" }` |
 | `image-count-overrides.json` | `{ "a1b2c3": 3 }` — when images added via admin |
 | `stats-v2.json` | `{ "a1b2c3": { "rating": 7.8, "votes": 24, "downloads": 12400, "unique_downloads": 9800 } }` — re-scraped stats for all games |
+| `hidden.json` | `{ "a1b2c3": true }` — entry IDs filtered from all public views on load |
+| `hidden-gallery.json` | `{ "a1b2c3": true }` — gallery screenshot IDs filtered from gallery on load |
 
 ---
 
