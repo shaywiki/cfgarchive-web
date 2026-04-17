@@ -54,6 +54,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .topbar-search{position:relative;width:100%;max-width:560px;min-width:120px}
 .topbar-search input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;padding:7px 14px 7px 30px;border-radius:20px;outline:none;transition:border-color .15s}
 .topbar-search input:focus{border-color:var(--game-accent)}
+:focus-visible{outline:2px solid var(--game-accent);outline-offset:2px}
+.si:focus-visible,.sc:focus-visible,.ctag:focus-visible,.tag-pill:focus-visible,.tag-more:focus-visible,.gal-pill:focus-visible,.cat-pill:focus-visible,.demo-row:focus-visible{outline:2px solid var(--game-accent);outline-offset:2px;border-radius:4px}
+.btn-dl:focus-visible,.lb-dl-btn:focus-visible,.lb-arrow:focus-visible{outline:2px solid var(--game-accent);outline-offset:3px}
 .topbar-search input::placeholder{color:var(--muted)}
 .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none}
 .topbar-right{flex-shrink:0;display:flex;align-items:center;gap:8px;padding-left:8px}
@@ -123,6 +126,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .tag-pill:hover{border-color:var(--game-border);color:var(--game-accent);background:var(--game-glow)}
 .tag-pill.on{border-color:var(--game-accent);color:var(--bg);background:var(--game-accent)}
 .tag-pill .tc{opacity:.45;font-size:9px;margin-left:3px}
+.tag-more{font-size:11px;padding:2px 9px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--border);color:var(--text2);background:transparent;transition:all .12s;flex-shrink:0}
+.tag-more:hover{border-color:var(--game-border);color:var(--game-accent)}
 .tag-clear{font-size:10px;color:var(--muted);cursor:pointer;padding:2px 8px;border-radius:20px;border:1px solid var(--border);white-space:nowrap;flex-shrink:0;transition:all .12s;display:none}
 .tag-clear:hover{color:var(--text);border-color:rgba(255,255,255,.15)}
 .tag-clear.show{display:block}
@@ -182,6 +187,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .c-slide{position:absolute;inset:0;display:none;opacity:0;transition:opacity .25s}
 .c-slide.active{display:block;opacity:1}
 .c-slide img{width:100%;height:100%;object-fit:contain;display:block;background:var(--bg3)}
+.c-no-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;background:var(--bg3)}
 .c-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px}
 .c-btn{position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.13);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;z-index:2}
 .c-btn:hover{background:rgba(0,0,0,.92)}
@@ -271,6 +277,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .btn-demo-dl:hover{background:var(--game-accent);color:var(--bg)}
 .btn-demo-dl svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .demos-empty,.demos-loading{padding:48px;text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1;font-family:'DM Mono',monospace}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--game-accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── GALLERY ── */
 .gallery-wrap{grid-column:1/-1;width:100%;padding:0 2px}
@@ -471,6 +479,7 @@ const DLC    = 'https://dl.cfgarchive.net';     // download counter Worker
 const GITHUB   = 'https://github.com/shaywiki/cfgarchive-web';
 const DEMOS_R2   = 'https://demos.cfgarchive.net'; // public R2 — demo files
 const GALLERY_R2 = 'https://gallery.cfgarchive.net'; // public R2 — gallery screenshots
+const SNAPSHOT_DATE = '13 Mar 2026'; // CFGFactory data snapshot date
 
 // ── PER-GAME CATEGORY TABS ────────────────────────────────────────────────────
 // These are the v2 display categories shown in the tab bar per game
@@ -501,16 +510,20 @@ let curPage = 1;
 let _savedPage       = 1;
 let _savedCurCat     = 'All';
 let _savedActiveTags = new Set();
+let _savedSearch     = '';
 let _suppressHashChange = false;
 let pageSize = 50;
 let cardStyle = localStorage.getItem('cfgarchive_cardstyle') || 'tile';
 let _imgs = [], _slide = 0;
 const _thumbCache = new Map(); // id → successful url (or null if all failed)
-let fuse = null;
+let fuse            = null;
+let _lastRenderKey  = '';
+let _lastRenderMode = '';
 let DEMOS_DATA    = null;   // null = not fetched, [] = empty/loaded
 let _demosLoading = false;
 let curDemoId     = null;   // expanded demo row ID
 let demosCat      = 'All';  // active demo sub-category filter
+let demoFuse      = null;
 let GALLERY_DATA    = null;  // null = not fetched
 let _galCounts      = null;  // cached game counts (set after load)
 let _galleryLoading = false;
@@ -751,22 +764,29 @@ function setViewMode(m) {
 }
 
 // ── TAG BAR ───────────────────────────────────────────────────────────────────
+let _tagBarExpanded = false;
+const TAG_BAR_LIMIT = 28;
+
 function buildTagBar(baseItems) {
   const localFreq = {};
   baseItems.forEach(e => (e.tags||[]).forEach(t => {
     localFreq[t] = (localFreq[t]||0) + 1;
   }));
 
-  const sorted = Object.entries(localFreq)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 28);
+  const sorted = Object.entries(localFreq).sort((a, b) => b[1] - a[1]);
+  const visible = _tagBarExpanded ? sorted : sorted.slice(0, TAG_BAR_LIMIT);
+  const overflow = sorted.length - TAG_BAR_LIMIT;
 
   const hasTags = activeTags.size > 0;
   const clearBtn = `<span class="tag-clear${hasTags?' show':''}" onclick="clearTags()">✕ clear</span>`;
-  const pills = sorted.map(([t, n]) =>
+  const pills = visible.map(([t, n]) =>
     `<span class="tag-pill${activeTags.has(t)?' on':''}" onclick="toggleTag('${esc(t)}')">${esc(t)}<span class="tc">${n}</span></span>`
   ).join('');
-  document.getElementById('tag-bar').innerHTML = `<span class="tb-label">Tags</span>${clearBtn}${pills}`;
+  const moreBtn = overflow > 0 && !_tagBarExpanded
+    ? `<span class="tag-more" onclick="_tagBarExpanded=true;buildTagBar(window._lastTagBaseItems)">+${overflow} more</span>`
+    : (overflow > 0 && _tagBarExpanded ? `<span class="tag-more" onclick="_tagBarExpanded=false;buildTagBar(window._lastTagBaseItems)">show less</span>` : '');
+  window._lastTagBaseItems = baseItems;
+  document.getElementById('tag-bar').innerHTML = `<span class="tb-label">Tags</span>${clearBtn}${pills}${moreBtn}`;
 }
 
 function toggleTag(t) {
@@ -824,12 +844,7 @@ function render() {
   // Search
   let items;
   if (q && fuse) {
-    const searchBase = curGame === 'ALL' ? DATA : DATA.filter(e => e.game_code === curGame);
-    const tmpFuse = new Fuse(searchBase, {
-      keys: [{name:'title',weight:2},{name:'author',weight:1},{name:'uploader',weight:1},{name:'tags',weight:0.8}],
-      threshold: 0.35, ignoreLocation: true,
-    });
-    const ids = new Set(tmpFuse.search(q).map(r => r.item.id));
+    const ids = new Set(fuse.search(q).map(r => r.item.id));
     items = baseItems.filter(e => ids.has(e.id));
   } else {
     items = [...baseItems];
@@ -859,6 +874,12 @@ function render() {
   const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
   if (curPage > totalPages) curPage = totalPages;
   const pageItems = items.slice((curPage - 1) * pageSize, curPage * pageSize);
+
+  if (_lastRenderMode !== 'archive') _lastRenderKey = '';
+  _lastRenderMode = 'archive';
+  const renderKey = pageItems.map(e => e.id).join(',') + '|' + cardStyle + '|' + curGame;
+  if (renderKey === _lastRenderKey) return;
+  _lastRenderKey = renderKey;
 
   if (cardStyle === 'tile') {
     document.getElementById('grid').innerHTML =
@@ -1001,7 +1022,11 @@ function slideTo(i) {
 function slideBy(d) { slideTo(_slide + d); }
 
 function slideErr(img) {
+  const track = img.closest('.c-track');
   img.closest('.c-slide').remove();
+  if (track && !track.querySelectorAll('.c-slide').length) {
+    track.innerHTML = '<div class="c-slide active"><div class="c-no-img">No image archived</div></div>';
+  }
   _carouselSync();
 }
 
@@ -1063,10 +1088,14 @@ async function loadDemos() {
   if (DEMOS_DATA !== null) { renderDemos(); return; }
   if (_demosLoading) return;
   _demosLoading = true;
-  document.getElementById('grid').innerHTML = '<div class="demos-loading">Loading demos…</div>';
+  document.getElementById('grid').innerHTML = '<div class="demos-loading"><div class="spinner"></div>Loading demos…</div>';
   document.getElementById('pagination').innerHTML = '';
   const data = await safeFetch(`${META}/demos-index.json`);
   DEMOS_DATA = (data && data.entries) ? data.entries : [];
+  demoFuse = new Fuse(DEMOS_DATA, {
+    keys: [{name:'title',weight:2},{name:'author',weight:1},{name:'frags_by',weight:1},{name:'weapons',weight:0.8},{name:'maps',weight:0.8}],
+    threshold: 0.35, ignoreLocation: true,
+  });
   _demosLoading = false;
   if (curCat === 'Demos') renderDemos();
 }
@@ -1133,7 +1162,7 @@ function renderDemoRow(e) {
           <div class="demo-stat"><div class="stat-l">Rating</div><div class="stat-v accent">${e.rating||'—'}/10</div></div>
           <div class="demo-stat"><div class="stat-l">Votes</div><div class="stat-v">${e.votes||0}</div></div>
         </div>
-        <div style="font-size:9px;color:var(--muted);margin-top:10px;font-family:'DM Mono',monospace">snapshot · 12 Mar 2026${e.upload_date ? ` · ${esc(e.upload_date)}` : ''}</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:10px;font-family:'DM Mono',monospace">snapshot · ${SNAPSHOT_DATE}${e.upload_date ? ` · ${esc(e.upload_date)}` : ''}</div>
       </div>
       ${dl
         ? `<a class="btn-demo-dl" href="${dl}" target="_blank" onclick="event.stopPropagation()">
@@ -1160,15 +1189,10 @@ function renderDemos() {
     ? [...gameItems]
     : gameItems.filter(e => normDemoCat(e.category) === demosCat);
 
-  const q = (document.getElementById('search').value||'').trim().toLowerCase();
-  if (q) {
-    items = items.filter(e =>
-      (e.title||'').toLowerCase().includes(q) ||
-      (e.author||'').toLowerCase().includes(q) ||
-      (e.frags_by||'').toLowerCase().includes(q) ||
-      (e.weapons||'').toLowerCase().includes(q) ||
-      (e.maps||'').toLowerCase().includes(q)
-    );
+  const q = (document.getElementById('search').value||'').trim();
+  if (q && demoFuse) {
+    const ids = new Set(demoFuse.search(q).map(r => r.item.id));
+    items = items.filter(e => ids.has(e.id));
   }
 
   if (sortBy === 'dl')          items.sort((a,b) => (b.downloads||0) - (a.downloads||0));
@@ -1229,6 +1253,7 @@ const GAL_GAME_ORDER = ['COD4','BO','MW2','BO2','MW3','WAW','COD2','CSGO','Other
 
 function setGallery() {
   curMode = 'gallery';
+  _lastRenderMode = '';
   document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
   document.getElementById('si-about').classList.remove('on');
   document.getElementById('si-gallery').classList.add('on');
@@ -1242,6 +1267,7 @@ function setGallery() {
 
 function setAbout() {
   curMode = 'about';
+  _lastRenderMode = '';
   document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
   document.getElementById('si-gallery').classList.remove('on');
   document.getElementById('si-about').classList.add('on');
@@ -1288,7 +1314,7 @@ function renderAbout() {
       </div>
 
       <div class="stats-section">
-        <div class="stats-hdr"><h3>Total Archive stats</h3><div class="stats-div"></div><span class="stats-note">snapshot · 13 Mar 2026</span></div>
+        <div class="stats-hdr"><h3>Total Archive stats</h3><div class="stats-div"></div><span class="stats-note">snapshot · ${SNAPSHOT_DATE}</span></div>
         <div class="stats-grid">
           <div class="stat"><div class="stat-l">Entries</div><div class="stat-v accent">13,804</div></div>
           <div class="stat"><div class="stat-l">Files archived</div><div class="stat-v">94,879</div></div>
@@ -1326,7 +1352,7 @@ async function loadGallery() {
   if (GALLERY_DATA !== null) { renderGallery(); return; }
   if (_galleryLoading) return;
   _galleryLoading = true;
-  document.getElementById('grid').innerHTML = '<div class="gallery-loading">Loading gallery…</div>';
+  document.getElementById('grid').innerHTML = '<div class="gallery-loading"><div class="spinner"></div>Loading gallery…</div>';
   document.getElementById('pagination').innerHTML = '';
   const [data, hiddenGallery] = await Promise.all([
     safeFetch(`${META}/gallery-index.json`),
@@ -1353,15 +1379,17 @@ function renderGallery() {
 
   const counts = _galCounts;
 
-  _galFiltered = GALLERY_DATA.filter(e => e._game === galleryCurGame);
+  _galFiltered = galleryCurGame === 'All' ? [...GALLERY_DATA] : GALLERY_DATA.filter(e => e._game === galleryCurGame);
 
   const totalPages = Math.max(1, Math.ceil(_galFiltered.length / galPageSize));
   if (galPage > totalPages) galPage = totalPages;
   const pageItems = _galFiltered.slice((galPage - 1) * galPageSize, galPage * galPageSize);
 
-  const pills = GAL_GAME_ORDER
-    .filter(g => counts[g])
-    .map(g => `<span class="gal-pill${galleryCurGame===g?' on':''}" onclick="setGalleryCurGame('${g}')">${esc(g)}<span style="font-size:9px;opacity:.5;margin-left:5px">${counts[g]}</span></span>`)
+  const pills = ['All', ...GAL_GAME_ORDER.filter(g => counts[g])]
+    .map(g => {
+      const cnt = g === 'All' ? GALLERY_DATA.length : counts[g];
+      return `<span class="gal-pill${galleryCurGame===g?' on':''}" onclick="setGalleryCurGame('${g}')">${esc(g)}<span style="font-size:9px;opacity:.5;margin-left:5px">${cnt}</span></span>`;
+    })
     .join('');
   const psSizes = [25, 50, 100].map(n =>
     `<span class="sc${galPageSize===n?' on':''}" onclick="setGalPageSize(${n})">${n}</span>`
@@ -1428,6 +1456,12 @@ function openLightbox(idx) {
     .then(() => requestAnimationFrame(() => requestAnimationFrame(lbSyncInfo)))
     .catch(() => setTimeout(lbSyncInfo, 150));
   img.alt = e.title || '';
+  // preload adjacent images
+  [idx - 1, idx + 1].forEach(i => {
+    if (i >= 0 && i < _galFiltered.length && _galFiltered[i].local_images?.[0]) {
+      const pre = new Image(); pre.src = `${GALLERY_R2}/${_galFiltered[i].local_images[0]}`;
+    }
+  });
   lb.querySelector('.lb-counter').textContent = `${idx + 1} / ${_galFiltered.length}`;
   lb.querySelector('.lb-arrow.prev').style.display = idx === 0 ? 'none' : '';
   lb.querySelector('.lb-arrow.next').style.display = idx === _galFiltered.length - 1 ? 'none' : '';
@@ -1479,6 +1513,7 @@ function openEntry(id, push=true) {
   _savedPage       = curPage;
   _savedCurCat     = curCat;
   _savedActiveTags = new Set(activeTags);
+  _savedSearch     = document.getElementById('search').value;
   if (push) { _suppressHashChange = true; location.hash = 'entry/' + id; }
   _slide = 0;
   _imgs  = imgUrls(e);
@@ -1523,7 +1558,7 @@ function openEntry(id, push=true) {
         <div class="stats-section">
           <div class="stats-hdr">
             <h3>CFGFactory stats</h3><div class="stats-div"></div>
-            <span class="stats-note">snapshot · 13 Mar 2026</span>
+            <span class="stats-note">snapshot · ${SNAPSHOT_DATE}</span>
           </div>
           <div class="stats-grid">
             <div class="stat"><div class="stat-l">Downloads</div><div class="stat-v">${(e.downloads||0).toLocaleString()}</div></div>
@@ -1568,6 +1603,7 @@ function closeEntry() {
   curPage = _savedPage;
   curCat  = _savedCurCat;
   activeTags = new Set(_savedActiveTags);
+  document.getElementById('search').value = _savedSearch;
   history.pushState(null, '', location.pathname + location.search);
   document.getElementById('view-entry').style.display = 'none';
   if (curCat !== 'All') buildCatBar(curGame);
