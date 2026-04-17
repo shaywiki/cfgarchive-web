@@ -271,6 +271,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .btn-demo-dl:hover{background:var(--game-accent);color:var(--bg)}
 .btn-demo-dl svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .demos-empty,.demos-loading{padding:48px;text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1;font-family:'DM Mono',monospace}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--game-accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── GALLERY ── */
 .gallery-wrap{grid-column:1/-1;width:100%;padding:0 2px}
@@ -1067,7 +1069,7 @@ async function loadDemos() {
   if (DEMOS_DATA !== null) { renderDemos(); return; }
   if (_demosLoading) return;
   _demosLoading = true;
-  document.getElementById('grid').innerHTML = '<div class="demos-loading">Loading demos…</div>';
+  document.getElementById('grid').innerHTML = '<div class="demos-loading"><div class="spinner"></div>Loading demos…</div>';
   document.getElementById('pagination').innerHTML = '';
   const data = await safeFetch(`${META}/demos-index.json`);
   DEMOS_DATA = (data && data.entries) ? data.entries : [];
@@ -1332,7 +1334,7 @@ async function loadGallery() {
   if (GALLERY_DATA !== null) { renderGallery(); return; }
   if (_galleryLoading) return;
   _galleryLoading = true;
-  document.getElementById('grid').innerHTML = '<div class="gallery-loading">Loading gallery…</div>';
+  document.getElementById('grid').innerHTML = '<div class="gallery-loading"><div class="spinner"></div>Loading gallery…</div>';
   document.getElementById('pagination').innerHTML = '';
   const [data, hiddenGallery] = await Promise.all([
     safeFetch(`${META}/gallery-index.json`),
