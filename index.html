@@ -455,7 +455,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div class="lb-info" onclick="event.stopPropagation()">
       <div class="lb-info-text">
         <div class="lb-info-title"></div>
-        <div class="lb-info-sub"><span class="lb-game-pill"></span><span class="lb-by"></span></div>
+        <div class="lb-info-sub"><span class="lb-game-pill"></span><span class="lb-by"></span><span class="lb-votes"></span></div>
       </div>
     </div>
   </div>
@@ -1434,8 +1434,10 @@ function openLightbox(idx) {
   lb.querySelector('.lb-info-title').textContent = e.title || '';
   lb.querySelector('.lb-game-pill').textContent  = e._game || e.game_code || '';
   lb.querySelector('.lb-by').textContent = e.uploader ? `by ${e.uploader}` : (e.author ? `by ${e.author}` : '');
-  // Download button — look up matching archive entry
+  // Votes/rating + download button — look up matching archive entry
   const arch = DATA ? DATA.find(x => x.id === e.id) : null;
+  const votesEl = lb.querySelector('.lb-votes');
+  if (votesEl) votesEl.textContent = (arch && arch.votes) ? `★ ${arch.rating} · ${arch.votes.toLocaleString()} votes` : '';
   const dlEl = lb.querySelector('.lb-dl-btn');
   if (dlEl) dlEl.remove();
   if (arch && arch.has_file && dlUrl(arch)) {
