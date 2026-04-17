@@ -182,6 +182,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .c-slide{position:absolute;inset:0;display:none;opacity:0;transition:opacity .25s}
 .c-slide.active{display:block;opacity:1}
 .c-slide img{width:100%;height:100%;object-fit:contain;display:block;background:var(--bg3)}
+.c-no-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;background:var(--bg3)}
 .c-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px}
 .c-btn{position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.13);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;z-index:2}
 .c-btn:hover{background:rgba(0,0,0,.92)}
@@ -473,6 +474,7 @@ const DLC    = 'https://dl.cfgarchive.net';     // download counter Worker
 const GITHUB   = 'https://github.com/shaywiki/cfgarchive-web';
 const DEMOS_R2   = 'https://demos.cfgarchive.net'; // public R2 — demo files
 const GALLERY_R2 = 'https://gallery.cfgarchive.net'; // public R2 — gallery screenshots
+const SNAPSHOT_DATE = '13 Mar 2026'; // CFGFactory data snapshot date
 
 // ── PER-GAME CATEGORY TABS ────────────────────────────────────────────────────
 // These are the v2 display categories shown in the tab bar per game
@@ -516,6 +518,7 @@ let DEMOS_DATA    = null;   // null = not fetched, [] = empty/loaded
 let _demosLoading = false;
 let curDemoId     = null;   // expanded demo row ID
 let demosCat      = 'All';  // active demo sub-category filter
+let demoFuse      = null;
 let GALLERY_DATA    = null;  // null = not fetched
 let _galCounts      = null;  // cached game counts (set after load)
 let _galleryLoading = false;
@@ -1007,7 +1010,11 @@ function slideTo(i) {
 function slideBy(d) { slideTo(_slide + d); }
 
 function slideErr(img) {
+  const track = img.closest('.c-track');
   img.closest('.c-slide').remove();
+  if (track && !track.querySelectorAll('.c-slide').length) {
+    track.innerHTML = '<div class="c-slide active"><div class="c-no-img">No image archived</div></div>';
+  }
   _carouselSync();
 }
 
@@ -1073,6 +1080,10 @@ async function loadDemos() {
   document.getElementById('pagination').innerHTML = '';
   const data = await safeFetch(`${META}/demos-index.json`);
   DEMOS_DATA = (data && data.entries) ? data.entries : [];
+  demoFuse = new Fuse(DEMOS_DATA, {
+    keys: [{name:'title',weight:2},{name:'author',weight:1},{name:'frags_by',weight:1},{name:'weapons',weight:0.8},{name:'maps',weight:0.8}],
+    threshold: 0.35, ignoreLocation: true,
+  });
   _demosLoading = false;
   if (curCat === 'Demos') renderDemos();
 }
@@ -1139,7 +1150,7 @@ function renderDemoRow(e) {
           <div class="demo-stat"><div class="stat-l">Rating</div><div class="stat-v accent">${e.rating||'—'}/10</div></div>
           <div class="demo-stat"><div class="stat-l">Votes</div><div class="stat-v">${e.votes||0}</div></div>
         </div>
-        <div style="font-size:9px;color:var(--muted);margin-top:10px;font-family:'DM Mono',monospace">snapshot · 12 Mar 2026${e.upload_date ? ` · ${esc(e.upload_date)}` : ''}</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:10px;font-family:'DM Mono',monospace">snapshot · ${SNAPSHOT_DATE}${e.upload_date ? ` · ${esc(e.upload_date)}` : ''}</div>
       </div>
       ${dl
         ? `<a class="btn-demo-dl" href="${dl}" target="_blank" onclick="event.stopPropagation()">
@@ -1166,15 +1177,10 @@ function renderDemos() {
     ? [...gameItems]
     : gameItems.filter(e => normDemoCat(e.category) === demosCat);
 
-  const q = (document.getElementById('search').value||'').trim().toLowerCase();
-  if (q) {
-    items = items.filter(e =>
-      (e.title||'').toLowerCase().includes(q) ||
-      (e.author||'').toLowerCase().includes(q) ||
-      (e.frags_by||'').toLowerCase().includes(q) ||
-      (e.weapons||'').toLowerCase().includes(q) ||
-      (e.maps||'').toLowerCase().includes(q)
-    );
+  const q = (document.getElementById('search').value||'').trim();
+  if (q && demoFuse) {
+    const ids = new Set(demoFuse.search(q).map(r => r.item.id));
+    items = items.filter(e => ids.has(e.id));
   }
 
   if (sortBy === 'dl')          items.sort((a,b) => (b.downloads||0) - (a.downloads||0));
@@ -1296,7 +1302,7 @@ function renderAbout() {
       </div>
 
       <div class="stats-section">
-        <div class="stats-hdr"><h3>Total Archive stats</h3><div class="stats-div"></div><span class="stats-note">snapshot · 13 Mar 2026</span></div>
+        <div class="stats-hdr"><h3>Total Archive stats</h3><div class="stats-div"></div><span class="stats-note">snapshot · ${SNAPSHOT_DATE}</span></div>
         <div class="stats-grid">
           <div class="stat"><div class="stat-l">Entries</div><div class="stat-v accent">13,804</div></div>
           <div class="stat"><div class="stat-l">Files archived</div><div class="stat-v">94,879</div></div>
@@ -1361,15 +1367,17 @@ function renderGallery() {
 
   const counts = _galCounts;
 
-  _galFiltered = GALLERY_DATA.filter(e => e._game === galleryCurGame);
+  _galFiltered = galleryCurGame === 'All' ? [...GALLERY_DATA] : GALLERY_DATA.filter(e => e._game === galleryCurGame);
 
   const totalPages = Math.max(1, Math.ceil(_galFiltered.length / galPageSize));
   if (galPage > totalPages) galPage = totalPages;
   const pageItems = _galFiltered.slice((galPage - 1) * galPageSize, galPage * galPageSize);
 
-  const pills = GAL_GAME_ORDER
-    .filter(g => counts[g])
-    .map(g => `<span class="gal-pill${galleryCurGame===g?' on':''}" onclick="setGalleryCurGame('${g}')">${esc(g)}<span style="font-size:9px;opacity:.5;margin-left:5px">${counts[g]}</span></span>`)
+  const pills = ['All', ...GAL_GAME_ORDER.filter(g => counts[g])]
+    .map(g => {
+      const cnt = g === 'All' ? GALLERY_DATA.length : counts[g];
+      return `<span class="gal-pill${galleryCurGame===g?' on':''}" onclick="setGalleryCurGame('${g}')">${esc(g)}<span style="font-size:9px;opacity:.5;margin-left:5px">${cnt}</span></span>`;
+    })
     .join('');
   const psSizes = [25, 50, 100].map(n =>
     `<span class="sc${galPageSize===n?' on':''}" onclick="setGalPageSize(${n})">${n}</span>`
@@ -1532,7 +1540,7 @@ function openEntry(id, push=true) {
         <div class="stats-section">
           <div class="stats-hdr">
             <h3>CFGFactory stats</h3><div class="stats-div"></div>
-            <span class="stats-note">snapshot · 13 Mar 2026</span>
+            <span class="stats-note">snapshot · ${SNAPSHOT_DATE}</span>
           </div>
           <div class="stats-grid">
             <div class="stat"><div class="stat-l">Downloads</div><div class="stat-v">${(e.downloads||0).toLocaleString()}</div></div>
