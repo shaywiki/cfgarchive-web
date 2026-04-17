@@ -54,6 +54,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .topbar-search{position:relative;width:100%;max-width:560px;min-width:120px}
 .topbar-search input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;padding:7px 14px 7px 30px;border-radius:20px;outline:none;transition:border-color .15s}
 .topbar-search input:focus{border-color:var(--game-accent)}
+:focus-visible{outline:2px solid var(--game-accent);outline-offset:2px}
+.si:focus-visible,.sc:focus-visible,.ctag:focus-visible,.tag-pill:focus-visible,.tag-more:focus-visible,.gal-pill:focus-visible,.cat-pill:focus-visible,.demo-row:focus-visible{outline:2px solid var(--game-accent);outline-offset:2px;border-radius:4px}
+.btn-dl:focus-visible,.lb-dl-btn:focus-visible,.lb-arrow:focus-visible{outline:2px solid var(--game-accent);outline-offset:3px}
 .topbar-search input::placeholder{color:var(--muted)}
 .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none}
 .topbar-right{flex-shrink:0;display:flex;align-items:center;gap:8px;padding-left:8px}
@@ -123,6 +126,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .tag-pill:hover{border-color:var(--game-border);color:var(--game-accent);background:var(--game-glow)}
 .tag-pill.on{border-color:var(--game-accent);color:var(--bg);background:var(--game-accent)}
 .tag-pill .tc{opacity:.45;font-size:9px;margin-left:3px}
+.tag-more{font-size:11px;padding:2px 9px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--border);color:var(--text2);background:transparent;transition:all .12s;flex-shrink:0}
+.tag-more:hover{border-color:var(--game-border);color:var(--game-accent)}
 .tag-clear{font-size:10px;color:var(--muted);cursor:pointer;padding:2px 8px;border-radius:20px;border:1px solid var(--border);white-space:nowrap;flex-shrink:0;transition:all .12s;display:none}
 .tag-clear:hover{color:var(--text);border-color:rgba(255,255,255,.15)}
 .tag-clear.show{display:block}
@@ -759,22 +764,29 @@ function setViewMode(m) {
 }
 
 // ── TAG BAR ───────────────────────────────────────────────────────────────────
+let _tagBarExpanded = false;
+const TAG_BAR_LIMIT = 28;
+
 function buildTagBar(baseItems) {
   const localFreq = {};
   baseItems.forEach(e => (e.tags||[]).forEach(t => {
     localFreq[t] = (localFreq[t]||0) + 1;
   }));
 
-  const sorted = Object.entries(localFreq)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 28);
+  const sorted = Object.entries(localFreq).sort((a, b) => b[1] - a[1]);
+  const visible = _tagBarExpanded ? sorted : sorted.slice(0, TAG_BAR_LIMIT);
+  const overflow = sorted.length - TAG_BAR_LIMIT;
 
   const hasTags = activeTags.size > 0;
   const clearBtn = `<span class="tag-clear${hasTags?' show':''}" onclick="clearTags()">✕ clear</span>`;
-  const pills = sorted.map(([t, n]) =>
+  const pills = visible.map(([t, n]) =>
     `<span class="tag-pill${activeTags.has(t)?' on':''}" onclick="toggleTag('${esc(t)}')">${esc(t)}<span class="tc">${n}</span></span>`
   ).join('');
-  document.getElementById('tag-bar').innerHTML = `<span class="tb-label">Tags</span>${clearBtn}${pills}`;
+  const moreBtn = overflow > 0 && !_tagBarExpanded
+    ? `<span class="tag-more" onclick="_tagBarExpanded=true;buildTagBar(window._lastTagBaseItems)">+${overflow} more</span>`
+    : (overflow > 0 && _tagBarExpanded ? `<span class="tag-more" onclick="_tagBarExpanded=false;buildTagBar(window._lastTagBaseItems)">show less</span>` : '');
+  window._lastTagBaseItems = baseItems;
+  document.getElementById('tag-bar').innerHTML = `<span class="tb-label">Tags</span>${clearBtn}${pills}${moreBtn}`;
 }
 
 function toggleTag(t) {
@@ -1444,6 +1456,12 @@ function openLightbox(idx) {
     .then(() => requestAnimationFrame(() => requestAnimationFrame(lbSyncInfo)))
     .catch(() => setTimeout(lbSyncInfo, 150));
   img.alt = e.title || '';
+  // preload adjacent images
+  [idx - 1, idx + 1].forEach(i => {
+    if (i >= 0 && i < _galFiltered.length && _galFiltered[i].local_images?.[0]) {
+      const pre = new Image(); pre.src = `${GALLERY_R2}/${_galFiltered[i].local_images[0]}`;
+    }
+  });
   lb.querySelector('.lb-counter').textContent = `${idx + 1} / ${_galFiltered.length}`;
   lb.querySelector('.lb-arrow.prev').style.display = idx === 0 ? 'none' : '';
   lb.querySelector('.lb-arrow.next').style.display = idx === _galFiltered.length - 1 ? 'none' : '';
