@@ -1437,7 +1437,7 @@ function openLightbox(idx) {
   // Votes/rating + download button — look up matching archive entry
   const arch = DATA ? DATA.find(x => x.id === e.id) : null;
   const votesEl = lb.querySelector('.lb-votes');
-  if (votesEl) votesEl.textContent = (arch && arch.votes) ? `★ ${arch.rating} · ${arch.votes.toLocaleString()} votes` : '';
+  if (votesEl) votesEl.textContent = e.votes ? `★ ${e.rating} · ${e.votes.toLocaleString()} votes` : '';
   const dlEl = lb.querySelector('.lb-dl-btn');
   if (dlEl) dlEl.remove();
   if (arch && arch.has_file && dlUrl(arch)) {
