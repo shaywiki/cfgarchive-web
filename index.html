@@ -507,7 +507,9 @@ let pageSize = 50;
 let cardStyle = localStorage.getItem('cfgarchive_cardstyle') || 'tile';
 let _imgs = [], _slide = 0;
 const _thumbCache = new Map(); // id → successful url (or null if all failed)
-let fuse = null;
+let fuse            = null;
+let _lastRenderKey  = '';
+let _lastRenderMode = '';
 let DEMOS_DATA    = null;   // null = not fetched, [] = empty/loaded
 let _demosLoading = false;
 let curDemoId     = null;   // expanded demo row ID
@@ -825,12 +827,7 @@ function render() {
   // Search
   let items;
   if (q && fuse) {
-    const searchBase = curGame === 'ALL' ? DATA : DATA.filter(e => e.game_code === curGame);
-    const tmpFuse = new Fuse(searchBase, {
-      keys: [{name:'title',weight:2},{name:'author',weight:1},{name:'uploader',weight:1},{name:'tags',weight:0.8}],
-      threshold: 0.35, ignoreLocation: true,
-    });
-    const ids = new Set(tmpFuse.search(q).map(r => r.item.id));
+    const ids = new Set(fuse.search(q).map(r => r.item.id));
     items = baseItems.filter(e => ids.has(e.id));
   } else {
     items = [...baseItems];
@@ -860,6 +857,12 @@ function render() {
   const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
   if (curPage > totalPages) curPage = totalPages;
   const pageItems = items.slice((curPage - 1) * pageSize, curPage * pageSize);
+
+  if (_lastRenderMode !== 'archive') _lastRenderKey = '';
+  _lastRenderMode = 'archive';
+  const renderKey = pageItems.map(e => e.id).join(',') + '|' + cardStyle + '|' + curGame;
+  if (renderKey === _lastRenderKey) return;
+  _lastRenderKey = renderKey;
 
   if (cardStyle === 'tile') {
     document.getElementById('grid').innerHTML =
@@ -1230,6 +1233,7 @@ const GAL_GAME_ORDER = ['COD4','BO','MW2','BO2','MW3','WAW','COD2','CSGO','Other
 
 function setGallery() {
   curMode = 'gallery';
+  _lastRenderMode = '';
   document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
   document.getElementById('si-about').classList.remove('on');
   document.getElementById('si-gallery').classList.add('on');
@@ -1243,6 +1247,7 @@ function setGallery() {
 
 function setAbout() {
   curMode = 'about';
+  _lastRenderMode = '';
   document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
   document.getElementById('si-gallery').classList.remove('on');
   document.getElementById('si-about').classList.add('on');
