@@ -501,6 +501,7 @@ let curPage = 1;
 let _savedPage       = 1;
 let _savedCurCat     = 'All';
 let _savedActiveTags = new Set();
+let _savedSearch     = '';
 let _suppressHashChange = false;
 let pageSize = 50;
 let cardStyle = localStorage.getItem('cfgarchive_cardstyle') || 'tile';
@@ -1479,6 +1480,7 @@ function openEntry(id, push=true) {
   _savedPage       = curPage;
   _savedCurCat     = curCat;
   _savedActiveTags = new Set(activeTags);
+  _savedSearch     = document.getElementById('search').value;
   if (push) { _suppressHashChange = true; location.hash = 'entry/' + id; }
   _slide = 0;
   _imgs  = imgUrls(e);
@@ -1568,6 +1570,7 @@ function closeEntry() {
   curPage = _savedPage;
   curCat  = _savedCurCat;
   activeTags = new Set(_savedActiveTags);
+  document.getElementById('search').value = _savedSearch;
   history.pushState(null, '', location.pathname + location.search);
   document.getElementById('view-entry').style.display = 'none';
   if (curCat !== 'All') buildCatBar(curGame);
