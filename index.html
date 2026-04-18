@@ -248,14 +248,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .demo-fc{font-size:12px;padding:4px 11px;border-radius:6px;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .12s;white-space:nowrap;font-family:'DM Mono',monospace}
 .demo-fc:hover{color:var(--text2);border-color:rgba(255,255,255,.15)}
 .demo-fc.on{border-color:var(--game-accent);color:var(--game-accent);background:var(--game-glow)}
-.demos-hdr{display:grid;grid-template-columns:1fr 110px 62px 128px 148px 65px 48px 20px;gap:8px;padding:5px 12px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--border);border-top:1px solid var(--border)}
+.demos-hdr{display:grid;grid-template-columns:1fr 110px 52px 62px 128px 148px 65px 48px 20px;gap:8px;padding:5px 12px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--border);border-top:1px solid var(--border)}
 .demos-hdr-col{cursor:pointer;user-select:none;transition:color .12s}
 .demos-hdr-col:hover{color:var(--text2)}
 .demos-hdr-col.active{color:var(--game-accent)}
 .demo-row{border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .1s}
 .demo-row:hover{background:rgba(255,255,255,.025)}
 .demo-row.open{background:rgba(255,255,255,.03)}
-.demo-cols{display:grid;grid-template-columns:1fr 110px 62px 128px 148px 65px 48px 20px;gap:8px;padding:8px 12px;align-items:center}
+.demo-cols{display:grid;grid-template-columns:1fr 110px 52px 62px 128px 148px 65px 48px 20px;gap:8px;padding:8px 12px;align-items:center}
+.demo-col-game{font-size:11px;font-family:'DM Mono',monospace;color:var(--muted)}
 .demo-col-title{font-size:14px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .demo-col-author,.demo-col-maps,.demo-col-weapons{font-size:13px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .demo-col-size{font-size:12px;font-family:'DM Mono',monospace;color:var(--muted)}
@@ -367,8 +368,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   .grid{grid-template-columns:repeat(2,1fr)}
   .grid-scroll{padding:8px}
   .demos-hdr,.demo-cols{grid-template-columns:1fr 60px 20px}
-  .demo-col-author,.demo-col-maps,.demo-col-weapons,.demo-col-size,.demo-col-dl{display:none}
-  .demos-hdr>*:nth-child(2),.demos-hdr>*:nth-child(3),.demos-hdr>*:nth-child(4),.demos-hdr>*:nth-child(5),.demos-hdr>*:nth-child(6),.demos-hdr>*:nth-child(7){display:none}
+  .demo-col-author,.demo-col-game,.demo-col-maps,.demo-col-weapons,.demo-col-size,.demo-col-dl{display:none}
+  .demos-hdr>*:nth-child(2),.demos-hdr>*:nth-child(3),.demos-hdr>*:nth-child(5),.demos-hdr>*:nth-child(6),.demos-hdr>*:nth-child(7),.demos-hdr>*:nth-child(8){display:none}
 }
 </style>
 </head>
@@ -436,18 +437,19 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
     <div class="cat-bar" id="cat-bar"></div>
     <div class="grid-toolbar" id="grid-toolbar">
       <span class="result-count" id="result-count"></span>
-      <div class="sort-chips">
+      <div class="sort-chips" id="sort-chips">
         <span class="sc on" onclick="setSort(this,'dl')">Downloads</span>
         <span class="sc" onclick="setSort(this,'rating')">Rating</span>
         <span class="sc" onclick="setSort(this,'new')">Newest</span>
         <span class="sc" onclick="setSort(this,'az')">A–Z</span>
       </div>
-      <div class="page-size-chips">
+      <div class="page-size-chips" id="page-size-chips">
         <span class="sc" onclick="setPageSize(this,25)">25</span>
         <span class="sc on" onclick="setPageSize(this,50)">50</span>
         <span class="sc" onclick="setPageSize(this,100)">100</span>
         <span class="sc" onclick="setPageSize(this,200)">200</span>
       </div>
+      <div id="demos-pills-slot" style="display:none;align-items:center;gap:6px;flex:1"></div>
       <div class="page-size-chips" id="view-chips" style="margin-left:8px">
         <span class="sc on" id="view-chip-tile" onclick="setCardStyle(this,'tile')">⊞ Tiles</span>
         <span class="sc"    id="view-chip-card" onclick="setCardStyle(this,'card')">▦ Cards</span>
@@ -536,7 +538,7 @@ let _demosLoading = false;
 let curDemoId     = null;   // expanded demo row ID
 let demosCat      = 'All';  // active demo sub-category filter
 let demoFuse      = null;
-let demosCurGame  = 'COD4';
+let demosCurGame  = 'All';
 let demoSortCol   = 'dl';   // active demos column sort
 let demoSortDir   = -1;     // 1 = asc, -1 = desc
 let galFuse       = null;
@@ -852,14 +854,21 @@ function render() {
   }
   if (curMode === 'demos') {
     document.getElementById('grid-toolbar').style.display = '';
+    document.getElementById('sort-chips').style.display = 'none';
+    document.getElementById('page-size-chips').style.display = 'none';
     document.getElementById('view-chips').style.display = 'none';
+    document.getElementById('demos-pills-slot').style.display = 'flex';
     document.getElementById('tag-bar').style.display = 'none';
     _prevMode = 'demos';
     renderDemos();
     return;
   }
   if (_prevMode === 'gallery' || _prevMode === 'about' || _prevMode === 'demos') {
+    document.getElementById('sort-chips').style.display = '';
+    document.getElementById('page-size-chips').style.display = '';
     document.getElementById('view-chips').style.display = '';
+    document.getElementById('demos-pills-slot').style.display = 'none';
+    document.getElementById('demos-pills-slot').innerHTML = '';
     _prevMode = 'archive';
   }
   document.getElementById('grid-toolbar').style.display = '';
@@ -1141,7 +1150,7 @@ function parseSize(s) {
   return u==='GB' ? n*1e9 : u==='MB' ? n*1e6 : u==='KB' ? n*1e3 : n;
 }
 function resetDemosFilters() {
-  demosCurGame = 'COD4';
+  demosCurGame = 'All';
   demosCat = 'All';
   renderDemos();
 }
@@ -1190,6 +1199,7 @@ function renderDemoRow(e) {
   <div class="demo-cols">
     <div class="demo-col-title">${esc(e.title)}</div>
     <div class="demo-col-author">${esc(e.author||'—')}</div>
+    <div class="demo-col-game">${esc(e.game_code||'—')}</div>
     <div><span class="demo-badge ${catClass}">${cat}</span></div>
     <div class="demo-col-maps">${esc(mapsShort||'—')}</div>
     <div class="demo-col-weapons">${esc(weaponsShort||'—')}</div>
@@ -1249,9 +1259,9 @@ function renderDemos() {
     return `<span class="demo-fc${demosCat===c?' on':''}" onclick="event.stopPropagation();setDemosCat('${c}')">${c}<span style="font-size:11px;opacity:.5;margin-left:5px">${cnt}</span></span>`;
   }).join('');
 
-  const hasFilters = demosCurGame !== 'COD4' || demosCat !== 'All';
+  const hasFilters = demosCurGame !== 'All' || demosCat !== 'All';
   const resetBtn = hasFilters ? `<span class="demo-reset" onclick="resetDemosFilters()">✕ Reset</span>` : '';
-  const toolbar = `<div class="demos-toolbar">${gamePills}<span class="demos-toolbar-sep"></span>${catPills}${resetBtn}</div>`;
+  document.getElementById('demos-pills-slot').innerHTML = `${gamePills}<span class="demos-toolbar-sep"></span>${catPills}${resetBtn}`;
 
   let items = demosCat === 'All'
     ? [...gameItems]
@@ -1268,6 +1278,7 @@ function renderDemos() {
     switch (demoSortCol) {
       case 'title':   v = (a.title||'').localeCompare(b.title||''); break;
       case 'author':  v = (a.author||'').localeCompare(b.author||''); break;
+      case 'game':    v = (a.game_code||'').localeCompare(b.game_code||''); break;
       case 'cat':     v = normDemoCat(a.category).localeCompare(normDemoCat(b.category)); break;
       case 'maps':    v = ((a.maps||'').split(',')[0]||'').trim().localeCompare(((b.maps||'').split(',')[0]||'').trim()); break;
       case 'weapons': v = ((a.weapons||'').split(',')[0]||'').trim().localeCompare(((b.weapons||'').split(',')[0]||'').trim()); break;
@@ -1285,15 +1296,15 @@ function renderDemos() {
     const arrow  = active ? (demoSortDir === 1 ? ' ▴' : ' ▾') : '';
     return `<span class="demos-hdr-col${active?' active':''}" onclick="setDemosSort('${col}')">${label}${arrow}</span>`;
   }
-  const hdr = `<div class="demos-hdr">${demoHdrCol('Title','title')}${demoHdrCol('Author','author')}${demoHdrCol('Cat','cat')}${demoHdrCol('Maps','maps')}${demoHdrCol('Weapons','weapons')}${demoHdrCol('Size','size')}${demoHdrCol('DL','dl')}<span></span></div>`;
+  const hdr = `<div class="demos-hdr">${demoHdrCol('Title','title')}${demoHdrCol('Author','author')}${demoHdrCol('Game','game')}${demoHdrCol('Cat','cat')}${demoHdrCol('Maps','maps')}${demoHdrCol('Weapons','weapons')}${demoHdrCol('Size','size')}${demoHdrCol('DL','dl')}<span></span></div>`;
 
   if (!items.length) {
-    document.getElementById('grid').innerHTML = `<div class="demos-wrap">${toolbar}${hdr}<div class="demos-empty">No demos in this category</div></div>`;
+    document.getElementById('grid').innerHTML = `<div class="demos-wrap">${hdr}<div class="demos-empty">No demos in this category</div></div>`;
     document.getElementById('pagination').innerHTML = '';
     return;
   }
 
-  document.getElementById('grid').innerHTML = `<div class="demos-wrap">${toolbar}${hdr}${items.map(e => renderDemoRow(e)).join('')}</div>`;
+  document.getElementById('grid').innerHTML = `<div class="demos-wrap">${hdr}${items.map(e => renderDemoRow(e)).join('')}</div>`;
   document.getElementById('pagination').innerHTML = '';
 }
 
