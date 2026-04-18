@@ -1202,7 +1202,7 @@ function renderDemos() {
   if (DEMOS_DATA === null) { loadDemos(); return; }
 
   const DEMOS_GAMES = ['All', 'COD4', 'COD2'];
-  const gameBar = `<div class="gal-filter-bar">${DEMOS_GAMES.map(g => {
+  const gameBar = `<div class="gallery-filter">${DEMOS_GAMES.map(g => {
     const cnt = g === 'All' ? DEMOS_DATA.length : DEMOS_DATA.filter(e => e.game_code === g).length;
     return `<span class="gal-pill${demosCurGame===g?' on':''}" onclick="setDemosCurGame('${g}')">${g}<span style="font-size:11px;opacity:.5;margin-left:5px">${cnt}</span></span>`;
   }).join('')}</div>`;
