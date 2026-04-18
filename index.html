@@ -280,6 +280,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .btn-demo-dl{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;background:var(--game-glow);color:var(--game-accent);border:1px solid var(--game-border);border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;transition:all .12s;white-space:nowrap;align-self:center}
 .btn-demo-dl:hover{background:var(--game-accent);color:var(--bg)}
 .btn-demo-dl svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.demo-reset{font-size:12px;color:var(--muted);cursor:pointer;margin-left:auto;font-family:'DM Mono',monospace;padding:3px 8px;border-radius:4px;border:1px solid var(--border);transition:all .12s;white-space:nowrap}
+.demo-reset:hover{color:var(--text2);border-color:rgba(255,255,255,.15)}
 .demos-empty,.demos-loading{padding:48px;text-align:center;color:var(--muted);font-size:14px;grid-column:1/-1;font-family:'DM Mono',monospace}
 .spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--game-accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -850,12 +852,14 @@ function render() {
   }
   if (curMode === 'demos') {
     document.getElementById('grid-toolbar').style.display = '';
+    document.getElementById('view-chips').style.display = 'none';
     document.getElementById('tag-bar').style.display = 'none';
     _prevMode = 'demos';
     renderDemos();
     return;
   }
   if (_prevMode === 'gallery' || _prevMode === 'about' || _prevMode === 'demos') {
+    document.getElementById('view-chips').style.display = '';
     _prevMode = 'archive';
   }
   document.getElementById('grid-toolbar').style.display = '';
@@ -1136,6 +1140,11 @@ function parseSize(s) {
   const u = m[2].toUpperCase();
   return u==='GB' ? n*1e9 : u==='MB' ? n*1e6 : u==='KB' ? n*1e3 : n;
 }
+function resetDemosFilters() {
+  demosCurGame = 'COD4';
+  demosCat = 'All';
+  renderDemos();
+}
 function setDemosSort(col) {
   if (demoSortCol === col) { demoSortDir *= -1; }
   else { demoSortCol = col; demoSortDir = (col === 'dl' || col === 'size') ? -1 : 1; }
@@ -1240,7 +1249,9 @@ function renderDemos() {
     return `<span class="demo-fc${demosCat===c?' on':''}" onclick="event.stopPropagation();setDemosCat('${c}')">${c}<span style="font-size:11px;opacity:.5;margin-left:5px">${cnt}</span></span>`;
   }).join('');
 
-  const toolbar = `<div class="demos-toolbar">${gamePills}<span class="demos-toolbar-sep"></span>${catPills}</div>`;
+  const hasFilters = demosCurGame !== 'COD4' || demosCat !== 'All';
+  const resetBtn = hasFilters ? `<span class="demo-reset" onclick="resetDemosFilters()">✕ Reset</span>` : '';
+  const toolbar = `<div class="demos-toolbar">${gamePills}<span class="demos-toolbar-sep"></span>${catPills}${resetBtn}</div>`;
 
   let items = demosCat === 'All'
     ? [...gameItems]
