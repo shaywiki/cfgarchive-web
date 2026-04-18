@@ -1215,14 +1215,13 @@ function renderDemoRow(e) {
         <div><div class="demo-dl-lbl">Maps</div><div class="demo-pills">${mapPills||'<span style="color:var(--muted);font-size:13px">—</span>'}</div></div>
       </div>
       <div>
-        <div class="demo-dl-lbl">CFGFactory stats</div>
         <div class="demo-stats-row">
           <div class="demo-stat"><div class="stat-l">Downloads</div><div class="stat-v">${(e.downloads||0).toLocaleString()}</div></div>
           <div class="demo-stat"><div class="stat-l">Unique</div><div class="stat-v">${(e.unique_downloads||0).toLocaleString()}</div></div>
           <div class="demo-stat"><div class="stat-l">Rating</div><div class="stat-v accent">${e.rating||'—'}/10</div></div>
           <div class="demo-stat"><div class="stat-l">Votes</div><div class="stat-v">${e.votes||0}</div></div>
         </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:10px;font-family:'DM Mono',monospace">snapshot · ${SNAPSHOT_DATE}${e.upload_date ? ` · ${esc(e.upload_date)}` : ''}</div>
+        ${e.upload_date ? `<div style="font-size:11px;color:var(--muted);margin-top:10px;font-family:'DM Mono',monospace">${esc(e.upload_date)}</div>` : ''}
       </div>
       ${dl
         ? `<a class="btn-demo-dl" href="${dl}" target="_blank" onclick="event.stopPropagation()">
