@@ -416,7 +416,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
       <div class="si" data-game="CSGO" onclick="setGame(this,'CSGO')"><span class="si-label"><span class="game-dot" style="background:#d4af37"></span><span class="si-name">CSGO</span></span><span class="badge">10</span></div>
       <div class="si" data-game="FS" onclick="setGame(this,'FS')"><span class="si-label"><span class="game-dot" style="background:#7ecf4a"></span><span class="si-name">Farming Simulator</span></span><span class="badge">4</span></div>
       <div class="si" data-game="CF" onclick="setGame(this,'CF')"><span class="si-label"><span class="game-dot" style="background:#f97316"></span><span class="si-name">Crossfire</span></span><span class="badge">3</span></div>
-      <div class="sl" style="margin-top:8px">Gallery</div>
+      <div class="sl" style="margin-top:8px">Media</div>
+      <div class="si" id="si-demos" onclick="setDemos()"><span class="si-label"><span class="game-dot" style="background:rgba(255,255,255,.2)"></span><span class="si-name">Demos</span></span><span class="badge">409</span></div>
       <div class="si" id="si-gallery" onclick="setGallery()"><span class="si-label"><span class="game-dot" style="background:rgba(255,255,255,.2)"></span><span class="si-name">Screenshots</span></span><span class="badge">1,097</span></div>
       <div class="sl" style="margin-top:8px">Info</div>
       <div class="si" id="si-about" onclick="setAbout()"><span class="si-label"><span class="game-dot" style="background:rgba(255,255,255,.2)"></span><span class="si-name">About</span></span></div>
@@ -489,9 +490,9 @@ const SNAPSHOT_DATE = '13 Mar 2026'; // CFGFactory data snapshot date
 // ── PER-GAME CATEGORY TABS ────────────────────────────────────────────────────
 // These are the v2 display categories shown in the tab bar per game
 const GAME_CATS = {
-  COD4:  ['Configs','Movie Configs','Weapon Skins','Maps','Assets','Mods & Tools','Other','Demos'],
+  COD4:  ['Configs','Movie Configs','Weapon Skins','Maps','Assets','Mods & Tools','Other'],
   GTA4:  ['Vehicles','Weapons','Skins','Maps'],
-  COD2:  ['Configs','Movie Configs','Weapon Skins','Maps','Mods & Tools','Other','Demos'],
+  COD2:  ['Configs','Movie Configs','Weapon Skins','Maps','Mods & Tools','Other'],
   MW2:   ['Configs','Movie Configs','Weapon Skins','Maps','Assets','Mods & Tools','Other'],
   WAW:   ['Weapon Skins','Maps','Other'],
   BO2:   ['Movie Configs','Weapon Skins','Mods & Tools'],
@@ -529,6 +530,7 @@ let _demosLoading = false;
 let curDemoId     = null;   // expanded demo row ID
 let demosCat      = 'All';  // active demo sub-category filter
 let demoFuse      = null;
+let demosCurGame  = 'COD4';
 let galFuse       = null;
 let GALLERY_DATA    = null;  // null = not fetched
 let _galCounts      = null;  // cached game counts (set after load)
@@ -695,6 +697,7 @@ function setGame(el, g) {
   curMode = 'archive';
   setSearchPlaceholder('archive');
   document.getElementById('si-gallery').classList.remove('on');
+  document.getElementById('si-demos').classList.remove('on');
   document.getElementById('si-about').classList.remove('on');
   curGame = g;
   document.body.setAttribute('data-game', g);
@@ -743,9 +746,7 @@ function setCat(el, c) {
   activeTags.clear();
   document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('on'));
   el.classList.add('on');
-  if (c === 'Demos') { demosCat = 'All'; curDemoId = null; setSearchPlaceholder('demos'); }
-  else setSearchPlaceholder('archive');
-  document.getElementById('view-chips').style.display = c === 'Demos' ? 'none' : '';
+  setSearchPlaceholder('archive');
   goHome();
 }
 
@@ -841,15 +842,17 @@ function render() {
     renderAbout();
     return;
   }
-  if (_prevMode === 'gallery' || _prevMode === 'about') {
-    _prevMode = 'archive';
-  }
-  document.getElementById('grid-toolbar').style.display = '';
-  if (curCat === 'Demos') {
+  if (curMode === 'demos') {
+    document.getElementById('grid-toolbar').style.display = '';
     document.getElementById('tag-bar').style.display = 'none';
+    _prevMode = 'demos';
     renderDemos();
     return;
   }
+  if (_prevMode === 'gallery' || _prevMode === 'about' || _prevMode === 'demos') {
+    _prevMode = 'archive';
+  }
+  document.getElementById('grid-toolbar').style.display = '';
   document.getElementById('tag-bar').style.display = '';
 
   const q = (document.getElementById('search').value||'').trim();
@@ -1117,7 +1120,7 @@ async function loadDemos() {
     threshold: 0.35, ignoreLocation: true,
   });
   _demosLoading = false;
-  if (curCat === 'Demos') renderDemos();
+  if (curMode === 'demos') renderDemos();
 }
 
 function setDemosCat(cat) {
@@ -1198,9 +1201,15 @@ function renderDemoRow(e) {
 function renderDemos() {
   if (DEMOS_DATA === null) { loadDemos(); return; }
 
-  const gameItems = curGame === 'ALL'
+  const DEMOS_GAMES = ['All', 'COD4', 'COD2'];
+  const gameBar = `<div class="gal-filter-bar">${DEMOS_GAMES.map(g => {
+    const cnt = g === 'All' ? DEMOS_DATA.length : DEMOS_DATA.filter(e => e.game_code === g).length;
+    return `<span class="gal-pill${demosCurGame===g?' on':''}" onclick="setDemosCurGame('${g}')">${g}<span style="font-size:11px;opacity:.5;margin-left:5px">${cnt}</span></span>`;
+  }).join('')}</div>`;
+
+  const gameItems = demosCurGame === 'All'
     ? DEMOS_DATA
-    : DEMOS_DATA.filter(e => e.game_code === curGame);
+    : DEMOS_DATA.filter(e => e.game_code === demosCurGame);
 
   const catCounts = {};
   gameItems.forEach(e => { const c = normDemoCat(e.category); catCounts[c] = (catCounts[c]||0) + 1; });
@@ -1235,12 +1244,12 @@ function renderDemos() {
   const hdr = `<div class="demos-hdr"><span>Title</span><span>Author</span><span>Cat</span><span>Maps</span><span>Weapons</span><span>Size</span><span>DL</span><span></span></div>`;
 
   if (!items.length) {
-    document.getElementById('grid').innerHTML = `<div class="demos-wrap">${filterBar}<div class="demos-empty">No demos in this category</div></div>`;
+    document.getElementById('grid').innerHTML = `<div class="demos-wrap">${gameBar}${filterBar}<div class="demos-empty">No demos in this category</div></div>`;
     document.getElementById('pagination').innerHTML = '';
     return;
   }
 
-  document.getElementById('grid').innerHTML = `<div class="demos-wrap">${filterBar}${hdr}${items.map(e => renderDemoRow(e)).join('')}</div>`;
+  document.getElementById('grid').innerHTML = `<div class="demos-wrap">${gameBar}${filterBar}${hdr}${items.map(e => renderDemoRow(e)).join('')}</div>`;
   document.getElementById('pagination').innerHTML = '';
 }
 
@@ -1277,6 +1286,7 @@ function setGallery() {
   setSearchPlaceholder('gallery');
   document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
   document.getElementById('si-about').classList.remove('on');
+  document.getElementById('si-demos').classList.remove('on');
   document.getElementById('si-gallery').classList.add('on');
   document.getElementById('cat-bar').innerHTML = '';
   document.getElementById('view-entry').style.display = 'none';
@@ -1286,11 +1296,32 @@ function setGallery() {
   render();
 }
 
+function setDemos() {
+  curMode = 'demos';
+  _lastRenderMode = '';
+  setSearchPlaceholder('demos');
+  document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
+  document.getElementById('si-about').classList.remove('on');
+  document.getElementById('si-gallery').classList.remove('on');
+  document.getElementById('si-demos').classList.add('on');
+  document.getElementById('cat-bar').innerHTML = '';
+  document.getElementById('view-entry').style.display = 'none';
+  if (window.innerWidth <= 640 && document.querySelector('.sidebar').classList.contains('open')) {
+    toggleSidebar();
+  }
+  render();
+}
+function setDemosCurGame(g) {
+  demosCurGame = g;
+  demosCat = 'All';
+  renderDemos();
+}
 function setAbout() {
   curMode = 'about';
   _lastRenderMode = '';
   document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
   document.getElementById('si-gallery').classList.remove('on');
+  document.getElementById('si-demos').classList.remove('on');
   document.getElementById('si-about').classList.add('on');
   document.getElementById('cat-bar').innerHTML = '';
   document.getElementById('view-entry').style.display = 'none';
@@ -1641,6 +1672,10 @@ function goHome(push=true) {
   if (curMode === 'about') {
     curMode = 'archive';
     document.getElementById('si-about').classList.remove('on');
+  }
+  if (curMode === 'demos') {
+    curMode = 'archive';
+    document.getElementById('si-demos').classList.remove('on');
   }
   curPage = 1;
   if (push) history.pushState(null, '', location.pathname + location.search);
