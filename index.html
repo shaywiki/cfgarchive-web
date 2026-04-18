@@ -41,13 +41,12 @@ body[data-game="CSS"]{--game-accent:#10b981;--game-glow:rgba(16,185,129,.1);--ga
 body[data-game="CSGO"]{--game-accent:#d4af37;--game-glow:rgba(212,175,55,.1);--game-border:rgba(212,175,55,.22)}
 body[data-game="FS"]{--game-accent:#7ecf4a;--game-glow:rgba(126,207,74,.1);--game-border:rgba(126,207,74,.22)}
 body[data-game="CF"]{--game-accent:#f97316;--game-glow:rgba(249,115,22,.11);--game-border:rgba(249,115,22,.24)}
-html{zoom:1.2}
 html,body{height:100%;overflow:hidden}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px}
 #app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--topbar-h) 1fr;height:100%}
 
 /* ── TOPBAR ── */
-.topbar{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:0}
+.topbar{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:0}
 .logo{font-family:'DM Mono',monospace;font-size:17px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;flex-shrink:0;padding-right:16px}
 .logo-mark{width:22px;height:22px;border-radius:6px;background:var(--game-accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .3s}
 .logo-mark svg{width:12px;height:12px;fill:var(--bg)}
@@ -134,10 +133,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .tag-clear.show{display:block}
 
 /* ── GRID ── */
-.grid-scroll{overflow-y:auto;flex:1;padding:14px}
+.grid-scroll{overflow-y:auto;flex:1;padding:17px}
 .grid-scroll::-webkit-scrollbar{width:4px}
 .grid-scroll::-webkit-scrollbar-thumb{background:var(--muted);border-radius:2px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px}
 .list-mode .grid{grid-template-columns:1fr;gap:3px}
 .list-mode .card{display:grid;grid-template-columns:78px 1fr auto;border-radius:var(--r);align-items:center;transform:none!important}
 .list-mode .card-img{height:54px;width:78px;aspect-ratio:unset}
@@ -308,7 +307,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .gal-tile-label-title{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gal-tile-label-by{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gallery-empty,.gallery-loading{padding:48px;text-align:center;color:var(--muted);font-size:14px;grid-column:1/-1;font-family:'DM Mono',monospace}
-#lightbox{position:fixed;top:0;left:0;right:0;height:calc(100vh / 1.2);background:rgba(0,0,0,.93);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center}
+#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center}
 #lightbox.open{display:flex}
 .lb-close{position:absolute;top:14px;right:18px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;transition:background .15s;z-index:2}
 .lb-close:hover{background:rgba(255,255,255,.18)}
@@ -342,9 +341,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
 /* ── MOBILE (≤640px) ── */
 @media(max-width:640px){
-  html{zoom:1}
   #app{grid-template-columns:1fr}
-  .sidebar{position:fixed;top:0;bottom:0;left:0;width:240px;z-index:50;transform:translateX(-100%);transition:transform .2s ease}
+  .sidebar{position:fixed;top:0;bottom:0;left:0;width:260px;z-index:50;transform:translateX(-100%);transition:transform .2s ease}
   .sidebar.open{transform:translateX(0)}
   #sidebar-scrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:49}
   #sidebar-scrim.open{display:block}
@@ -352,7 +350,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   .view-toggle{display:none}
   .topbar-search{min-width:0}
   #view-entry{left:0}
-  #lightbox{height:100vh}
   .entry-top{grid-template-columns:1fr}
   .entry-body{grid-template-columns:1fr}
   .entry-page{padding:12px 12px 32px}
