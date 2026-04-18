@@ -25,7 +25,7 @@ var e,t;e=this,t=function(){"use strict";function e(e,t){var n=Object.keys(e);if
   --text:#d4ddd4;--text2:#8fa08f;--muted:#4a5c4a;
   --border:rgba(255,255,255,.07);--r:8px;--r-lg:12px;
   --game-accent:#3dba6f;--game-glow:rgba(61,186,111,.11);--game-border:rgba(61,186,111,.22);
-  --topbar-h:52px;--sidebar-w:192px;
+  --topbar-h:62px;--sidebar-w:230px;
 }
 body[data-game="ALL"]{--game-accent:rgba(255,255,255,.65);--game-glow:rgba(255,255,255,.05);--game-border:rgba(255,255,255,.12)}
 body[data-game="COD4"]{--game-accent:#3dba6f;--game-glow:rgba(61,186,111,.11);--game-border:rgba(61,186,111,.22)}
@@ -179,7 +179,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 #view-entry{flex-direction:column;position:fixed;inset:var(--topbar-h) 0 0 var(--sidebar-w);overflow-y:auto;background:var(--bg);z-index:10}
 #view-entry::-webkit-scrollbar{width:4px}
 #view-entry::-webkit-scrollbar-thumb{background:var(--muted);border-radius:2px}
-.entry-page{max-width:860px;margin:0 auto;padding:20px 20px 48px;width:100%}
+.entry-page{max-width:1000px;margin:0 auto;padding:20px 20px 48px;width:100%}
 .entry-back{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--text2);cursor:pointer;margin-bottom:18px;padding:5px 0;transition:color .12s;border:none;background:none}
 .entry-back:hover{color:var(--game-accent)}
 .entry-back svg{width:14px;height:14px;stroke:currentColor;fill:none}
@@ -215,7 +215,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .etag{font-size:13px;color:var(--text2);background:rgba(255,255,255,.05);border:1px solid var(--border);padding:3px 9px;border-radius:5px;cursor:pointer;transition:all .12s}
 .etag:hover{color:var(--game-accent);border-color:var(--game-border);background:var(--game-glow)}
 .etag.active{color:var(--game-accent);border-color:var(--game-accent);background:var(--game-glow)}
-.entry-body{display:grid;grid-template-columns:1fr 248px;gap:18px}
+.entry-body{display:grid;grid-template-columns:1fr 298px;gap:18px}
 .stats-section{margin-bottom:16px}
 .stats-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .stats-hdr h3{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;font-family:'DM Mono',monospace;white-space:nowrap}
