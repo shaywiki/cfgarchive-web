@@ -243,11 +243,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
 /* ── DEMOS ── */
 .demos-wrap{grid-column:1/-1;width:100%;padding:0 2px}
-.demos-filter-bar{display:flex;gap:5px;padding:2px 0 12px;flex-wrap:wrap}
+.demos-toolbar{display:flex;align-items:center;gap:6px;padding:4px 0 12px;flex-wrap:wrap}
+.demos-toolbar-sep{width:1px;height:16px;background:var(--border);margin:0 3px;flex-shrink:0}
 .demo-fc{font-size:12px;padding:4px 11px;border-radius:6px;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .12s;white-space:nowrap;font-family:'DM Mono',monospace}
 .demo-fc:hover{color:var(--text2);border-color:rgba(255,255,255,.15)}
 .demo-fc.on{border-color:var(--game-accent);color:var(--game-accent);background:var(--game-glow)}
 .demos-hdr{display:grid;grid-template-columns:1fr 110px 62px 128px 148px 65px 48px 20px;gap:8px;padding:5px 12px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--border);border-top:1px solid var(--border)}
+.demos-hdr-col{cursor:pointer;user-select:none;transition:color .12s}
+.demos-hdr-col:hover{color:var(--text2)}
+.demos-hdr-col.active{color:var(--game-accent)}
 .demo-row{border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .1s}
 .demo-row:hover{background:rgba(255,255,255,.025)}
 .demo-row.open{background:rgba(255,255,255,.03)}
@@ -531,6 +535,8 @@ let curDemoId     = null;   // expanded demo row ID
 let demosCat      = 'All';  // active demo sub-category filter
 let demoFuse      = null;
 let demosCurGame  = 'COD4';
+let demoSortCol   = 'dl';   // active demos column sort
+let demoSortDir   = -1;     // 1 = asc, -1 = desc
 let galFuse       = null;
 let GALLERY_DATA    = null;  // null = not fetched
 let _galCounts      = null;  // cached game counts (set after load)
@@ -1123,6 +1129,18 @@ async function loadDemos() {
   if (curMode === 'demos') renderDemos();
 }
 
+function parseSize(s) {
+  const m = (s||'').match(/([\d.]+)\s*(GB|MB|KB|B)/i);
+  if (!m) return 0;
+  const n = parseFloat(m[1]);
+  const u = m[2].toUpperCase();
+  return u==='GB' ? n*1e9 : u==='MB' ? n*1e6 : u==='KB' ? n*1e3 : n;
+}
+function setDemosSort(col) {
+  if (demoSortCol === col) { demoSortDir *= -1; }
+  else { demoSortCol = col; demoSortDir = (col === 'dl' || col === 'size') ? -1 : 1; }
+  renderDemos();
+}
 function setDemosCat(cat) {
   demosCat = cat;
   curDemoId = null;
@@ -1202,10 +1220,7 @@ function renderDemos() {
   if (DEMOS_DATA === null) { loadDemos(); return; }
 
   const DEMOS_GAMES = ['All', 'COD4', 'COD2'];
-  const gameBar = `<div class="gallery-filter">${DEMOS_GAMES.map(g => {
-    const cnt = g === 'All' ? DEMOS_DATA.length : DEMOS_DATA.filter(e => e.game_code === g).length;
-    return `<span class="gal-pill${demosCurGame===g?' on':''}" onclick="setDemosCurGame('${g}')">${g}<span style="font-size:11px;opacity:.5;margin-left:5px">${cnt}</span></span>`;
-  }).join('')}</div>`;
+  const DEMO_CATS   = ['All','Clips','LAN','Match','PCW','Other'];
 
   const gameItems = demosCurGame === 'All'
     ? DEMOS_DATA
@@ -1213,6 +1228,19 @@ function renderDemos() {
 
   const catCounts = {};
   gameItems.forEach(e => { const c = normDemoCat(e.category); catCounts[c] = (catCounts[c]||0) + 1; });
+
+  const gamePills = DEMOS_GAMES.map(g => {
+    const cnt = g === 'All' ? DEMOS_DATA.length : DEMOS_DATA.filter(e => e.game_code === g).length;
+    return `<span class="gal-pill${demosCurGame===g?' on':''}" onclick="setDemosCurGame('${g}')">${g}<span style="font-size:11px;opacity:.5;margin-left:5px">${cnt}</span></span>`;
+  }).join('');
+
+  const catPills = DEMO_CATS.map(c => {
+    const cnt = c === 'All' ? gameItems.length : (catCounts[c]||0);
+    if (c !== 'All' && !cnt) return '';
+    return `<span class="demo-fc${demosCat===c?' on':''}" onclick="event.stopPropagation();setDemosCat('${c}')">${c}<span style="font-size:11px;opacity:.5;margin-left:5px">${cnt}</span></span>`;
+  }).join('');
+
+  const toolbar = `<div class="demos-toolbar">${gamePills}<span class="demos-toolbar-sep"></span>${catPills}</div>`;
 
   let items = demosCat === 'All'
     ? [...gameItems]
@@ -1224,32 +1252,37 @@ function renderDemos() {
     items = items.filter(e => ids.has(e.id));
   }
 
-  if (sortBy === 'dl')          items.sort((a,b) => (b.downloads||0) - (a.downloads||0));
-  else if (sortBy === 'rating') items.sort((a,b) => (b.rating||0) - (a.rating||0));
-  else if (sortBy === 'az')     items.sort((a,b) => (a.title||'').localeCompare(b.title||''));
-  else                          items.sort((a,b) => new Date(b.upload_date||0) - new Date(a.upload_date||0));
+  items.sort((a, b) => {
+    let v = 0;
+    switch (demoSortCol) {
+      case 'title':   v = (a.title||'').localeCompare(b.title||''); break;
+      case 'author':  v = (a.author||'').localeCompare(b.author||''); break;
+      case 'cat':     v = normDemoCat(a.category).localeCompare(normDemoCat(b.category)); break;
+      case 'maps':    v = ((a.maps||'').split(',')[0]||'').trim().localeCompare(((b.maps||'').split(',')[0]||'').trim()); break;
+      case 'weapons': v = ((a.weapons||'').split(',')[0]||'').trim().localeCompare(((b.weapons||'').split(',')[0]||'').trim()); break;
+      case 'size':    v = parseSize(a.file_size) - parseSize(b.file_size); break;
+      default:        v = (a.downloads||0) - (b.downloads||0);
+    }
+    return v * demoSortDir;
+  });
 
   document.getElementById('result-count').textContent =
     `${items.length.toLocaleString()} demo${items.length !== 1 ? 's' : ''}`;
 
-  const DEMO_CATS = ['All','Clips','LAN','Match','PCW','Other'];
-  const filterBar = `<div class="demos-filter-bar">${
-    DEMO_CATS.map(c => {
-      const cnt = c === 'All' ? gameItems.length : (catCounts[c]||0);
-      if (c !== 'All' && !cnt) return '';
-      return `<span class="demo-fc${demosCat===c?' on':''}" onclick="event.stopPropagation();setDemosCat('${c}')">${c}<span style="font-size:11px;opacity:.5;margin-left:5px">${cnt}</span></span>`;
-    }).join('')
-  }</div>`;
-
-  const hdr = `<div class="demos-hdr"><span>Title</span><span>Author</span><span>Cat</span><span>Maps</span><span>Weapons</span><span>Size</span><span>DL</span><span></span></div>`;
+  function demoHdrCol(label, col) {
+    const active = demoSortCol === col;
+    const arrow  = active ? (demoSortDir === 1 ? ' ▴' : ' ▾') : '';
+    return `<span class="demos-hdr-col${active?' active':''}" onclick="setDemosSort('${col}')">${label}${arrow}</span>`;
+  }
+  const hdr = `<div class="demos-hdr">${demoHdrCol('Title','title')}${demoHdrCol('Author','author')}${demoHdrCol('Cat','cat')}${demoHdrCol('Maps','maps')}${demoHdrCol('Weapons','weapons')}${demoHdrCol('Size','size')}${demoHdrCol('DL','dl')}<span></span></div>`;
 
   if (!items.length) {
-    document.getElementById('grid').innerHTML = `<div class="demos-wrap">${gameBar}${filterBar}<div class="demos-empty">No demos in this category</div></div>`;
+    document.getElementById('grid').innerHTML = `<div class="demos-wrap">${toolbar}${hdr}<div class="demos-empty">No demos in this category</div></div>`;
     document.getElementById('pagination').innerHTML = '';
     return;
   }
 
-  document.getElementById('grid').innerHTML = `<div class="demos-wrap">${gameBar}${filterBar}${hdr}${items.map(e => renderDemoRow(e)).join('')}</div>`;
+  document.getElementById('grid').innerHTML = `<div class="demos-wrap">${toolbar}${hdr}${items.map(e => renderDemoRow(e)).join('')}</div>`;
   document.getElementById('pagination').innerHTML = '';
 }
 
