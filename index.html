@@ -745,6 +745,7 @@ function setCat(el, c) {
   el.classList.add('on');
   if (c === 'Demos') { demosCat = 'All'; curDemoId = null; setSearchPlaceholder('demos'); }
   else setSearchPlaceholder('archive');
+  document.getElementById('view-chips').style.display = c === 'Demos' ? 'none' : '';
   goHome();
 }
 
