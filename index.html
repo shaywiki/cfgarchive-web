@@ -1668,6 +1668,7 @@ function toggleSidebar() {
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 // Apply persisted view mode chip state
 document.getElementById('view-chip-tile').classList.toggle('on', cardStyle === 'tile');
 document.getElementById('view-chip-card').classList.toggle('on', cardStyle === 'card');
