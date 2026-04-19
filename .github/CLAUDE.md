@@ -60,6 +60,12 @@ Lazy-fetched on demand:
 
 `tag-freq.json` is **not** fetched — tag bar counts are computed live from the current view.
 
+## Service worker
+`sw.js` at repo root. Registered before `loadData()`. Cache name `cfgarchive-v1` — bump to invalidate on deploy.
+- Installs by pre-caching all 9 boot JSONs from `meta.cfgarchive.net`
+- Cache-first strategy for all `meta.cfgarchive.net` requests (lazy-loaded files cached on first access)
+- Old caches deleted on activate; `skipWaiting()` + `clients.claim()` for immediate take-over
+
 Merge pattern: `override[e.id] ?? e.field` — original fields always preserved as `_raw_category`.
 
 ## R2 URL construction
@@ -89,7 +95,6 @@ Apply to: `e.title`, `byline(e)`, `e.author`, `e.uploader`, `e.description`, `e.
 ## Design system
 - Dark gaming aesthetic, DM Sans + DM Mono fonts
 - Per-game accent colours via `body[data-game="X"]` CSS custom properties
-- `html { zoom: 1.2 }` baseline
 - No framework, no build step
 
 ## Gallery section
@@ -109,6 +114,9 @@ Apply to: `e.title`, `byline(e)`, `e.author`, `e.uploader`, `e.description`, `e.
 - **Row expand**: weapons pills, maps pills, stats (downloads/unique/rating/votes), upload date, download button. "CFGFactory stats" label and snapshot date not shown.
 - **State vars**: `demosCurGame`, `demosCat`, `demoSortCol`, `demoSortDir`, `curDemoId`
 - Download URL: `${DEMOS_R2}/cfgfactory/{cat}/{filename}`
+
+## Context-aware search
+`onSearch()` routes by `curMode` — archive Fuse, demo Fuse (`demoFuse`), or gallery Fuse (`galFuse`) depending on active view. `setSearchPlaceholder(mode)` clears the search input and sets the placeholder text ("Search demos…" / "Search screenshots…" / "Search configs…"). Called in `setGallery()`, `setDemos()`, `setGame()`, `setCat()`.
 
 ## Tile grid (all games)
 All games support a 5-column 16:9 tile layout. A Tiles/Cards toggle chip in the grid toolbar switches between layouts; `cardStyle` state (`'tile'` | `'card'`) is persisted to `localStorage` as `cfgarchive_cardstyle` (default: `'tile'`).
