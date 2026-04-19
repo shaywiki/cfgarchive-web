@@ -551,6 +551,7 @@ let galPageSize     = 50;
 let _galFiltered    = [];
 let _galLbIdx       = -1;
 let _galObserver    = null;
+let _arcObserver    = null;
 let _lightboxOpen   = false;
 let curMode         = 'archive'; // 'archive' | 'gallery'
 let _prevMode       = 'archive';
@@ -927,8 +928,11 @@ function render() {
     document.getElementById('grid').innerHTML =
       `<div class="gal-grid">${pageItems.map(e => {
         const thumb = _thumbCache.has(e.id) ? _thumbCache.get(e.id) : thumbUrl(e);
+        const cachedThumb = _thumbCache.has(e.id) && _thumbCache.get(e.id);
         const imgEl = thumb
-          ? `<img src="${thumb}" data-id="${e.id}" alt="${esc(e.title)}" loading="lazy" onerror="tileImgErr(this)">`
+          ? (cachedThumb
+              ? `<img src="${thumb}" data-id="${e.id}" alt="${esc(e.title)}" onerror="tileImgErr(this)">`
+              : `<img data-src="${thumb}" data-id="${e.id}" alt="${esc(e.title)}" onerror="tileImgErr(this)">`)
           : `<div class="gal-tile-ph">no image</div>`;
         const tagPills = (e.tags||[]).slice(0, 4).map(t =>
           `<span class="ctag${activeTags.has(t)?' active':''}" onclick="event.stopPropagation();openEntry('${e.id}')">${esc(t)}</span>`
@@ -945,13 +949,29 @@ function render() {
           `</div></div>`;
       }).join('')}</div>`;
     renderPagination(totalPages);
+    if (_arcObserver) _arcObserver.disconnect();
+    _arcObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const img = entry.target.querySelector('img[data-src]');
+        if (img) { img.src = img.dataset.src; img.removeAttribute('data-src'); }
+        _arcObserver.unobserve(entry.target);
+      });
+    }, { rootMargin: '200px' });
+    document.querySelectorAll('#grid .arc-tile').forEach(tile => {
+      if (!tile.querySelector('img[data-src]')) return;
+      _arcObserver.observe(tile);
+    });
     return;
   }
 
   document.getElementById('grid').innerHTML = pageItems.map(e => {
     const thumb = _thumbCache.has(e.id) ? _thumbCache.get(e.id) : thumbUrl(e);
+    const cachedThumb = _thumbCache.has(e.id) && _thumbCache.get(e.id);
     const imgEl = thumb
-      ? `<img src="${thumb}" data-id="${e.id}" alt="${esc(e.title)}" loading="lazy" onerror="cardThumbErr(this)">`
+      ? (cachedThumb
+          ? `<img src="${thumb}" data-id="${e.id}" alt="${esc(e.title)}" onerror="cardThumbErr(this)">`
+          : `<img data-src="${thumb}" data-id="${e.id}" alt="${esc(e.title)}" onerror="cardThumbErr(this)">`)
       : '';
     const ph = !thumb ? `<div class="card-img-ph">no image</div>` : '';
     const tagPills = (e.tags||[]).slice(0, 4).map(t =>
@@ -976,6 +996,19 @@ function render() {
   }).join('');
 
   renderPagination(totalPages);
+  if (_arcObserver) _arcObserver.disconnect();
+  _arcObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const img = entry.target.querySelector('img[data-src]');
+      if (img) { img.src = img.dataset.src; img.removeAttribute('data-src'); }
+      _arcObserver.unobserve(entry.target);
+    });
+  }, { rootMargin: '200px' });
+  document.querySelectorAll('#grid .card').forEach(card => {
+    if (!card.querySelector('img[data-src]')) return;
+    _arcObserver.observe(card);
+  });
 }
 
 function renderPagination(totalPages, page=curPage, setFn='setPage') {
