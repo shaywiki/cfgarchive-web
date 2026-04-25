@@ -762,6 +762,7 @@ function setCat(el, c) {
   document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('on'));
   el.classList.add('on');
   setSearchPlaceholder('archive');
+  document.getElementById('grid-scroll').scrollTop = 0;
   goHome();
 }
 
