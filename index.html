@@ -533,6 +533,7 @@ const _thumbCache = new Map(); // id → successful url (or null if all failed)
 let fuse            = null;
 let _lastRenderKey  = '';
 let _lastRenderMode = '';
+let _searchTimer    = null;
 let DEMOS_DATA    = null;   // null = not fetched, [] = empty/loaded
 let _demosLoading = false;
 let curDemoId     = null;   // expanded demo row ID
@@ -725,6 +726,7 @@ function setGame(el, g) {
     toggleSidebar();
   }
   goHome();
+  document.getElementById('grid-scroll').scrollTop = 0;
 }
 
 function buildCatBar(g) {
@@ -742,9 +744,12 @@ function buildCatBar(g) {
 }
 
 function onSearch() {
-  if (curMode === 'gallery') { galPage = 1; renderGallery(); }
-  else if (curCat === 'Demos') renderDemos();
-  else { curPage = 1; render(); }
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(() => {
+    if (curMode === 'gallery') { galPage = 1; renderGallery(); }
+    else if (curMode === 'demos') renderDemos();
+    else { curPage = 1; render(); }
+  }, 180);
 }
 function setSearchPlaceholder(mode) {
   const el = document.getElementById('search');
@@ -759,6 +764,7 @@ function setCat(el, c) {
   el.classList.add('on');
   setSearchPlaceholder('archive');
   goHome();
+  document.getElementById('grid-scroll').scrollTop = 0;
 }
 
 // ── SORT / VIEW ───────────────────────────────────────────────────────────────

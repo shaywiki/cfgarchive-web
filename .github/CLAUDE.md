@@ -9,7 +9,7 @@ Single-file SPA hosted on Cloudflare Pages. Files and metadata served from Cloud
 - **GitHub:** https://github.com/shaywiki/cfgarchive-web
 
 ## Related repo
-**cfgarchive-private** — `C:/Users/sam/Documents/Sam's Vault/02 - Active Projects/cfgarchive-private`
+**cfgarchive-private** — `https://github.com/shaywiki/cfgarchive-private` (private repo)
 - Admin SPA (`index.html`) → `admin.cfgarchive.net`
 - Live task tracker: `.github/TODO.md`
 - Full architecture: `docs/architecture.md`
@@ -21,6 +21,8 @@ Single-file SPA hosted on Cloudflare Pages. Files and metadata served from Cloud
 ## Repo structure
 ```
 index.html   ← entire site — all CSS and JS inline, no build step, no framework
+sw.js        ← service worker (pre-caches boot JSONs, cache-first for meta.cfgarchive.net)
+_headers     ← Cloudflare Pages headers (CSP, HSTS, Permissions-Policy)
 README.md
 .github/
   CLAUDE.md
