@@ -3,7 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>the CFGFactory archive</title>
+<title>cfgarchive - CFGFactory.com Archive | CoD Configs, Skins &amp; Mods</title>
+<meta name="description" content="The CFGFactory.com archive: download 13,000+ configs, movie configs, weapon skins, maps and mods for Call of Duty 4, GTA IV and more, plus demos.">
+<link rel="canonical" href="https://cfgarchive.net/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="cfgarchive">
+<meta property="og:title" content="cfgarchive - CFGFactory.com Archive | CoD Configs, Skins &amp; Mods">
+<meta property="og:description" content="The CFGFactory.com archive: download 13,000+ configs, movie configs, weapon skins, maps and mods for Call of Duty 4, GTA IV and more, plus demos.">
+<meta property="og:url" content="https://cfgarchive.net/">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"cfgarchive","alternateName":["CFG Archive","cfgarchive.net"],"url":"https://cfgarchive.net/"}</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232a352a'/%3E%3Cpath fill='%238fa08f' d='M5 7h22v5H5zM5 14h14v5H5zM5 21h18v5H5z'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -376,14 +385,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 <body data-game="COD4">
 
 <!-- Loading screen -->
-<div id="loading">
+<div id="loading" data-nosnippet>
   <div class="loading-logo">cfg<span style="opacity:.4">archive</span></div>
   <div class="loading-bar"><div class="loading-fill"></div></div>
   <div class="loading-msg" id="loading-msg">Loading archive…</div>
 </div>
 <!-- load-error removed: UI always shows, errors logged to console -->
 
-<div id="app" style="display:none">
+<div id="app" style="display:none" data-nosnippet>
   <!-- TOPBAR -->
   <div class="topbar">
     <button id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
