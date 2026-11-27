@@ -1,7 +1,7 @@
 # cfgarchive-web — Claude Code project context
 
 ## What this project is
-A permanent public archive of cfgfactory.com, preserved before shutdown on 13 March 2026.
+A permanent public archive of cfgfactory.com, based on a snapshot taken on 13 March 2026. CFGFactory.com is still online as a read-only community archive, so do not describe it as shut down.
 Single-file SPA hosted on Cloudflare Pages. Files and metadata served from Cloudflare R2 via Worker proxy.
 
 - **Live:** https://cfgarchive.net (main branch)
@@ -9,10 +9,7 @@ Single-file SPA hosted on Cloudflare Pages. Files and metadata served from Cloud
 - **GitHub:** https://github.com/shaywiki/cfgarchive-web
 
 ## Related repo
-**cfgarchive-private** — `https://github.com/shaywiki/cfgarchive-private` (private repo)
-- Admin SPA (`index.html`) → `admin.cfgarchive.net`
-- Live task tracker: `.github/TODO.md`
-- Full architecture: `docs/architecture.md`
+Admin tooling, architecture notes and the task tracker live in a separate private repository. This repo is public: keep admin, access and security details out of it.
 
 ## Branch strategy
 - `main` — production (`cfgarchive.net`), never push directly
@@ -23,6 +20,8 @@ Single-file SPA hosted on Cloudflare Pages. Files and metadata served from Cloud
 index.html   ← entire site — all CSS and JS inline, no build step, no framework
 sw.js        ← service worker (pre-caches boot JSONs, cache-first for meta.cfgarchive.net)
 _headers     ← Cloudflare Pages headers (CSP, HSTS, Permissions-Policy)
+robots.txt
+sitemap.xml
 README.md
 .github/
   CLAUDE.md
@@ -40,6 +39,9 @@ const GITHUB     = 'https://github.com/shaywiki/cfgarchive-web';
 ```
 
 `countDl(id)` — fire-and-forget `POST /count/:id` called via `onclick` on the download button. Does not block navigation. Counter is admin-only display; no count shown on the public site.
+
+## Search metadata
+`index.html` sets the title, meta description, canonical URL, Open Graph/Twitter tags and JSON-LD `WebSite` data. `#loading` and `#app` carry `data-nosnippet` so search engines do not build snippets from UI text — keep it when changing those elements.
 
 ## Data loading
 Fetches 9 files in parallel from `meta.cfgarchive.net` on load:
@@ -128,4 +130,4 @@ All games support a 5-column 16:9 tile layout. A Tiles/Cards toggle chip in the 
 - `cardStyle === 'tile'` gates the tile render path in `render()`
 
 ## Outstanding tasks
-See `cfgarchive-private/.github/TODO.md` for the live task tracker.
+Tracked in the private repository.

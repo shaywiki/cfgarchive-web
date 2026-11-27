@@ -1,8 +1,8 @@
 # cfg.archive
 
-A permanent public archive of [cfgfactory.com](https://cfgfactory.com), preserved before its shutdown on **13 March 2026**.
+A permanent public archive of [cfgfactory.com](https://cfgfactory.com), based on a snapshot taken on **13 March 2026**. CFGFactory.com is still online as a read-only community archive.
 
-CFGFactory hosted community-created content for Call of Duty 4, GTA IV, and other games — configs, weapon skins, custom models, maps, mods, cinema clips, and gallery images. At shutdown the site contained **13,804 entries** across 13 games, with approximately **94,791 files** across three content containers.
+CFGFactory hosted community-created content for Call of Duty 4, GTA IV, and other games — configs, weapon skins, custom models, maps, mods, cinema clips, and gallery images. At the time of the snapshot the site contained **13,804 entries** across 13 games, with approximately **94,791 files** across three content containers.
 
 ---
 
@@ -45,6 +45,10 @@ CFGFactory hosted community-created content for Call of Duty 4, GTA IV, and othe
 ```
 cfgarchive-web/
 ├── index.html          ← main SPA (single-file, no build step)
+├── sw.js               ← service worker (metadata caching)
+├── _headers            ← Cloudflare Pages security headers
+├── robots.txt
+├── sitemap.xml
 ├── README.md
 └── .github/
     ├── CLAUDE.md       ← Claude Code project context
@@ -52,7 +56,7 @@ cfgarchive-web/
         └── report.md   ← issue template for site reports
 ```
 
-The site is a single self-contained HTML file with no dependencies, no framework, and no build step. It fetches `index.json` from Cloudflare R2 at runtime.
+The app is a single HTML file with no framework and no build step. It fetches `index.json` from Cloudflare R2 at runtime.
 
 ---
 
@@ -82,14 +86,14 @@ https://files.cfgarchive.net/cfgdownloads/{r2_folder}/{folderName}_image_0.jpg  
 https://files.cfgarchive.net/cfgdownloads/{r2_folder}/{r2_file}                 ← download file
 ```
 
-Metadata JSON files are served via a private Worker proxy at `meta.cfgarchive.net`.
+Metadata JSON files are served via a read-only Worker proxy at `meta.cfgarchive.net`.
 
 ### Frontend — Cloudflare Pages
 
 Deployed via Cloudflare Pages connected to this repository.
 
 - Every merge to `main` → auto-deploys to production
-- No build step — Cloudflare serves `index.html` directly
+- No build step — Cloudflare serves the files in this repository directly
 
 ### Download counter — Cloudflare Workers + KV
 
