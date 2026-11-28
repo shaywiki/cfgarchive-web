@@ -1166,11 +1166,19 @@ function normDemoCat(c) {
   return 'Other';
 }
 
+// Fallback only. Must match safe() in the demo rename script (Scripts/Archived/rename_scraper.py) that
+// produced the R2 keys: keeps hyphens, no underscore collapsing, no edge trimming.
+const pySafe = (s, n) => ((s||'').trim().toLowerCase().replace(/[^\w\s-]/g,'').replace(/\s+/g,'_')).slice(0,n) || 'unknown';
+
 function demoDlUrl(e) {
   if (!e.local_file) return null;
+  // Preferred: exact R2 object key stored in demos-index.json (see scripts/add_demo_r2_path.py)
+  if (e.r2_path) return `${DEMOS_R2}/${e.r2_path.split('/').map(encodeURIComponent).join('/')}`;
+  // Fallback for an index without r2_path: rebuild the key the way rename_scraper.py named it
   const ext = e.local_file.split('.').pop();
-  const cat = normDemoCat(e.category).toLowerCase();
-  const filename = `${e.game_code.toLowerCase()}.${cat}.${safe(e.title)}.${safe(e.author)}.${ext}`;
+  // R2 folder uses the RAW category (e.g. "elevator_b"), not the normalised UI pill category
+  const cat = pySafe(e.category, 80);
+  const filename = `${pySafe(e.game_code || e.game, 80)}.${cat}.${pySafe(e.title || e.id, 60)}.${pySafe(e.frags_by || e.author, 30)}.${ext}`;
   return `${DEMOS_R2}/cfgfactory/${cat}/${filename}`;
 }
 
