@@ -21,7 +21,8 @@ const PRECACHE = [
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
-      .then(c => c.addAll(PRECACHE))
+      // Added one by one: addAll() fails the whole install if any file is missing
+      .then(c => Promise.allSettled(PRECACHE.map(url => c.add(url))))
       .then(() => self.skipWaiting())
   );
 });
