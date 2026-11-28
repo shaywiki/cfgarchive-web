@@ -44,7 +44,8 @@ CFGFactory hosted community-created content for Call of Duty 4, GTA IV, and othe
 
 ```
 cfgarchive-web/
-├── index.html          ← main SPA (single-file, no build step)
+├── index.html          ← main SPA: markup and JS (no build step)
+├── styles.css          ← all styling
 ├── sw.js               ← service worker (metadata caching)
 ├── _headers            ← Cloudflare Pages security headers
 ├── robots.txt
@@ -56,7 +57,7 @@ cfgarchive-web/
         └── report.md   ← issue template for site reports
 ```
 
-The app is a single HTML file with no framework and no build step. It fetches `index.json` from Cloudflare R2 at runtime.
+The app is one HTML file and one stylesheet, with no framework and no build step. It fetches `index.json` from Cloudflare R2 at runtime.
 
 ---
 

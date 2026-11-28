@@ -2,7 +2,7 @@
 
 ## What this project is
 A permanent public archive of cfgfactory.com, based on a snapshot taken on 13 March 2026. CFGFactory.com is still online as a read-only community archive, so do not describe it as shut down.
-Single-file SPA hosted on Cloudflare Pages. Files and metadata served from Cloudflare R2 via Worker proxy.
+Static SPA hosted on Cloudflare Pages. Files and metadata served from Cloudflare R2 via Worker proxy.
 
 - **Live:** https://cfgarchive.net (main branch)
 - **Dev preview:** https://dev.cfgarchive-web.pages.dev (dev branch)
@@ -17,7 +17,8 @@ Admin tooling, architecture notes and the task tracker live in a separate privat
 
 ## Repo structure
 ```
-index.html   ← entire site — all CSS and JS inline, no build step, no framework
+index.html   ← markup and JS inline, no build step, no framework
+styles.css   ← all styling
 sw.js        ← service worker (pre-caches boot JSONs, cache-first for meta.cfgarchive.net)
 _headers     ← Cloudflare Pages headers (CSP, HSTS, Permissions-Policy)
 robots.txt
@@ -38,7 +39,7 @@ const DEMOS_R2   = 'https://demos.cfgarchive.net';    // demo files
 const GITHUB     = 'https://github.com/shaywiki/cfgarchive-web';
 ```
 
-`countDl(id)` — fire-and-forget `POST /count/:id` called via `onclick` on the download button. Does not block navigation. Counter is admin-only display; no count shown on the public site.
+`countDl(id)` — fire-and-forget `POST /count/:id` called via `onclick` on the download button. Does not block navigation, and only fires on `cfgarchive.net`. Counter is admin-only display; no count shown on the public site.
 
 ## Search metadata
 `index.html` sets the title, meta description, canonical URL, Open Graph/Twitter tags and JSON-LD `WebSite` data. `#loading` and `#app` carry `data-nosnippet` so search engines do not build snippets from UI text — keep it when changing those elements.
@@ -65,9 +66,9 @@ Lazy-fetched on demand:
 `tag-freq.json` is **not** fetched — tag bar counts are computed live from the current view.
 
 ## Service worker
-`sw.js` at repo root. Registered before `loadData()`. Cache name `cfgarchive-v1` — bump to invalidate on deploy.
+`sw.js` at repo root. Registered before `loadData()`. Cache name `cfgarchive-v2` — bump when `index.json` is rebuilt.
 - Installs by pre-caching all 9 boot JSONs from `meta.cfgarchive.net`
-- Cache-first strategy for all `meta.cfgarchive.net` requests (lazy-loaded files cached on first access)
+- Cache-first for `index.json`; network-first with cache fallback for all other `meta.cfgarchive.net` requests; only successful responses cached
 - Old caches deleted on activate; `skipWaiting()` + `clients.claim()` for immediate take-over
 
 Merge pattern: `override[e.id] ?? e.field` — original fields always preserved as `_raw_category`.
@@ -97,7 +98,7 @@ const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g
 Apply to: `e.title`, `byline(e)`, `e.author`, `e.uploader`, `e.description`, `e.game_code`, `e._raw_category`, `e.file_size`, tag values (`t`) in both text and `onclick` attributes. Numeric/date/ID fields (`e.rating`, `e.votes`, `e.upload_date`, `e.id`) do not need escaping.
 
 ## Design system
-- Dark gaming aesthetic, DM Sans + DM Mono fonts
+- Dark-first "Tactical Vault" theme: Titillium Web, PT Sans, PT Mono
 - Per-game accent colours via `body[data-game="X"]` CSS custom properties
 - No framework, no build step
 
