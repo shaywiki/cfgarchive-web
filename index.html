@@ -629,7 +629,9 @@ function dlUrl(e) {
   return `${r2base(e)}/${e.r2_file}`;
 }
 
-function countDl(id) { fetch(`${DLC}/count/${id}`, { method: 'POST' }).catch(() => {}); }
+// Only production counts downloads, so dev previews and local runs don't skew the totals
+const COUNT_DL = ['cfgarchive.net', 'www.cfgarchive.net'].includes(location.hostname);
+function countDl(id) { if (COUNT_DL) fetch(`${DLC}/count/${id}`, { method: 'POST' }).catch(() => {}); }
 
 // folder() — legacy, used only for report issue URLs
 function folder(e) {
