@@ -42,15 +42,15 @@ var e,t;e=this,t=function(){"use strict";function e(e,t){var n=Object.keys(e);if
 <div id="app" style="display:none" data-nosnippet>
   <!-- TOPBAR -->
   <div class="topbar">
-    <button id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-    <div class="logo" onclick="goHome()">
-      <span class="logo-mark"><svg viewBox="0 0 12 12"><path d="M2 2h8v2H2zM2 5h5v2H2zM2 8h7v2H2z"/></svg></span>
-      cfg<span style="opacity:.5">archive</span>
-    </div>
+    <button type="button" class="logo" onclick="goBrowse()" aria-label="cfgarchive home">
+      <span class="logo-mark"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2h8v2H2zM2 5h5v2H2zM2 8h7v2H2z"/></svg></span>
+      <span>cfg<span class="logo-accent">archive</span></span>
+    </button>
+    <span class="source-pill">cfgfactory.com archive</span>
     <div class="topbar-centre">
       <div class="topbar-search">
         <span class="search-icon">⌕</span>
-        <input type="text" id="search" placeholder="Search configs…" oninput="onSearch()">
+        <input type="text" id="search" aria-label="Search" placeholder="Search configs…" oninput="onSearch()">
       </div>
     </div>
     <div class="topbar-right">
@@ -62,31 +62,34 @@ var e,t;e=this,t=function(){"use strict";function e(e,t){var n=Object.keys(e);if
   </div>
 
   <!-- SIDEBAR -->
-  <div class="sidebar">
+  <nav class="sidebar" aria-label="Games and sections">
     <div class="sidebar-scroll">
       <div class="sl">Games</div>
-      <div class="si" data-game="ALL" onclick="setGame(this,'ALL')"><span class="si-label"><span class="game-dot" style="background:rgba(255,255,255,.35)"></span><span class="si-name">All Games</span></span><span class="badge" id="badge-all">—</span></div>
-      <div class="si on" data-game="COD4" onclick="setGame(this,'COD4')"><span class="si-label"><span class="game-dot" style="background:#3dba6f"></span><span class="si-name">COD4</span></span><span class="badge">7,740</span></div>
-      <div class="si" data-game="GTA4" onclick="setGame(this,'GTA4')"><span class="si-label"><span class="game-dot" style="background:#f97316"></span><span class="si-name">GTA4</span></span><span class="badge">5,025</span></div>
-      <div class="si" data-game="COD2" onclick="setGame(this,'COD2')"><span class="si-label"><span class="game-dot" style="background:#e8c84a"></span><span class="si-name">COD2</span></span><span class="badge">345</span></div>
-      <div class="si" data-game="MW2" onclick="setGame(this,'MW2')"><span class="si-label"><span class="game-dot" style="background:#d4af37"></span><span class="si-name">MW2</span></span><span class="badge">239</span></div>
-      <div class="si" data-game="WAW" onclick="setGame(this,'WAW')"><span class="si-label"><span class="game-dot" style="background:#67e8f9"></span><span class="si-name">WAW</span></span><span class="badge">195</span></div>
-      <div class="si" data-game="BO2" onclick="setGame(this,'BO2')"><span class="si-label"><span class="game-dot" style="background:#f16427"></span><span class="si-name">BO2</span></span><span class="badge">82</span></div>
-      <div class="si" data-game="MW3" onclick="setGame(this,'MW3')"><span class="si-label"><span class="game-dot" style="background:#22c55e"></span><span class="si-name">MW3</span></span><span class="badge">62</span></div>
-      <div class="si" data-game="BF2" onclick="setGame(this,'BF2')"><span class="si-label"><span class="game-dot" style="background:#d43e30"></span><span class="si-name">BF2</span></span><span class="badge">42</span></div>
-      <div class="si" data-game="BO" onclick="setGame(this,'BO')"><span class="si-label"><span class="game-dot" style="background:#ef4444"></span><span class="si-name">BO</span></span><span class="badge">36</span></div>
-      <div class="si" data-game="CSS" onclick="setGame(this,'CSS')"><span class="si-label"><span class="game-dot" style="background:#d1ccb6"></span><span class="si-name">CSS</span></span><span class="badge">21</span></div>
-      <div class="si" data-game="CSGO" onclick="setGame(this,'CSGO')"><span class="si-label"><span class="game-dot" style="background:#f2a81f"></span><span class="si-name">CSGO</span></span><span class="badge">10</span></div>
-      <div class="si" data-game="FS" onclick="setGame(this,'FS')"><span class="si-label"><span class="game-dot" style="background:#7ecf4a"></span><span class="si-name">Farming Simulator</span></span><span class="badge">4</span></div>
-      <div class="si" data-game="CF" onclick="setGame(this,'CF')"><span class="si-label"><span class="game-dot" style="background:#e7a66a"></span><span class="si-name">Crossfire</span></span><span class="badge">3</span></div>
+      <button type="button" class="si" data-game="ALL" onclick="setGame('ALL')"><span class="si-label"><span class="game-dot" style="background:rgba(255,255,255,.35)"></span><span class="si-name">All Games</span></span><span class="badge">—</span></button>
+      <button type="button" class="si on" data-game="COD4" onclick="setGame('COD4')"><span class="si-label"><span class="game-dot" style="background:#3dba6f"></span><span class="si-name">COD4</span></span><span class="badge">—</span></button>
+      <button type="button" class="si" data-game="GTA4" onclick="setGame('GTA4')"><span class="si-label"><span class="game-dot" style="background:#f97316"></span><span class="si-name">GTA4</span></span><span class="badge">—</span></button>
+      <button type="button" class="si" data-game="COD2" onclick="setGame('COD2')"><span class="si-label"><span class="game-dot" style="background:#e8c84a"></span><span class="si-name">COD2</span></span><span class="badge">—</span></button>
+      <button type="button" class="si" data-game="MW2" onclick="setGame('MW2')"><span class="si-label"><span class="game-dot" style="background:#d4af37"></span><span class="si-name">MW2</span></span><span class="badge">—</span></button>
+      <button type="button" class="si" data-game="WAW" onclick="setGame('WAW')"><span class="si-label"><span class="game-dot" style="background:#67e8f9"></span><span class="si-name">WAW</span></span><span class="badge">—</span></button>
+      <button type="button" class="si" data-game="BO2" onclick="setGame('BO2')"><span class="si-label"><span class="game-dot" style="background:#f16427"></span><span class="si-name">BO2</span></span><span class="badge">—</span></button>
+      <button type="button" class="si" data-game="MW3" onclick="setGame('MW3')"><span class="si-label"><span class="game-dot" style="background:#22c55e"></span><span class="si-name">MW3</span></span><span class="badge">—</span></button>
+      <button type="button" class="si" data-game="BF2" onclick="setGame('BF2')"><span class="si-label"><span class="game-dot" style="background:#d43e30"></span><span class="si-name">BF2</span></span><span class="badge">—</span></button>
+      <button type="button" class="si" data-game="BO" onclick="setGame('BO')"><span class="si-label"><span class="game-dot" style="background:#ef4444"></span><span class="si-name">BO</span></span><span class="badge">—</span></button>
+      <button type="button" class="si" data-game="CSS" onclick="setGame('CSS')"><span class="si-label"><span class="game-dot" style="background:#d1ccb6"></span><span class="si-name">CSS</span></span><span class="badge">—</span></button>
+      <button type="button" class="si" data-game="CSGO" onclick="setGame('CSGO')"><span class="si-label"><span class="game-dot" style="background:#f2a81f"></span><span class="si-name">CSGO</span></span><span class="badge">—</span></button>
+      <button type="button" class="si" data-game="FS" onclick="setGame('FS')"><span class="si-label"><span class="game-dot" style="background:#7ecf4a"></span><span class="si-name">Farming Simulator</span></span><span class="badge">—</span></button>
+      <button type="button" class="si" data-game="CF" onclick="setGame('CF')"><span class="si-label"><span class="game-dot" style="background:#e7a66a"></span><span class="si-name">Crossfire</span></span><span class="badge">—</span></button>
       <div class="sl" style="margin-top:8px">Media</div>
-      <div class="si" id="si-demos" onclick="setDemos()"><span class="si-label"><span class="game-dot" style="background:rgba(255,255,255,.2)"></span><span class="si-name">Demos</span></span><span class="badge">409</span></div>
-      <div class="si" id="si-gallery" onclick="setGallery()"><span class="si-label"><span class="game-dot" style="background:rgba(255,255,255,.2)"></span><span class="si-name">Screenshots</span></span><span class="badge">1,097</span></div>
+      <button type="button" class="si" id="si-demos" onclick="setDemos()"><span class="si-label"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="6 4 20 12 6 20"/></svg><span class="si-name">Demos</span></span><span class="badge" id="badge-demos">409</span></button>
+      <button type="button" class="si" id="si-gallery" onclick="setGallery()"><span class="si-label"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/></svg><span class="si-name">Screenshots</span></span><span class="badge" id="badge-gallery">1,097</span></button>
       <div class="sl" style="margin-top:8px">Info</div>
-      <div class="si" id="si-about" onclick="setAbout()"><span class="si-label"><span class="game-dot" style="background:rgba(255,255,255,.2)"></span><span class="si-name">About</span></span></div>
+      <button type="button" class="si" id="si-about" onclick="setAbout()"><span class="si-label"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg><span class="si-name">About</span></span></button>
     </div>
     <div class="sidebar-footer">cfgfactory.com archive<br>@shaypex</div>
-  </div>
+  </nav>
+
+  <!-- PHONE: GAME CHIPS (filled from the sidebar list) -->
+  <nav class="game-chips" id="game-chips" aria-label="Games"></nav>
 
   <!-- MAIN -->
   <div class="main">
@@ -138,7 +141,12 @@ var e,t;e=this,t=function(){"use strict";function e(e,t){var n=Object.keys(e);if
     </div>
   </div>
 
-  <div id="sidebar-scrim" onclick="toggleSidebar()"></div>
+  <nav class="bottom-nav" aria-label="Sections">
+    <button type="button" data-mode="archive" onclick="goBrowse()"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Browse</span></button>
+    <button type="button" data-mode="demos" onclick="setDemos()"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="6 4 20 12 6 20"/></svg><span>Demos</span></button>
+    <button type="button" data-mode="gallery" onclick="setGallery()"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/></svg><span>Shots</span></button>
+    <button type="button" data-mode="about" onclick="setAbout()"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg><span>About</span></button>
+  </nav>
 </div>
 
 <script>
@@ -336,7 +344,7 @@ async function loadData() {
         downloads:        statsV2?.[e.id]?.downloads       ?? e.downloads,
         unique_downloads: statsV2?.[e.id]?.unique_downloads ?? e.unique_downloads,
       })).filter(e => e.title && e.title.trim() && !(hiddenV2 && hiddenV2[e.id]));
-      document.getElementById('badge-all').textContent = DATA.length.toLocaleString();
+      buildNavCounts();
 
       setMsg('Building search index…');
       fuse = new Fuse(DATA, {
@@ -362,26 +370,64 @@ async function loadData() {
   }
 }
 
+// ── NAVIGATION ─────────────────────────────────────────────────────────────
+// Sidebar, phone game chips and bottom nav all reflect curMode and curGame.
+function syncNav() {
+  const mark = (el, on) => {
+    el.classList.toggle('on', on);
+    if (on) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
+  };
+  document.querySelectorAll('[data-game]:not(body)').forEach(el => mark(el, curMode === 'archive' && el.dataset.game === curGame));
+  ['demos','gallery','about'].forEach(m => mark(document.getElementById('si-' + m), curMode === m));
+  document.querySelectorAll('.bottom-nav button').forEach(el => mark(el, el.dataset.mode === curMode));
+  const chips = document.getElementById('game-chips');
+  chips.classList.toggle('hidden', curMode !== 'archive');
+  const on = chips.querySelector('.on');
+  if (on && chips.offsetParent) chips.scrollLeft = on.offsetLeft - (chips.clientWidth - on.offsetWidth) / 2;
+}
+
+// Per-game counts come from the loaded data, so hidden entries are never counted
+function buildNavCounts() {
+  const counts = {};
+  DATA.forEach(e => { counts[e.game_code] = (counts[e.game_code] || 0) + 1; });
+  const chips = document.getElementById('game-chips');
+  chips.innerHTML = '';
+  document.querySelectorAll('.sidebar [data-game]').forEach(el => {
+    const g = el.dataset.game;
+    const n = (g === 'ALL' ? DATA.length : counts[g] || 0).toLocaleString();
+    el.querySelector('.badge').textContent = n;
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.dataset.game = g;
+    chip.textContent = el.querySelector('.si-name').textContent;
+    const c = document.createElement('span');
+    c.textContent = n;
+    chip.appendChild(c);
+    chip.onclick = () => setGame(g);
+    chips.appendChild(chip);
+  });
+}
+
+// Drop an open entry (and its #entry/ link) before showing another section
+function leaveEntry() {
+  if (location.hash) history.pushState(null, '', location.pathname + location.search);
+  document.getElementById('view-entry').style.display = 'none';
+}
+
+function goBrowse() { setGame(curGame); }
+
 // ── GAME / CAT ────────────────────────────────────────────────────────────────
-function setGame(el, g) {
+function setGame(g) {
   curMode = 'archive';
   setSearchPlaceholder('archive');
-  document.getElementById('si-gallery').classList.remove('on');
-  document.getElementById('si-demos').classList.remove('on');
-  document.getElementById('si-about').classList.remove('on');
   curGame = g;
   document.body.setAttribute('data-game', g);
-  document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
-  el.classList.add('on');
   activeTags.clear();
   curCat = 'All';
   if (g === 'ALL') {
     document.getElementById('cat-bar').innerHTML = '';
   } else {
     buildCatBar(g);
-  }
-  if (window.innerWidth <= 640 && document.querySelector('.sidebar').classList.contains('open')) {
-    toggleSidebar();
   }
   goHome();
   document.getElementById('grid-scroll').scrollTop = 0;
@@ -499,6 +545,7 @@ function clearTags() {
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
+  syncNav();
   if (curMode === 'gallery') {
     if (_prevMode !== 'gallery') {
       document.getElementById('grid-toolbar').style.display = 'none';
@@ -1043,15 +1090,8 @@ function setGallery() {
   curMode = 'gallery';
   _lastRenderMode = '';
   setSearchPlaceholder('gallery');
-  document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
-  document.getElementById('si-about').classList.remove('on');
-  document.getElementById('si-demos').classList.remove('on');
-  document.getElementById('si-gallery').classList.add('on');
   document.getElementById('cat-bar').innerHTML = '';
-  document.getElementById('view-entry').style.display = 'none';
-  if (window.innerWidth <= 640 && document.querySelector('.sidebar').classList.contains('open')) {
-    toggleSidebar();
-  }
+  leaveEntry();
   render();
 }
 
@@ -1059,15 +1099,8 @@ function setDemos() {
   curMode = 'demos';
   _lastRenderMode = '';
   setSearchPlaceholder('demos');
-  document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
-  document.getElementById('si-about').classList.remove('on');
-  document.getElementById('si-gallery').classList.remove('on');
-  document.getElementById('si-demos').classList.add('on');
   document.getElementById('cat-bar').innerHTML = '';
-  document.getElementById('view-entry').style.display = 'none';
-  if (window.innerWidth <= 640 && document.querySelector('.sidebar').classList.contains('open')) {
-    toggleSidebar();
-  }
+  leaveEntry();
   render();
 }
 function setDemosCurGame(g) {
@@ -1078,15 +1111,8 @@ function setDemosCurGame(g) {
 function setAbout() {
   curMode = 'about';
   _lastRenderMode = '';
-  document.querySelectorAll('.si[data-game]').forEach(n => n.classList.remove('on'));
-  document.getElementById('si-gallery').classList.remove('on');
-  document.getElementById('si-demos').classList.remove('on');
-  document.getElementById('si-about').classList.add('on');
   document.getElementById('cat-bar').innerHTML = '';
-  document.getElementById('view-entry').style.display = 'none';
-  if (window.innerWidth <= 640 && document.querySelector('.sidebar').classList.contains('open')) {
-    toggleSidebar();
-  }
+  leaveEntry();
   render();
 }
 
@@ -1172,6 +1198,7 @@ async function loadGallery() {
   GALLERY_DATA = entries
     .filter(e => e.has_images && e.local_images && e.local_images.length > 0 && !(hiddenGallery && hiddenGallery[e.id]))
     .map(e => ({ ...e, _game: GAL_GAME_NORM[e.game_code] || e.game_code }));
+  document.getElementById('badge-gallery').textContent = GALLERY_DATA.length.toLocaleString();
   _galCounts = {};
   GALLERY_DATA.forEach(e => { _galCounts[e._game] = (_galCounts[e._game]||0) + 1; });
   galFuse = new Fuse(GALLERY_DATA, {
@@ -1427,14 +1454,7 @@ function closeEntry() {
 }
 
 function goHome(push=true) {
-  if (curMode === 'about') {
-    curMode = 'archive';
-    document.getElementById('si-about').classList.remove('on');
-  }
-  if (curMode === 'demos') {
-    curMode = 'archive';
-    document.getElementById('si-demos').classList.remove('on');
-  }
+  if (curMode === 'about' || curMode === 'demos') curMode = 'archive';
   curPage = 1;
   if (push) history.pushState(null, '', location.pathname + location.search);
   document.getElementById('view-entry').style.display = 'none';
@@ -1453,11 +1473,10 @@ function handleHash() {
       if (e.game_code !== curGame) {
         curGame = e.game_code;
         document.body.setAttribute('data-game', curGame);
-        document.querySelectorAll('.si[data-game]').forEach(n =>
-          n.classList.toggle('on', n.dataset.game === curGame)
-        );
         buildCatBar(curGame);
       }
+      curMode = 'archive';
+      syncNav();
       openEntry(id, false);
     } else {
       goHome(false);
@@ -1475,12 +1494,6 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'ArrowLeft')  lightboxNav(-1);
   else if (e.key === 'ArrowRight') lightboxNav(1);
 });
-
-// ── SIDEBAR TOGGLE (mobile) ───────────────────────────────────────────────────
-function toggleSidebar() {
-  const open = document.querySelector('.sidebar').classList.toggle('open');
-  document.getElementById('sidebar-scrim').classList.toggle('open', open);
-}
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');

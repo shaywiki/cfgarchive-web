@@ -112,7 +112,7 @@ Apply to: `e.title`, `byline(e)`, `e.author`, `e.uploader`, `e.description`, `e.
 - Image URL: `${GALLERY_R2}/{local_images[0]}`
 
 ## Demos section
-`demos-index.json` lazy-fetched on first Demos sidebar click. Demos is a sidebar section under a "Media" heading (alongside Gallery) — **not** a category tab. `curMode = 'demos'` sentinel.
+`demos-index.json` lazy-fetched on first Demos sidebar click. Demos is a sidebar section under a "Media" heading (alongside Gallery) and a bottom-nav item on phones — **not** a category tab. `curMode = 'demos'` sentinel.
 
 - **Toolbar**: game pills (All/COD4/COD2, default All) + separator + category pills (All/Clips/LAN/Match/PCW/Other) + optional reset button — populated into `#demos-pills-slot` div inside `#grid-toolbar`. Sort chips and page-size chips hidden in demos mode; Tiles/Cards toggle also hidden.
 - **Table columns**: Title, Author, Game, Cat, Maps, Weapons, Size, DL — all 8 clickable to sort with ▴/▾ indicator. State: `demoSortCol` / `demoSortDir`. Independent of the global `sortBy`.

@@ -69,7 +69,7 @@ The app is one HTML file and one stylesheet, with no framework and no build step
 - **Gallery** — 5-column screenshot grid with lightbox, sourced from `cfggallery` R2 bucket
 - **Demos** — inline expandable demo list with weapon/map details, sourced from `cfgdemos` R2 bucket
 - Download counter tracks per-entry downloads since archive launch (separate from CFGFactory stats)
-- Mobile responsive — sidebar overlay, hamburger toggle, 2-column grid at ≤640px
+- Mobile responsive — game chips, bottom navigation, 2-column grid at ≤640px
 
 ### Storage — Cloudflare R2
 
