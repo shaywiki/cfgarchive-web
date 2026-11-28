@@ -117,7 +117,7 @@ Apply to: `e.title`, `byline(e)`, `e.author`, `e.uploader`, `e.description`, `e.
 - **Table columns**: Title, Author, Game, Cat, Maps, Weapons, Size, DL — all 8 clickable to sort with ▴/▾ indicator. State: `demoSortCol` / `demoSortDir`. Independent of the global `sortBy`.
 - **Row expand**: weapons pills, maps pills, stats (downloads/unique/rating/votes), upload date, download button. "CFGFactory stats" label and snapshot date not shown.
 - **State vars**: `demosCurGame`, `demosCat`, `demoSortCol`, `demoSortDir`, `curDemoId`
-- Download URL: `${DEMOS_R2}/cfgfactory/{cat}/{filename}`
+- Download URL: `${DEMOS_R2}/${e.r2_path}` (exact R2 key stored per entry in `demos-index.json`, added by `cfgarchive-private/scripts/add_demo_r2_path.py`). If `r2_path` is missing, `demoDlUrl()` falls back to rebuilding `cfgfactory/{raw_cat}/{game}.{raw_cat}.{title}.{frags_by}.{ext}` with rename_scraper.py's `safe()` rules
 
 ## Context-aware search
 `onSearch()` routes by `curMode` — archive Fuse, demo Fuse (`demoFuse`), or gallery Fuse (`galFuse`) depending on active view. `setSearchPlaceholder(mode)` clears the search input and sets the placeholder text ("Search demos…" / "Search screenshots…" / "Search configs…"). Called in `setGallery()`, `setDemos()`, `setGame()`, `setCat()`.
